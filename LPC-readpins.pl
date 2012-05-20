@@ -90,6 +90,7 @@ while (<>) {
         #$p =~ s, +,/,g;
         $r =~ s/ +//g;
         $t =~ s/^ +//;
+        $f =~ s/\s*--$//;
 
         pin_eject;
         pin_start $s, $p, $r, $t, $f;
@@ -100,7 +101,10 @@ while (<>) {
         my $r = $1;
         my $t = $2;
         my $f = $3;
+
         $t =~ s/^ +//;
+        $f =~ s/\s*--$//;
+
         pin_func $r, $t, $f;
         next;
     }
