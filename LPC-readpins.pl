@@ -27,20 +27,29 @@ sub pin_start($$$$$)
     $pin_item = {
         symbol => $_[0],
         pins => $_[1],
-        reset => $_[2],
-        type => $_[3],
-        func => $_[4]
+        funcs => [ { reset => $_[2], type => $_[3], func => $_[4] } ]
     }
 }
 
 sub pin_eject()
 {
     return  unless  $pin_item;
-    $pin_item->{pins} = join '/', @{$pin_item->{pins}};
-    print
-        join ' ',
-        map { uc($_) . "=$pin_item->{$_}"} qw/symbol pins reset type func/;
+    print "SYMBOL=$pin_item->{symbol}";
+    print " PINS=", join '/', @{$pin_item->{pins}};
+    print " RESET=", $pin_item->{funcs}[0]{reset};
+    print " TYPE=", $pin_item->{funcs}[0]{type};
+    print " FUNC=", $pin_item->{funcs}[0]{func};
     print "\n";
+
+    my @f = @{$pin_item->{funcs}};
+    shift @f;
+    for (@f) {
+        print " RESET2=", $_->{reset};
+        print " TYPE=", $_->{type};
+        print " FUNC=", $_->{func};
+        print "\n";
+    }
+
     $pin_item = undef;
 }
 
@@ -52,6 +61,12 @@ sub pin_pins(@)
         last  unless  @p;
         $_ .= shift @p  if  /,$/  or  /\d{3}/  and  $p[0] =~ /^,/;
     }
+}
+
+sub pin_func(@)
+{
+    push @{$pin_item->{funcs}}, {
+        reset => $_[0], type => $_[1], func => $_[2] };
 }
 
 
@@ -80,13 +95,12 @@ while (<>) {
         next;
     }
 
-    if (/^ {20,}($reset2?)($type) *($func).*/) {
+    if ($pin_item  and  /^ {20,}($reset2?)($type) *($func).*/) {
         my $r = $1;
         my $t = $2;
         my $f = $3;
         $t =~ s/^ +//;
-        pin_eject;
-        print " RESET2=$r TYPE=$t FUNC=$f\n";
+        pin_func $r, $t, $f;
         next;
     }
 
@@ -97,6 +111,7 @@ while (<>) {
         next;
     }
 
+    next  if  / {20}/;
     next  if  /^$/;
 
     pin_eject;
