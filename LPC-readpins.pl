@@ -20,6 +20,7 @@ my $func = qr{[A-Z0-9_/]+(?:\[\d+\])?(?:\s*\([A-Z_]+\))?\s*--}i;
 my $in_table3;
 my $pin_item;
 
+
 sub pin_start($$$$$)
 {
     $pin_item = {
@@ -30,6 +31,7 @@ sub pin_start($$$$$)
     }
 }
 
+
 sub pin_eject()
 {
     return  unless  $pin_item;
@@ -38,6 +40,9 @@ sub pin_eject()
     print " RESET=", $pin_item->{reset};
     print " FUNCS=", scalar(@{$pin_item->{funcs}});
     print "\n";
+
+    $pin_item->{funcs}[0]{func} = $pin_item->{symbol}  if
+        $pin_item->{funcs}[0]{func} eq '';
 
     for (@{$pin_item->{funcs}}) {
         print " TYPE=", $_->{type};
@@ -48,6 +53,7 @@ sub pin_eject()
     $pin_item = undef;
 }
 
+
 sub pin_pins(@)
 {
     my @p = @_;
@@ -57,6 +63,7 @@ sub pin_pins(@)
         $_ .= shift @p  if  /,$/  or  /\d{3}/  and  $p[0] =~ /^,/;
     }
 }
+
 
 sub pin_func(@)
 {
