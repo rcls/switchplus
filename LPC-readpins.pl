@@ -27,7 +27,8 @@ sub pin_start($$$$$)
     $pin_item = {
         symbol => $_[0],
         pins => $_[1],
-        funcs => [ { reset => $_[2], type => $_[3], func => $_[4] } ]
+        reset => $_[2],
+        funcs => [ { type => $_[3], func => $_[4] } ]
     }
 }
 
@@ -37,7 +38,7 @@ sub pin_eject()
 #    print scalar(@{$pin_item->{funcs}}), " ";
     print "SYMBOL=$pin_item->{symbol}";
     print " PINS=", join '/', @{$pin_item->{pins}};
-    print " RESET=", $pin_item->{funcs}[0]{reset};
+    print " RESET=", $pin_item->{reset};
     print " TYPE=", $pin_item->{funcs}[0]{type};
     print " FUNC=", $pin_item->{funcs}[0]{func};
     print "\n";
@@ -45,7 +46,7 @@ sub pin_eject()
     my @f = @{$pin_item->{funcs}};
     shift @f;
     for (@f) {
-        print " RESET2=", $_->{reset};
+        print " RESET2=";
         print " TYPE=", $_->{type};
         print " FUNC=", $_->{func};
         print "\n";
@@ -66,8 +67,8 @@ sub pin_pins(@)
 
 sub pin_func(@)
 {
-    push @{$pin_item->{funcs}}, {
-        reset => $_[0], type => $_[1], func => $_[2] };
+    $pin_item->{reset} .= $_[0];
+    push @{$pin_item->{funcs}}, { type => $_[1], func => $_[2] };
 }
 
 
