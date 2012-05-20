@@ -20,8 +20,6 @@ my $func = qr{[A-Z0-9_/]+(?:\[\d+\])?(?:\s*\([A-Z_]+\))?\s*--}i;
 my $in_table3;
 my $pin_item;
 
-'CLK0' =~ /^$symbol$/  or  die;
-
 sub pin_start($$$$$)
 {
     $pin_item = {
@@ -35,18 +33,13 @@ sub pin_start($$$$$)
 sub pin_eject()
 {
     return  unless  $pin_item;
-#    print scalar(@{$pin_item->{funcs}}), " ";
     print "SYMBOL=$pin_item->{symbol}";
     print " PINS=", join '/', @{$pin_item->{pins}};
     print " RESET=", $pin_item->{reset};
-    print " TYPE=", $pin_item->{funcs}[0]{type};
-    print " FUNC=", $pin_item->{funcs}[0]{func};
+    print " FUNCS=", scalar(@{$pin_item->{funcs}});
     print "\n";
 
-    my @f = @{$pin_item->{funcs}};
-    shift @f;
-    for (@f) {
-        print " RESET2=";
+    for (@{$pin_item->{funcs}}) {
         print " TYPE=", $_->{type};
         print " FUNC=", $_->{func};
         print "\n";
