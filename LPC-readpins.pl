@@ -20,6 +20,8 @@ my $func = qr{[A-Z0-9_/]+(?:\[\d+\])?(?:\s*\([A-Z_]+\))?\s*--}i;
 my $in_table3;
 my $pin_item;
 
+my @pins;
+
 
 sub pin_start($$$$$)
 {
@@ -28,29 +30,35 @@ sub pin_start($$$$$)
         pins => $_[1],
         reset => $_[2],
         funcs => [ { type => $_[3], func => $_[4] } ]
-    }
+    };
+    push @pins, $pin_item;
 }
 
 
 sub pin_eject()
 {
-    return  unless  $pin_item;
-    print "SYMBOL=$pin_item->{symbol}";
-    print " PINS=", join '/', @{$pin_item->{pins}};
-    print " RESET=", $pin_item->{reset};
-    print " FUNCS=", scalar(@{$pin_item->{funcs}});
+    $pin_item->{funcs}[0]{func} = $pin_item->{symbol}  if
+        $pin_item  and  $pin_item->{funcs}[0]{func} eq '';
+
+    $pin_item = undef;
+}
+
+
+sub pin_print($)
+{
+    my $p = $_[0];
+    print "SYMBOL=$p->{symbol}";
+    print " PINS=", join '/', @{$p->{pins}};
+    print " RESET=", $p->{reset};
+    print " FUNCS=", scalar(@{$p->{funcs}});
     print "\n";
 
-    $pin_item->{funcs}[0]{func} = $pin_item->{symbol}  if
-        $pin_item->{funcs}[0]{func} eq '';
-
-    for (@{$pin_item->{funcs}}) {
+    for (@{$p->{funcs}}) {
         print " TYPE=", $_->{type};
         print " FUNC=", $_->{func};
         print "\n";
     }
 
-    $pin_item = undef;
 }
 
 
@@ -124,3 +132,6 @@ while (<>) {
 
     pin_eject;
 }
+
+
+pin_print $_  for  @pins;
