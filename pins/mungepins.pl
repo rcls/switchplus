@@ -12,7 +12,7 @@ my %labels;
 my %label_count;
 
 while (<$PINS>) {
-    die  unless  /^(\d[,\d]*) (\w.*)/;
+    die  unless  /^(\d[,\d]*) (.*)/;
 
     my $pins = $1;
     my $label = $2;
@@ -62,23 +62,25 @@ while (<$SYMBOL>) {
     $label = $pins{$seq}  if
         $label eq 'unknown'  and  $seq ne '0'  and  exists $pins{$seq};
 
-    die  if  $seq ne $number;
+    die  "seq $seq v. number $number"  if  $seq ne $number;
 
-    die  if  $number  eq  '0';
-    die  if  $label  eq  'unknown';
+    die  '0'  if  $number  eq  '0';
+    die  unless  exists $pins{$seq};
+    die  "$label v. $pins{$seq}"  if  $label  ne  $pins{$seq};
+    die  'unknown'  if  $label  eq  'unknown';
 
-    die  if
+    die  "$seq v. $label"  if
         $seq ne '0'  and  $label ne 'unknown'  and  exists $pins{seq}  and
         $label ne $pins{seq};
 
-    die  if
+    die  "$seq v. $label"  if
         $seq ne '0'  and  $label ne 'unknown'  and  exists $pins{seq}  and
         $seq ne $labels{label};
 
     $text =~ s/^pinseq=.*/pinseq=$seq/m;
     $text =~ s/^pinnumber=.*/pinnumber=$number/m;
     $text =~ s/^pinlabel=.*/pinlabel=$label/m;
-#    print "BLOCK....\n";
+#    print "BLOCK.... $seq $number $label\n";
     print $text;
     $text = '';
 }
