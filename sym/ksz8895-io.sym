@@ -7,9 +7,9 @@ pintype=unknown
 T 455 5195 5 10 1 1 0 0 1
 pinlabel=MDC
 T 305 5245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=107
 T 100 5200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=107
 }
 P 100 4900 400 4900 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 455 4895 5 10 1 1 0 0 1
 pinlabel=MDIO
 T 305 4945 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=108
 T 100 4900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=108
 }
 P 100 4500 400 4500 1 0 0
 {
@@ -29,31 +29,31 @@ pintype=unknown
 T 455 4495 5 10 1 1 0 0 1
 pinlabel=SPIQ
 T 305 4545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=109
 T 100 4500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=109
 }
 P 100 4100 400 4100 1 0 0
 {
 T 100 4100 5 10 0 0 0 0 1
 pintype=unknown
 T 455 4095 5 10 1 1 0 0 1
-pinlabel=SPIC/SCL
+pinlabel=SCL
 T 305 4145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=110
 T 100 4100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=110
 }
 P 100 3800 400 3800 1 0 0
 {
 T 100 3800 5 10 0 0 0 0 1
 pintype=unknown
 T 455 3795 5 10 1 1 0 0 1
-pinlabel=SPID/SDA
+pinlabel=SDA
 T 305 3845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=111
 T 100 3800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=111
 }
 P 100 3400 400 3400 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 455 3395 5 10 1 1 0 0 1
 pinlabel=SPIS_N
 T 305 3445 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=112
 T 100 3400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=112
 }
 P 100 3000 400 3000 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 455 2995 5 10 1 1 0 0 1
 pinlabel=PS1
 T 305 3045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=113
 T 100 3000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=113
 }
 P 100 2700 400 2700 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 455 2695 5 10 1 1 0 0 1
 pinlabel=PS0
 T 305 2745 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=114
 T 100 2700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=114
 }
 P 100 2300 400 2300 1 0 0
 {
@@ -95,9 +95,9 @@ pintype=unknown
 T 455 2295 5 10 1 1 0 0 1
 pinlabel=RST_N
 T 305 2345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=115
 T 100 2300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=115
 }
 P 100 1900 400 1900 1 0 0
 {
@@ -106,9 +106,9 @@ pintype=unknown
 T 455 1895 5 10 1 1 0 0 1
 pinlabel=TESTEN
 T 305 1945 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=118
 T 100 1900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=118
 }
 P 100 1600 400 1600 1 0 0
 {
@@ -117,9 +117,9 @@ pintype=unknown
 T 455 1595 5 10 1 1 0 0 1
 pinlabel=SCANEN
 T 305 1645 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=119
 T 100 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=119
 }
 P 100 1200 400 1200 1 0 0
 {
@@ -130,7 +130,7 @@ pinlabel=NC
 T 305 1245 5 10 1 1 0 6 1
 pinnumber=120
 T 100 1200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=120
 }
 P 100 900 400 900 1 0 0
 {
@@ -141,7 +141,7 @@ pinlabel=NC
 T 305 945 5 10 1 1 0 6 1
 pinnumber=123
 T 100 900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=123
 }
 P 100 600 400 600 1 0 0
 {
@@ -152,7 +152,7 @@ pinlabel=NC
 T 305 645 5 10 1 1 0 6 1
 pinnumber=124
 T 100 600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=124
 }
 P 100 200 400 200 1 0 0
 {
@@ -161,9 +161,9 @@ pintype=unknown
 T 455 195 5 10 1 1 0 0 1
 pinlabel=TEST2
 T 305 245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=128
 T 100 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=128
 }
 P 2800 5200 2500 5200 1 0 0
 {
@@ -174,7 +174,7 @@ pinlabel=SCONF0
 T 2595 5245 5 10 1 1 0 0 1
 pinnumber=87
 T 2800 5200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=87
 }
 P 2800 4900 2500 4900 1 0 0
 {
@@ -183,9 +183,9 @@ pintype=unknown
 T 2445 4895 5 10 1 1 0 6 1
 pinlabel=SCONF1
 T 2595 4945 5 10 1 1 0 0 1
-pinnumber=88
+pinnumber=86
 T 2800 4900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=86
 }
 P 2800 4500 2500 4500 1 0 0
 {
@@ -194,9 +194,9 @@ pintype=unknown
 T 2445 4495 5 10 1 1 0 6 1
 pinlabel=INTR_N
 T 2595 4545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=48
 T 2800 4500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=48
 }
 P 2800 4200 2500 4200 1 0 0
 {
@@ -205,9 +205,9 @@ pintype=unknown
 T 2445 4195 5 10 1 1 0 6 1
 pinlabel=PWRDN_N
 T 2595 4245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=47
 T 2800 4200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=47
 }
 P 2800 3800 2500 3800 1 0 0
 {
@@ -218,7 +218,7 @@ pinlabel=NC
 T 2595 3845 5 10 1 1 0 0 1
 pinnumber=46
 T 2800 3800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=46
 }
 P 2800 3500 2500 3500 1 0 0
 {
@@ -229,7 +229,7 @@ pinlabel=NC
 T 2595 3545 5 10 1 1 0 0 1
 pinnumber=45
 T 2800 3500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=45
 }
 P 2800 3200 2500 3200 1 0 0
 {
@@ -240,7 +240,7 @@ pinlabel=NC
 T 2595 3245 5 10 1 1 0 0 1
 pinnumber=44
 T 2800 3200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=44
 }
 P 2800 2900 2500 2900 1 0 0
 {
@@ -251,7 +251,7 @@ pinlabel=NC
 T 2595 2945 5 10 1 1 0 0 1
 pinnumber=43
 T 2800 2900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=43
 }
 P 2800 2600 2500 2600 1 0 0
 {
@@ -262,7 +262,7 @@ pinlabel=NC
 T 2595 2645 5 10 1 1 0 0 1
 pinnumber=42
 T 2800 2600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=42
 }
 P 2800 2300 2500 2300 1 0 0
 {
@@ -273,7 +273,7 @@ pinlabel=NC
 T 2595 2345 5 10 1 1 0 0 1
 pinnumber=41
 T 2800 2300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=41
 }
 P 2800 2000 2500 2000 1 0 0
 {
@@ -284,29 +284,29 @@ pinlabel=NC
 T 2595 2045 5 10 1 1 0 0 1
 pinnumber=40
 T 2800 2000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=40
 }
 P 2800 1600 2500 1600 1 0 0
 {
 T 2800 1600 5 10 0 0 0 0 1
 pintype=unknown
 T 2445 1595 5 10 1 1 0 6 1
-pinlabel=FXSD4
+pinlabel=NC
 T 2595 1645 5 10 1 1 0 0 1
 pinnumber=39
 T 2800 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=39
 }
 P 2800 1300 2500 1300 1 0 0
 {
 T 2800 1300 5 10 0 0 0 0 1
 pintype=unknown
 T 2445 1295 5 10 1 1 0 6 1
-pinlabel=FXSD3
+pinlabel=NC
 T 2595 1345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=38
 T 2800 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=38
 }
 P 2800 900 2500 900 1 0 0
 {
@@ -315,9 +315,9 @@ pintype=MSIXDIS
 T 2445 895 5 10 1 1 0 6 1
 pinlabel=MDIXDIS
 T 2595 945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=1
 T 2800 900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=1
 }
 T 400 5500 8 10 1 1 0 0 1
 value=KSZ8895

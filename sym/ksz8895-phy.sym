@@ -185,7 +185,7 @@ pinlabel=TXM1
 T 1395 1345 5 10 1 1 0 0 1
 pinnumber=8
 T 1600 1300 5 10 0 0 0 0 1
-pinseq=7
+pinseq=8
 }
 P 1600 1000 1300 1000 1 0 0
 {
