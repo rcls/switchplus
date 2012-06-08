@@ -3,23 +3,24 @@
 use strict;
 use warnings;
 
+my $verb = shift @ARGV;
+
+# Regexes for scraping the pdftotext output...
 my $symbol = qr{\b[A-Z][0-9A-Z_/]+|-};
-
 my $pin = qr/\bx\b|\b[A-Z]?[1-9]\d*\b,?|[-,]/;
-
 my $notes = qr/(?: +\[[1-9]\d*\])?/;
-
 my $reset = qr/\b[IO];(?: *F\b| *IA\b| *P[UD]\b)?|-?/;
-
 my $reset2 = qr/(?:\bP[UD]\b)?/;
-
 my $type = qr{(?: +(?:\bI/O\b|\b[IO]\b|-))?};
-
 my $func = qr{[A-Z0-9_/]+(?:\[\d+\])?(?:\s*\([A-Z_]+\))?\s*--}i;
 
+# Flag for the pin table.
 my $in_table3;
+
+# Current item.
 my $pin_item;
 
+# All items.
 my @pins;
 
 # Which EMC channel are we going to use?
@@ -49,24 +50,6 @@ sub pin_eject()
         $pin_item->{funcs}[0]{func} eq '';
 
     $pin_item = undef;
-}
-
-
-sub pin_dump($)
-{
-    my $p = $_[0];
-    print "SYMBOL=$p->{symbol}";
-    print " PINS=", join '/', @{$p->{pins}};
-    print " RESET=", $p->{reset};
-    print " FUNCS=", scalar(@{$p->{funcs}});
-    print "\n";
-
-    for (@{$p->{funcs}}) {
-        print " TYPE=", $_->{type};
-        print " FUNC=", $_->{func};
-        print "\n";
-    }
-
 }
 
 
@@ -149,7 +132,28 @@ while (<>) {
 }
 
 
-#pin_dump $_  for  @pins;
+sub pin_dump($)
+{
+    my $p = $_[0];
+    print "SYMBOL=$p->{symbol}";
+    print " PINS=", join '/', @{$p->{pins}};
+    print " RESET=", $p->{reset};
+    print " FUNCS=", scalar(@{$p->{funcs}});
+    print "\n";
+
+    for (@{$p->{funcs}}) {
+        print " TYPE=", $_->{type};
+        print " FUNC=", $_->{func};
+        print "\n";
+    }
+
+}
+
+
+if ($verb eq 'dump') {
+    pin_dump $_  for  @pins;
+    exit 0;
+}
 
 
 my %wanted_functions;
@@ -387,6 +391,13 @@ if (0) {
 my @rows = split //, 'ABCDEFGHJKLMNPRT';
 my @cols = 1..16;
 
+if ($verb eq 'list') {
+    for my $r (@rows) {
+        print "$r$_ ", $assigned_pinfuncs{"$r$_"}  for  @cols;
+    }
+    exit 0;
+}
+
 my %colors = (
     'VBAT' => '#ffbbbb',
     'VDD' => '#ffbbbb',
@@ -432,3 +443,5 @@ for my $r (@rows) {
 }
 print "</table>\n";
 print "</body></html>\n";
+
+exit 0;
