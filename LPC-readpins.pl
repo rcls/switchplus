@@ -198,12 +198,12 @@ for my $p (@pins) {
         elsif (/^I2C/) {
             $wanted_functions{$_} = 1;
         }
-        elsif (/^U\d_(RX|TX)/) {
-            $wanted_functions{$_} = 1;
-        }
-#        elsif (/^U3/ and /RXD|TXD|RTS|CTS/) {
+#        elsif (/^U[0]_(RX|TX)/) {
 #            $wanted_functions{$_} = 1;
 #        }
+        elsif (/^U3/ and /RXD|TXD|RTS|CTS/) {
+            $wanted_functions{$_} = 1;
+        }
     }
 }
 
@@ -315,6 +315,7 @@ assign 'M2',  'ENET_TX_EN';
 assign 'N4',  'ENET_RX_DV';
 assign 'T1',  'ENET_CRS';
 assign 'E4',  'ENET_MDC';
+#assign 'M11', 'ENET_TX_CLK';
 # FIXME - one of these is unneeded.  Actually, probably don't need either.
 assign 'N1',  'ENET_TX_ER';
 assign 'N6',  'ENET_RX_ER';
@@ -326,8 +327,8 @@ assign 'E9',  'SSP1_SSEL';
 assign 'K14', 'USB0_IND0';
 assign 'J13', 'USB0_IND1';
 
-assign 'D16', 'U1_TXD';
-assign 'K15', 'U2_RXD';
+#assign 'D16', 'U1_TXD';
+#assign 'K15', 'U2_RXD';
 
 #assign 'F6', 'U1_CTS';
 #assign 'F5', 'U1_RTS';
@@ -360,7 +361,7 @@ for (sort keys %wanted_functions) {
         grep { not exists $assigned_pinfuncs{$_} } @{$funcpins{$_}});
 }
 
-my @extras = qw{CGU_OUT0 GP_CLKIN I2S0_TX_SCK CLKOUT I2S1_RX_MCLK I2S0_RX_SCK};
+my @extras = qw{CGU_OUT0 CGU_OUT1 GP_CLKIN CLKOUT I2S0_TX_SCK I2S0_RX_MCLK I2S0_RX_SCK};
 #my @extras;
 
 # If we've assigned all wanted functions, default assign the unwanted pins...
@@ -418,6 +419,7 @@ print '<head><title>PINS</title></head>';
 print "<style type='text/css'>";
 print ".$_ { background: $colors{$_}; }"  for  sort keys %colors;
 print '.TDI, .TDO, .TCK, .TMS, .TRST, .DBGEN, .RESET, .XTAL { font-weight: bold; }';
+print '.GPIO { color: #aaaaaa; }';
 print '</style>';
 print '<body>';
 print '<table>';
