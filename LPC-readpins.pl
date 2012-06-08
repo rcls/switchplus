@@ -22,6 +22,9 @@ my $pin_item;
 
 my @pins;
 
+# Which EMC channel are we going to use?
+my $emc_channel = 0;
+
 $\ = "\n";
 
 sub pin_start($$$$$)
@@ -173,13 +176,13 @@ for my $p (@pins) {
         elsif (/^EMC_/) {
             next  if /^EMC_D(\d+)$/  and  $1 > 15;
             next  if /^EMC_A(\d+)$/  and  $1 > 14;
-            next  if /^EMC_DYCS[1-3]$/;
+            next  if /^EMC_DYCS(\d+)$/  and  $1 ne $emc_channel;
             next  if /^EMC_BLS/; # Just DQM is wanted.
             next  if /^EMC_DQMOUT[^01]/;
             next  if /^EMC_CS/; # We just want DYCS, right?
             next  if /^EMC_OE/;
-            next  if /^EMC_CLK(.*)/  and  $1 ne '0';
-            next  if /^EMC_CKEOUT(.*)/  and  $1 ne '0'; # Do we want CKEOUT0?
+            next  if /^EMC_CLK(.*)/  and  $1 ne $emc_channel;
+            next  if /^EMC_CKEOUT(.*)/  and  $1 ne $emc_channel;
             $wanted_functions{$_} = 1;
         }
         elsif (/^SPIFI_/) {
