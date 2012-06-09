@@ -1,0 +1,160 @@
+v 20110115 2
+B 0 0 1600 4800 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 1900 4600 1600 4600 1 0 0
+{
+T 1900 4600 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 4595 5 10 1 1 0 6 1
+pinlabel=ENET_TX_EN
+T 1695 4645 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 4600 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 4200 1600 4200 1 0 0
+{
+T 1900 4200 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 4195 5 10 1 1 0 6 1
+pinlabel=ENET_TXD3
+T 1695 4245 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 4200 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 3900 1600 3900 1 0 0
+{
+T 1900 3900 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 3895 5 10 1 1 0 6 1
+pinlabel=ENET_TXD2
+T 1695 3945 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 3900 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 3600 1600 3600 1 0 0
+{
+T 1900 3600 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 3595 5 10 1 1 0 6 1
+pinlabel=ENET_TXD1
+T 1695 3645 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 3600 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 3300 1600 3300 1 0 0
+{
+T 1900 3300 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 3295 5 10 1 1 0 6 1
+pinlabel=ENET_TXD0
+T 1695 3345 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 3300 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 2900 1600 2900 1 0 0
+{
+T 1900 2900 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 2895 5 10 1 1 0 6 1
+pinlabel=ENET_TX_CLK
+T 1695 2945 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 2900 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 2500 1600 2500 1 0 0
+{
+T 1900 2500 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 2495 5 10 1 1 0 6 1
+pinlabel=ENET_RX_CLK
+T 1695 2545 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 2500 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 2200 1600 2200 1 0 0
+{
+T 1900 2200 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 2195 5 10 1 1 0 6 1
+pinlabel=ENET_RX_DV
+T 1695 2245 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 2200 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 1800 1600 1800 1 0 0
+{
+T 1900 1800 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 1795 5 10 1 1 0 6 1
+pinlabel=ENET_RXD3
+T 1695 1845 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 1800 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 1500 1600 1500 1 0 0
+{
+T 1900 1500 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 1495 5 10 1 1 0 6 1
+pinlabel=ENET_RXD2
+T 1695 1545 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 1500 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 1200 1600 1200 1 0 0
+{
+T 1900 1200 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 1195 5 10 1 1 0 6 1
+pinlabel=ENET_RXD1
+T 1695 1245 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 1200 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 900 1600 900 1 0 0
+{
+T 1900 900 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 895 5 10 1 1 0 6 1
+pinlabel=ENET_RXD0
+T 1695 945 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 900 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 500 1600 500 1 0 0
+{
+T 1900 500 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 495 5 10 1 1 0 6 1
+pinlabel=ENET_COL
+T 1695 545 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 500 5 10 0 0 0 0 1
+pinseq=0
+}
+P 1900 200 1600 200 1 0 0
+{
+T 1900 200 5 10 0 0 0 0 1
+pintype=unknown
+T 1545 195 5 10 1 1 0 6 1
+pinlabel=ENET_CRS
+T 1695 245 5 10 1 1 0 0 1
+pinnumber=0
+T 1900 200 5 10 0 0 0 0 1
+pinseq=0
+}
+T 0 4900 8 10 1 1 0 0 1
+value=LPC ENET
+T 1200 4900 8 10 1 1 0 0 1
+refdes=U?
