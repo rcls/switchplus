@@ -407,7 +407,7 @@ my %colors = (
     'EMC' => '#ccffcc',
     'USB' => '#ffccff',
     'SPIFI' => '#ffffcc',
-    'I' => '#ccffff',
+    'I2C' => '#ccffff',
     'U' => '#8888ff',
     'SSP' => '#ccffff'
     );
@@ -417,30 +417,37 @@ print '<head><title>PINS</title></head>';
 print "<style type='text/css'>";
 print ".$_ { background: $colors{$_}; }"  for  sort keys %colors;
 print '.TDI, .TDO, .TCK, .TMS, .TRST, .DBGEN, .RESET, .XTAL { font-weight: bold; }';
-print '.GPIO { color: #aaaaaa; }';
+print '.GPIO, .SGPIO { color: #aaaaaa; }';
+print '.SGPIO { text-decoration: underline; }';
 print '</style>';
 print '<body>';
 print '<table>';
 print "<tr><th />", map { "<th>$_</th>" } @cols;
 print "</tr>";
 for my $r (@rows) {
-    print "<tr><td>$r</td>";
+    print "<tr><th>$r</th>";
     for my $c (@cols) {
         my $text = $assigned_pinfuncs{"$r$c"} // "";
-        $text =~ /.*(VSS|VDD|^[A-Z]*)/;
+        $text =~ /.*(VSS|VDD|^I2C|^[A-Z]*)/;
         my $class = $1;
-        if (not $text =~ s|/|<br />|g
-            and  not  $text =~ s|^GPIO(\d+)\[(\d+)\]$|GPIO<br />$1_$2|
-            and  not  $text =~ s|^SGPIO(\d+)$|SGPIO<br />$1|
-            and  not  $text =~ s|^(V[SD][SD])(.+)$|$1<br />$2|) {
+        unless ($text =~ s|/|<br />|g
+                or  $text =~ s|^WAKEUP|WAKE</br>UP|
+                or  $text =~ s|^GPIO(\d+)\[(\d+)\]$|GPIO<br />$1_$2|
+                or  $text =~ s|^SGPIO(\d+)$|SGPIO<br />$1|
+                or  $text =~ s|^(V[SD][SD])(.+)$|$1<br />$2|) {
             $text =~ s|_(..)|<br />$1|;
             $text =~ s|_(....)|<br />$1|;
             $text =~ s|(....)_|$1<br />|;
         }
+        $class = 'SGPIO'
+            if  $class eq 'GPIO'  and  grep { /^SGPIO/ } @{$pinfuncs{"$r$c"}};
         print "<td class='$class'>$text</td>";
     }
+    print "<th>$r</th>";
     print '</tr>';
 }
+print "<tr><th />", map { "<th>$_</th>" } @cols;
+print "</tr>";
 print "</table>\n";
 print "</body></html>\n";
 
