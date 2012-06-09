@@ -165,8 +165,6 @@ for my $p (@pins) {
             $wanted_functions{$_} = 1;
         }
         elsif (/^LCD_/) {
-            next  if /^LCD_ENAB/;
-            next  if /^LCD_PWR/;
             $wanted_functions{$_} = 1;
         }
         elsif (/^USB0_/) {

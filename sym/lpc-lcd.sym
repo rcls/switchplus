@@ -312,3 +312,25 @@ T 400 5100 8 10 1 1 0 0 1
 value=LPC LCD
 T 1800 5100 8 10 1 1 0 0 1
 refdes=U?
+P 2800 500 2500 500 1 0 0
+{
+T 2800 500 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 495 5 10 1 1 0 6 1
+pinlabel=LCD_ENAB
+T 2595 545 5 10 1 1 0 0 1
+pinnumber=0
+T 2800 500 5 10 0 0 0 0 1
+pinseq=0
+}
+P 2800 200 2500 200 1 0 0
+{
+T 2800 200 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 195 5 10 1 1 0 6 1
+pinlabel=LCD_PWR
+T 2595 245 5 10 1 1 0 0 1
+pinnumber=0
+T 2800 200 5 10 0 0 0 0 1
+pinseq=0
+}
