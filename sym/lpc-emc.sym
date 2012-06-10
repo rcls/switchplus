@@ -7,9 +7,9 @@ pintype=unknown
 T 355 6195 5 10 1 1 0 0 1
 pinlabel=EMC_D0
 T 205 6245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T5
 T 0 6200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T5
 }
 P 0 5900 300 5900 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 355 5895 5 10 1 1 0 0 1
 pinlabel=EMC_D1
 T 205 5945 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R7
 T 0 5900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R7
 }
 P 0 5600 300 5600 1 0 0
 {
@@ -29,9 +29,9 @@ pintype=unknown
 T 355 5595 5 10 1 1 0 0 1
 pinlabel=EMC_D2
 T 205 5645 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T7
 T 0 5600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T7
 }
 P 0 5300 300 5300 1 0 0
 {
@@ -40,9 +40,9 @@ pintype=unknown
 T 355 5295 5 10 1 1 0 0 1
 pinlabel=EMC_D3
 T 205 5345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R8
 T 0 5300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R8
 }
 P 0 5000 300 5000 1 0 0
 {
@@ -51,9 +51,9 @@ pintype=unknown
 T 355 4995 5 10 1 1 0 0 1
 pinlabel=EMC_D4
 T 205 5045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T9
 T 0 5000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T9
 }
 P 0 4700 300 4700 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 355 4695 5 10 1 1 0 0 1
 pinlabel=EMC_D5
 T 205 4745 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R9
 T 0 4700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R9
 }
 P 0 4400 300 4400 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 355 4395 5 10 1 1 0 0 1
 pinlabel=EMC_D6
 T 205 4445 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R10
 T 0 4400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R10
 }
 P 0 4100 300 4100 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 355 4095 5 10 1 1 0 0 1
 pinlabel=EMC_D7
 T 205 4145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R11
 T 0 4100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R11
 }
 P 0 3300 300 3300 1 0 0
 {
@@ -95,9 +95,9 @@ pintype=unknown
 T 355 3295 5 10 1 1 0 0 1
 pinlabel=EMC_D8
 T 205 3345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=P9
 T 0 3300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P9
 }
 P 0 3000 300 3000 1 0 0
 {
@@ -106,9 +106,9 @@ pintype=unknown
 T 355 2995 5 10 1 1 0 0 1
 pinlabel=EMC_D9
 T 205 3045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=P10
 T 0 3000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P10
 }
 P 0 2700 300 2700 1 0 0
 {
@@ -117,9 +117,9 @@ pintype=unknown
 T 355 2695 5 10 1 1 0 0 1
 pinlabel=EMC_D10
 T 205 2745 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T13
 T 0 2700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T13
 }
 P 0 2400 300 2400 1 0 0
 {
@@ -128,9 +128,9 @@ pintype=unknown
 T 355 2395 5 10 1 1 0 0 1
 pinlabel=EMC_D11
 T 205 2445 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R12
 T 0 2400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R12
 }
 P 0 2100 300 2100 1 0 0
 {
@@ -139,9 +139,9 @@ pintype=unknown
 T 355 2095 5 10 1 1 0 0 1
 pinlabel=EMC_D12
 T 205 2145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=N3
 T 0 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N3
 }
 P 0 1800 300 1800 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 355 1795 5 10 1 1 0 0 1
 pinlabel=EMC_D13
 T 205 1845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=P3
 T 0 1800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P3
 }
 P 0 1500 300 1500 1 0 0
 {
@@ -161,9 +161,9 @@ pintype=unknown
 T 355 1495 5 10 1 1 0 0 1
 pinlabel=EMC_D14
 T 205 1545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R4
 T 0 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R4
 }
 P 0 1200 300 1200 1 0 0
 {
@@ -172,9 +172,9 @@ pintype=unknown
 T 355 1195 5 10 1 1 0 0 1
 pinlabel=EMC_D15
 T 205 1245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T8
 T 0 1200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T8
 }
 P 3100 6200 2800 6200 1 0 0
 {
@@ -183,9 +183,9 @@ pintype=unknown
 T 2745 6195 5 10 1 1 0 6 1
 pinlabel=EMC_A0
 T 2895 6245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H16
 T 3100 6200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H16
 }
 P 3100 5900 2800 5900 1 0 0
 {
@@ -194,9 +194,9 @@ pintype=unknown
 T 2745 5895 5 10 1 1 0 6 1
 pinlabel=EMC_A1
 T 2895 5945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=G16
 T 3100 5900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G16
 }
 P 3100 5600 2800 5600 1 0 0
 {
@@ -205,9 +205,9 @@ pintype=unknown
 T 2745 5595 5 10 1 1 0 6 1
 pinlabel=EMC_A2
 T 2895 5645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=F16
 T 3100 5600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F16
 }
 P 3100 5300 2800 5300 1 0 0
 {
@@ -216,9 +216,9 @@ pintype=unknown
 T 2745 5295 5 10 1 1 0 6 1
 pinlabel=EMC_A3
 T 2895 5345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=E15
 T 3100 5300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E15
 }
 P 3100 5000 2800 5000 1 0 0
 {
@@ -227,9 +227,9 @@ pintype=unknown
 T 2745 4995 5 10 1 1 0 6 1
 pinlabel=EMC_A4
 T 2895 5045 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=C16
 T 3100 5000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=C16
 }
 P 3100 4700 2800 4700 1 0 0
 {
@@ -238,9 +238,9 @@ pintype=unknown
 T 2745 4695 5 10 1 1 0 6 1
 pinlabel=EMC_A5
 T 2895 4745 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=P2
 T 3100 4700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P2
 }
 P 3100 4400 2800 4400 1 0 0
 {
@@ -249,9 +249,9 @@ pintype=unknown
 T 2745 4395 5 10 1 1 0 6 1
 pinlabel=EMC_A6
 T 2895 4445 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=R2
 T 3100 4400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R2
 }
 P 3100 4100 2800 4100 1 0 0
 {
@@ -260,9 +260,9 @@ pintype=unknown
 T 2745 4095 5 10 1 1 0 6 1
 pinlabel=EMC_A7
 T 2895 4145 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=R3
 T 3100 4100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R3
 }
 P 3100 3700 2800 3700 1 0 0
 {
@@ -271,9 +271,9 @@ pintype=unknown
 T 2745 3695 5 10 1 1 0 6 1
 pinlabel=EMC_A8
 T 2895 3745 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=J16
 T 3100 3700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J16
 }
 P 3100 3400 2800 3400 1 0 0
 {
@@ -282,9 +282,9 @@ pintype=unknown
 T 2745 3395 5 10 1 1 0 6 1
 pinlabel=EMC_A9
 T 2895 3445 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H14
 T 3100 3400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H14
 }
 P 3100 3100 2800 3100 1 0 0
 {
@@ -293,9 +293,9 @@ pintype=unknown
 T 2745 3095 5 10 1 1 0 6 1
 pinlabel=EMC_A10
 T 2895 3145 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=K16
 T 3100 3100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=K16
 }
 P 3100 2800 2800 2800 1 0 0
 {
@@ -304,9 +304,9 @@ pintype=unknown
 T 2745 2795 5 10 1 1 0 6 1
 pinlabel=EMC_A11
 T 2895 2845 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M15
 T 3100 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M15
 }
 P 3100 2500 2800 2500 1 0 0
 {
@@ -315,9 +315,9 @@ pintype=unknown
 T 2745 2495 5 10 1 1 0 6 1
 pinlabel=EMC_A12
 T 2895 2545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N15
 T 3100 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N15
 }
 P 3100 2200 2800 2200 1 0 0
 {
@@ -326,9 +326,9 @@ pintype=unknown
 T 2745 2195 5 10 1 1 0 6 1
 pinlabel=EMC_A13
 T 2895 2245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=T16
 T 3100 2200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T16
 }
 P 3100 1900 2800 1900 1 0 0
 {
@@ -337,9 +337,9 @@ pintype=unknown
 T 2745 1895 5 10 1 1 0 6 1
 pinlabel=EMC_A14
 T 2895 1945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H13
 T 3100 1900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H13
 }
 P 0 3800 300 3800 1 0 0
 {
@@ -348,9 +348,9 @@ pintype=unknown
 T 355 3795 5 10 1 1 0 0 1
 pinlabel=EMC_DQMOUT0
 T 205 3845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G15
 T 0 3800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G15
 }
 P 0 900 300 900 1 0 0
 {
@@ -359,9 +359,9 @@ pintype=unknown
 T 355 895 5 10 1 1 0 0 1
 pinlabel=EMC_DQMOUT1
 T 205 945 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=H15
 T 0 900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H15
 }
 P 3100 1500 2800 1500 1 0 0
 {
@@ -370,9 +370,9 @@ pintype=unknown
 T 2745 1495 5 10 1 1 0 6 1
 pinlabel=EMC_CLK0
 T 2895 1545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N5
 T 3100 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N5
 }
 P 3100 1200 2800 1200 1 0 0
 {
@@ -381,9 +381,9 @@ pintype=unknown
 T 2745 1195 5 10 1 1 0 6 1
 pinlabel=EMC_CKEOUT0
 T 2895 1245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H12
 T 3100 1200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H12
 }
 P 3100 900 2800 900 1 0 0
 {
@@ -392,9 +392,9 @@ pintype=unknown
 T 2745 895 5 10 1 1 0 6 1
 pinlabel=EMC_RAS
 T 2895 945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=P16
 T 3100 900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P16
 }
 P 3100 600 2800 600 1 0 0
 {
@@ -403,9 +403,9 @@ pintype=unknown
 T 2745 595 5 10 1 1 0 6 1
 pinlabel=EMC_CAS
 T 2895 645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=R16
 T 3100 600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R16
 }
 P 0 200 300 200 1 0 0
 {
@@ -414,9 +414,9 @@ pintype=unknown
 T 355 195 5 10 1 1 0 0 1
 pinlabel=EMC_WE
 T 205 245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T4
 T 0 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T4
 }
 P 3100 200 2800 200 1 0 0
 {
@@ -425,9 +425,9 @@ pintype=unknown
 T 2745 195 5 10 1 1 0 6 1
 pinlabel=EMC_DYCS0
 T 2895 245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=J15
 T 3100 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J15
 }
 T 400 6500 8 10 1 1 0 0 1
 value=LPC43 EMC

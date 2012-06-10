@@ -7,9 +7,9 @@ pintype=unknown
 T 2845 2795 5 10 1 1 0 6 1
 pinlabel=SPIFI_CS
 T 2995 2845 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=C10
 T 3200 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=C10
 }
 P 3200 2500 2900 2500 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 2845 2495 5 10 1 1 0 6 1
 pinlabel=SPIFI_SCK
 T 2995 2545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=B14
 T 3200 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=B14
 }
 P 3200 2100 2900 2100 1 0 0
 {
@@ -29,9 +29,9 @@ pintype=unknown
 T 2845 2095 5 10 1 1 0 6 1
 pinlabel=SPIFI_MOSI
 T 2995 2145 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=C11
 T 3200 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=C11
 }
 P 3200 1800 2900 1800 1 0 0
 {
@@ -40,9 +40,9 @@ pintype=unknown
 T 2845 1795 5 10 1 1 0 6 1
 pinlabel=SPIFI_MISO
 T 2995 1845 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=B13
 T 3200 1800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=B13
 }
 P 3200 1500 2900 1500 1 0 0
 {
@@ -51,9 +51,9 @@ pintype=unknown
 T 2845 1495 5 10 1 1 0 6 1
 pinlabel=SPIFI_SIO2
 T 2995 1545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=C12
 T 3200 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=C12
 }
 P 3200 1200 2900 1200 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 2845 1195 5 10 1 1 0 6 1
 pinlabel=SPIFI_SIO3
 T 2995 1245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=A15
 T 3200 1200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=A15
 }
 P 0 2800 300 2800 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 355 2795 5 10 1 1 0 0 1
 pinlabel=SSP1_SSEL
 T 205 2845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=E9
 T 0 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E9
 }
 P 0 2500 300 2500 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 355 2495 5 10 1 1 0 0 1
 pinlabel=SSP1_SCK
 T 205 2545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=D10
 T 0 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=D10
 }
 P 0 2100 300 2100 1 0 0
 {
@@ -95,9 +95,9 @@ pintype=unknown
 T 355 2095 5 10 1 1 0 0 1
 pinlabel=SSP1_MOSI
 T 205 2145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=B7
 T 0 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=B7
 }
 P 0 1800 300 1800 1 0 0
 {
@@ -106,9 +106,9 @@ pintype=unknown
 T 355 1795 5 10 1 1 0 0 1
 pinlabel=SSP1_MISO
 T 205 1845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=E7
 T 0 1800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E7
 }
 P 0 1300 300 1300 1 0 0
 {
@@ -117,9 +117,9 @@ pintype=unknown
 T 355 1295 5 10 1 1 0 0 1
 pinlabel=I2C0_SCL
 T 205 1345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=L15
 T 0 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L15
 }
 P 0 1000 300 1000 1 0 0
 {
@@ -128,9 +128,9 @@ pintype=unknown
 T 355 995 5 10 1 1 0 0 1
 pinlabel=I2C0_SDA
 T 205 1045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=L16
 T 0 1000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L16
 }
 P 0 500 300 500 1 0 0
 {
@@ -139,9 +139,9 @@ pintype=unknown
 T 355 495 5 10 1 1 0 0 1
 pinlabel=I2C1_SCL
 T 205 545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=E13
 T 0 500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E13
 }
 P 0 200 300 200 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 355 195 5 10 1 1 0 0 1
 pinlabel=I2C1_SDA
 T 205 245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G14
 T 0 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G14
 }
 P 3200 600 2900 600 1 0 0
 {
@@ -161,9 +161,9 @@ pintype=unknown
 T 2845 595 5 10 1 1 0 6 1
 pinlabel=U3_TXD
 T 2995 645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=J12
 T 3200 600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J12
 }
 P 3200 300 2900 300 1 0 0
 {
@@ -172,9 +172,9 @@ pintype=unknown
 T 2845 295 5 10 1 1 0 6 1
 pinlabel=U3_RXD
 T 2995 345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=K11
 T 3200 300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=K11
 }
 T 400 3100 8 10 1 1 0 0 1
 value=LPC Serial

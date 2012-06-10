@@ -7,9 +7,9 @@ pintype=unknown
 T 355 3095 5 10 1 1 0 0 1
 pinlabel=GPIO0[3]
 T 205 3145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=M7
 T 0 3100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M7
 }
 P 0 2800 300 2800 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 355 2795 5 10 1 1 0 0 1
 pinlabel=GPIO0[5]
 T 205 2845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=L14
 T 0 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L14
 }
 P 0 2500 300 2500 1 0 0
 {
@@ -29,9 +29,9 @@ pintype=unknown
 T 355 2495 5 10 1 1 0 0 1
 pinlabel=GPIO0[10]
 T 205 2545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=P5
 T 0 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P5
 }
 P 0 2200 300 2200 1 0 0
 {
@@ -40,9 +40,9 @@ pintype=unknown
 T 355 2195 5 10 1 1 0 0 1
 pinlabel=GPIO0[11]
 T 205 2245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=T3
 T 0 2200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T3
 }
 P 0 1600 300 1600 1 0 0
 {
@@ -51,9 +51,9 @@ pintype=unknown
 T 355 1595 5 10 1 1 0 0 1
 pinlabel=GPIO1[8]
 T 205 1645 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R5
 T 0 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R5
 }
 P 0 1000 300 1000 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 355 995 5 10 1 1 0 0 1
 pinlabel=GPIO3[0]
 T 205 1045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=R15
 T 0 1000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=R15
 }
 P 0 700 300 700 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 355 695 5 10 1 1 0 0 1
 pinlabel=GPIO3[1]
 T 205 745 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=L13
 T 0 700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L13
 }
 P 0 400 300 400 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 355 395 5 10 1 1 0 0 1
 pinlabel=GPIO3[2]
 T 205 445 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=P15
 T 0 400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=P15
 }
 P 2600 3100 2300 3100 1 0 0
 {
@@ -95,9 +95,9 @@ pintype=unknown
 T 2245 3095 5 10 1 1 0 6 1
 pinlabel=GPIO4[10]
 T 2395 3145 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H11
 T 2600 3100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H11
 }
 P 2600 2800 2300 2800 1 0 0
 {
@@ -106,9 +106,9 @@ pintype=unknown
 T 2245 2795 5 10 1 1 0 6 1
 pinlabel=GPIO4[9]
 T 2395 2845 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=K15
 T 2600 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=K15
 }
 P 2600 2500 2300 2500 1 0 0
 {
@@ -117,9 +117,9 @@ pintype=unknown
 T 2245 2495 5 10 1 1 0 6 1
 pinlabel=GPIO4[8]
 T 2395 2545 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=J14
 T 2600 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J14
 }
 P 2600 2200 2300 2200 1 0 0
 {
@@ -128,9 +128,9 @@ pintype=unknown
 T 2245 2195 5 10 1 1 0 6 1
 pinlabel=GPIO4[4]
 T 2395 2245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=J2
 T 2600 2200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J2
 }
 P 2600 1900 2300 1900 1 0 0
 {
@@ -139,9 +139,9 @@ pintype=unknown
 T 2245 1895 5 10 1 1 0 6 1
 pinlabel=GPIO4[2]
 T 2395 1945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=K4
 T 2600 1900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=K4
 }
 P 2600 1600 2300 1600 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 2245 1595 5 10 1 1 0 6 1
 pinlabel=GPIO4[1]
 T 2395 1645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=H5
 T 2600 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H5
 }
 P 2600 1300 2300 1300 1 0 0
 {
@@ -161,9 +161,9 @@ pintype=unknown
 T 2245 1295 5 10 1 1 0 6 1
 pinlabel=GPIO4[0]
 T 2395 1345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=E5
 T 2600 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E5
 }
 P 2600 700 2300 700 1 0 0
 {
@@ -172,9 +172,9 @@ pintype=unknown
 T 2245 695 5 10 1 1 0 6 1
 pinlabel=GPIO5[19]
 T 2395 745 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=G13
 T 2600 700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G13
 }
 P 2600 400 2300 400 1 0 0
 {
@@ -183,9 +183,9 @@ pintype=unknown
 T 2245 395 5 10 1 1 0 6 1
 pinlabel=GPIO5[9]
 T 2395 445 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=F11
 T 2600 400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F11
 }
 P 2600 100 2300 100 1 0 0
 {
@@ -194,9 +194,9 @@ pintype=unknown
 T 2245 95 5 10 1 1 0 6 1
 pinlabel=GPIO5[8]
 T 2395 145 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=G11
 T 2600 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G11
 }
 T 300 3400 8 10 1 1 0 0 1
 value=LPC GPIO

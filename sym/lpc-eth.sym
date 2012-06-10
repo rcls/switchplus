@@ -7,9 +7,9 @@ pintype=unknown
 T 2545 7695 5 10 1 1 0 6 1
 pinlabel=ENET_TX_EN
 T 2695 7745 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M2
 T 2900 7700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M2
 }
 P 2900 7300 2600 7300 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 2545 7295 5 10 1 1 0 6 1
 pinlabel=ENET_TXD3
 T 2695 7345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M9
 T 2900 7300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M9
 }
 P 2900 7000 2600 7000 1 0 0
 {
@@ -29,9 +29,9 @@ pintype=unknown
 T 2545 6995 5 10 1 1 0 6 1
 pinlabel=ENET_TXD2
 T 2695 7045 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N10
 T 2900 7000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N10
 }
 P 2900 6700 2600 6700 1 0 0
 {
@@ -40,9 +40,9 @@ pintype=unknown
 T 2545 6695 5 10 1 1 0 6 1
 pinlabel=ENET_TXD1
 T 2695 6745 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M10
 T 2900 6700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M10
 }
 P 2900 6400 2600 6400 1 0 0
 {
@@ -51,9 +51,9 @@ pintype=unknown
 T 2545 6395 5 10 1 1 0 6 1
 pinlabel=ENET_TXD0
 T 2695 6445 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N12
 T 2900 6400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N12
 }
 P 2900 6000 2600 6000 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 2545 5995 5 10 1 1 0 6 1
 pinlabel=ENET_TX_CLK
 T 2695 6045 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M11
 T 2900 6000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M11
 }
 P 2900 5600 2600 5600 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 2545 5595 5 10 1 1 0 6 1
 pinlabel=ENET_RX_CLK
 T 2695 5645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=D4
 T 2900 5600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=D4
 }
 P 2900 5300 2600 5300 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 2545 5295 5 10 1 1 0 6 1
 pinlabel=ENET_RX_DV
 T 2695 5345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N4
 T 2900 5300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N4
 }
 P 2900 4900 2600 4900 1 0 0
 {
@@ -95,9 +95,9 @@ pintype=unknown
 T 2545 4895 5 10 1 1 0 6 1
 pinlabel=ENET_RXD3
 T 2695 4945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N8
 T 2900 4900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N8
 }
 P 2900 4600 2600 4600 1 0 0
 {
@@ -106,9 +106,9 @@ pintype=unknown
 T 2545 4595 5 10 1 1 0 6 1
 pinlabel=ENET_RXD2
 T 2695 4645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M6
 T 2900 4600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M6
 }
 P 2900 4300 2600 4300 1 0 0
 {
@@ -117,9 +117,9 @@ pintype=unknown
 T 2545 4295 5 10 1 1 0 6 1
 pinlabel=ENET_RXD1
 T 2695 4345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=L3
 T 2900 4300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L3
 }
 P 2900 4000 2600 4000 1 0 0
 {
@@ -128,9 +128,9 @@ pintype=unknown
 T 2545 3995 5 10 1 1 0 6 1
 pinlabel=ENET_RXD0
 T 2695 4045 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=T12
 T 2900 4000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T12
 }
 P 2900 3600 2600 3600 1 0 0
 {
@@ -139,9 +139,9 @@ pintype=unknown
 T 2545 3595 5 10 1 1 0 6 1
 pinlabel=ENET_COL
 T 2695 3645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=L11
 T 2900 3600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=L11
 }
 P 2900 3300 2600 3300 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 2545 3295 5 10 1 1 0 6 1
 pinlabel=ENET_CRS
 T 2695 3345 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=T1
 T 2900 3300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=T1
 }
 T 1000 8000 8 10 1 1 0 0 1
 value=LPC ENET
@@ -165,9 +165,9 @@ pintype=unknown
 T 2545 2895 5 10 1 1 0 6 1
 pinlabel=ENET_TX_ER
 T 2695 2945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N1
 T 2900 2900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N1
 }
 P 2900 2600 2600 2600 1 0 0
 {
@@ -176,9 +176,9 @@ pintype=unknown
 T 2545 2595 5 10 1 1 0 6 1
 pinlabel=ENET_RX_ER
 T 2695 2645 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=N6
 T 2900 2600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=N6
 }
 P 2900 2200 2600 2200 1 0 0
 {
@@ -187,9 +187,9 @@ pintype=unknown
 T 2545 2195 5 10 1 1 0 6 1
 pinlabel=ENET_MDC
 T 2695 2245 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=E4
 T 2900 2200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=E4
 }
 P 2900 1900 2600 1900 1 0 0
 {
@@ -198,7 +198,7 @@ pintype=unknown
 T 2545 1895 5 10 1 1 0 6 1
 pinlabel=ENET_MDIO
 T 2695 1945 5 10 1 1 0 0 1
-pinnumber=0
+pinnumber=M8
 T 2900 1900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=M8
 }

@@ -7,9 +7,9 @@ pintype=unknown
 T 355 4595 5 10 1 1 0 0 1
 pinlabel=USB0_VBUS
 T 205 4645 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=F1
 T 0 4600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F1
 }
 P 0 4300 300 4300 1 0 0
 {
@@ -18,9 +18,9 @@ pintype=unknown
 T 355 4295 5 10 1 1 0 0 1
 pinlabel=USB0_DP
 T 205 4345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=F2
 T 0 4300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F2
 }
 P 0 4000 300 4000 1 0 0
 {
@@ -29,9 +29,9 @@ pintype=unknown
 T 355 3995 5 10 1 1 0 0 1
 pinlabel=USB0_DM
 T 205 4045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G2
 T 0 4000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G2
 }
 P 0 3700 300 3700 1 0 0
 {
@@ -40,9 +40,9 @@ pintype=unknown
 T 355 3695 5 10 1 1 0 0 1
 pinlabel=USB0_ID
 T 205 3745 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=H2
 T 0 3700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H2
 }
 P 0 3200 300 3200 1 0 0
 {
@@ -51,9 +51,9 @@ pintype=unknown
 T 355 3195 5 10 1 1 0 0 1
 pinlabel=USB0_RREF
 T 205 3245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=H1
 T 0 3200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H1
 }
 P 0 2900 300 2900 1 0 0
 {
@@ -62,9 +62,9 @@ pintype=unknown
 T 355 2895 5 10 1 1 0 0 1
 pinlabel=USB0_VSSA_REF
 T 205 2945 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G1
 T 0 2900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G1
 }
 P 0 500 300 500 1 0 0
 {
@@ -73,9 +73,9 @@ pintype=unknown
 T 355 495 5 10 1 1 0 0 1
 pinlabel=USB1_DP
 T 205 545 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=F12
 T 0 500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F12
 }
 P 0 200 300 200 1 0 0
 {
@@ -84,9 +84,9 @@ pintype=unknown
 T 355 195 5 10 1 1 0 0 1
 pinlabel=USB1_DM
 T 205 245 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G12
 T 0 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G12
 }
 T 400 4900 8 10 1 1 0 0 1
 value=LPC USB
@@ -99,9 +99,9 @@ pintype=unknown
 T 355 1295 5 10 1 1 0 0 1
 pinlabel=USB0_IND0
 T 205 1345 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=K14
 T 0 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=K14
 }
 P 0 1000 300 1000 1 0 0
 {
@@ -110,9 +110,9 @@ pintype=unknown
 T 355 995 5 10 1 1 0 0 1
 pinlabel=USB0_IND1
 T 205 1045 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=J13
 T 0 1000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=J13
 }
 P 0 2400 300 2400 1 0 0
 {
@@ -121,9 +121,9 @@ pintype=unknown
 T 355 2395 5 10 1 1 0 0 1
 pinlabel=USB0_VDDA3V3_DRIVER
 T 205 2445 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=F3
 T 0 2400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=F3
 }
 P 0 2100 300 2100 1 0 0
 {
@@ -132,9 +132,9 @@ pintype=unknown
 T 355 2095 5 10 1 1 0 0 1
 pinlabel=USB0_VDDA3V3
 T 205 2145 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=G3
 T 0 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=G3
 }
 P 0 1800 300 1800 1 0 0
 {
@@ -143,7 +143,7 @@ pintype=unknown
 T 355 1795 5 10 1 1 0 0 1
 pinlabel=USB0_VSSA_TERM
 T 205 1845 5 10 1 1 0 6 1
-pinnumber=0
+pinnumber=H3
 T 0 1800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=H3
 }
