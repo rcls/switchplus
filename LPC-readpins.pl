@@ -352,40 +352,25 @@ while (1) {
 
 print STDERR "# Done a total of ", scalar (keys %assigned_pinfuncs), " pins";
 
-for (sort keys %wanted_functions) {
-    next  if  exists $assigned_funcpins{$_};
-    print STDERR "# Unassigned function $_ ", join (
-        ' ',
-        grep { not exists $assigned_pinfuncs{$_} } @{$funcpins{$_}});
-}
-
-my @extras = qw{CGU_OUT0 CGU_OUT1 GP_CLKIN CLKOUT I2S0_TX_SCK I2S0_RX_MCLK I2S0_RX_SCK};
-#my @extras;
-
 # If we've assigned all wanted functions, default assign the unwanted pins...
 unless (grep { not exists $assigned_funcpins{$_} } keys %wanted_functions) {
     for my $pp (@pins) {
         my $p = $pp->{pins}[0];
         next  if  exists $assigned_pinfuncs{$p};
         my @f = grep { $_->{func} =~ /^GPIO/ } @{$pp->{funcs}};
-#        @f = grep { $_->{func} =~ /^GPIO/ } @{$pp->{funcs}}  unless  @f;
-        unless (@f) {
-            for my $e (@extras) {
-                @f = grep { $_->{func} eq $e } @{$pp->{funcs}}  and  last
-            }
-        }
         assign $p, $f[0]{func}  if  @f == 1;
     }
 }
 
-if (0) {
-    for (sort map { $_->{pins}[0] } @pins) {
-        next  if  exists $assigned_pinfuncs{$_};
-        print "# Unassigned pin $_ ", join (
-            ' ',
-            grep { not exists $assigned_funcpins{$_} } @{$pinfuncs{$_}});
-    }
-}
+# Now assign some leftovers.
+assign 'D12', 'GP_CLKIN';
+assign 'D14', 'SD_CLK';
+assign 'L1', 'CGU_OUT0';
+assign 'L12', 'CGU_OUT1';
+assign 'T10', 'CLKOUT';
+assign 'M12', 'I2S0_RX_MCLK';
+assign 'F13', 'I2S0_TX_SCK';
+assign 'P12', 'I2S1_RX_SCK';
 
 my @rows = split //, 'ABCDEFGHJKLMNPRT';
 my @cols = 1..16;

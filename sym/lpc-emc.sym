@@ -379,7 +379,7 @@ P 3100 1200 2800 1200 1 0 0
 T 3100 1200 5 10 0 0 0 0 1
 pintype=unknown
 T 2745 1195 5 10 1 1 0 6 1
-pinlabel=EMC_CLKE0
+pinlabel=EMC_CKEOUT0
 T 2895 1245 5 10 1 1 0 0 1
 pinnumber=0
 T 3100 1200 5 10 0 0 0 0 1

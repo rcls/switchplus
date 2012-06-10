@@ -11,15 +11,18 @@ my %pins;
 my %labels;
 my %label_count;
 
+my $pinre = qr/(?:[A-Z]*\d+)/;
+
 while (<$PINS>) {
-    die  unless  /^(\d[,\d]*) (.*)/;
+    chomp;
+    die  unless  /^($pinre(?:,$pinre)*) (.*)/;
 
     my $pins = $1;
     my $label = $2;
 
     for (split /,/, $pins) {
         $pins{$_} = $label;
-        $labels{$label} = $pins;
+        $labels{$label} = $_;
         ++$label_count{$label};
     }
 }
@@ -30,7 +33,6 @@ close $PINS  or  die;
 for (keys %label_count) {
     delete  $labels{$_}  if  $label_count{$_} > 1;
 }
-
 
 open my $SYMBOL, '<', $ARGV[1]  or  die;
 
@@ -64,7 +66,7 @@ while (<$SYMBOL>) {
 
     die  "seq $seq v. number $number"  if  $seq ne $number;
 
-    die  '0'  if  $number  eq  '0';
+    die  "$label 0"  if  $number  eq  '0';
     die  unless  exists $pins{$seq};
     die  "$label v. $pins{$seq}"  if  $label  ne  $pins{$seq};
     die  'unknown'  if  $label  eq  'unknown';
