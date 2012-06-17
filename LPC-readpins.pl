@@ -352,6 +352,13 @@ while (1) {
 
 print STDERR "# Done a total of ", scalar (keys %assigned_pinfuncs), " pins";
 
+for (sort keys %wanted_functions) {
+    next  if  exists $assigned_funcpins{$_};
+    print STDERR "# Unassigned function $_ ", join (
+        ' ',
+        grep { not exists $assigned_pinfuncs{$_} } @{$funcpins{$_}});
+}
+
 # If we've assigned all wanted functions, default assign the unwanted pins...
 unless (grep { not exists $assigned_funcpins{$_} } keys %wanted_functions) {
     for my $pp (@pins) {
@@ -377,7 +384,8 @@ my @cols = 1..16;
 
 if ($verb eq 'list') {
     for my $r (@rows) {
-        print "$r$_ ", $assigned_pinfuncs{"$r$_"}  for  @cols;
+        $assigned_pinfuncs{"$r$_"}  and
+            print "$r$_ ", $assigned_pinfuncs{"$r$_"}  for  @cols;
     }
     exit 0;
 }
