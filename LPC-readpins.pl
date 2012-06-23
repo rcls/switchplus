@@ -190,7 +190,7 @@ for my $p (@pins) {
         elsif (/^SPIFI_/) {
             $wanted_functions{$_} = 1;
         }
-        elsif (/^SSP1_/) {
+        elsif (/^SSP[01]_/) {
             $wanted_functions{$_} = 1;
         }
         elsif (/^I2C/) {
@@ -316,11 +316,14 @@ assign 'E4',  'ENET_MDC';
 #assign 'M11', 'ENET_TX_CLK';
 # FIXME - one of these is unneeded.  Actually, probably don't need either.
 assign 'N1',  'ENET_TX_ER';
-assign 'N6',  'ENET_RX_ER';
+assign 'K2',  'ENET_RX_ER';
 
 assign 'E7',  'SSP1_MISO';
 assign 'B7',  'SSP1_MOSI';
 assign 'E9',  'SSP1_SSEL';
+
+assign 'N6',  'SSP0_MISO';
+assign 'F13', 'SSP0_SCK';
 
 assign 'K14', 'USB0_IND0';
 assign 'J13', 'USB0_IND1';
@@ -376,7 +379,7 @@ assign 'L1', 'CGU_OUT0';
 assign 'L12', 'CGU_OUT1';
 assign 'T10', 'CLKOUT';
 assign 'M12', 'I2S0_RX_MCLK';
-assign 'F13', 'I2S0_TX_SCK';
+#assign 'F13', 'I2S0_TX_SCK';
 assign 'P12', 'I2S1_RX_SCK';
 
 my @rows = split //, 'ABCDEFGHJKLMNPRT';
