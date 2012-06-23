@@ -1,0 +1,259 @@
+v 20110115 2
+B 300 0 2000 5800 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 0 100 300 100 1 0 0
+{
+T 0 100 5 10 0 0 0 0 1
+pintype=unknown
+T 355 95 5 10 1 1 0 0 1
+pinlabel=Left+
+T 205 145 5 10 1 1 0 6 1
+pinnumber=9
+T 0 100 5 10 0 0 0 0 1
+pinseq=9
+}
+P 0 400 300 400 1 0 0
+{
+T 0 400 5 10 0 0 0 0 1
+pintype=unknown
+T 355 395 5 10 1 1 0 0 1
+pinlabel=Left-
+T 205 445 5 10 1 1 0 6 1
+pinnumber=10
+T 0 400 5 10 0 0 0 0 1
+pinseq=10
+}
+P 0 800 300 800 1 0 0
+{
+T 0 800 5 10 0 0 0 0 1
+pintype=unknown
+T 355 795 5 10 1 1 0 0 1
+pinlabel=Right+
+T 205 845 5 10 1 1 0 6 1
+pinnumber=11
+T 0 800 5 10 0 0 0 0 1
+pinseq=11
+}
+P 0 1100 300 1100 1 0 0
+{
+T 0 1100 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1095 5 10 1 1 0 0 1
+pinlabel=Right-
+T 205 1145 5 10 1 1 0 6 1
+pinnumber=12
+T 0 1100 5 10 0 0 0 0 1
+pinseq=12
+}
+P 0 1600 300 1600 1 0 0
+{
+T 0 1600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1595 5 10 1 1 0 0 1
+pinlabel=Left+
+T 205 1645 5 10 1 1 0 6 1
+pinnumber=21
+T 0 1600 5 10 0 0 0 0 1
+pinseq=21
+}
+P 0 1900 300 1900 1 0 0
+{
+T 0 1900 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1895 5 10 1 1 0 0 1
+pinlabel=Left-
+T 205 1945 5 10 1 1 0 6 1
+pinnumber=22
+T 0 1900 5 10 0 0 0 0 1
+pinseq=22
+}
+P 0 2300 300 2300 1 0 0
+{
+T 0 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2295 5 10 1 1 0 0 1
+pinlabel=Right+
+T 205 2345 5 10 1 1 0 6 1
+pinnumber=23
+T 0 2300 5 10 0 0 0 0 1
+pinseq=23
+}
+P 0 2600 300 2600 1 0 0
+{
+T 0 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2595 5 10 1 1 0 0 1
+pinlabel=Right-
+T 205 2645 5 10 1 1 0 6 1
+pinnumber=24
+T 0 2600 5 10 0 0 0 0 1
+pinseq=24
+}
+P 0 3100 300 3100 1 0 0
+{
+T 0 3100 5 10 0 0 0 0 1
+pintype=unknown
+T 355 3095 5 10 1 1 0 0 1
+pinlabel=Left+
+T 205 3145 5 10 1 1 0 6 1
+pinnumber=33
+T 0 3100 5 10 0 0 0 0 1
+pinseq=33
+}
+P 0 3400 300 3400 1 0 0
+{
+T 0 3400 5 10 0 0 0 0 1
+pintype=unknown
+T 355 3395 5 10 1 1 0 0 1
+pinlabel=Left-
+T 205 3445 5 10 1 1 0 6 1
+pinnumber=34
+T 0 3400 5 10 0 0 0 0 1
+pinseq=34
+}
+P 0 3800 300 3800 1 0 0
+{
+T 0 3800 5 10 0 0 0 0 1
+pintype=unknown
+T 355 3795 5 10 1 1 0 0 1
+pinlabel=Right+
+T 205 3845 5 10 1 1 0 6 1
+pinnumber=35
+T 0 3800 5 10 0 0 0 0 1
+pinseq=35
+}
+P 0 4100 300 4100 1 0 0
+{
+T 0 4100 5 10 0 0 0 0 1
+pintype=unknown
+T 355 4095 5 10 1 1 0 0 1
+pinlabel=Right-
+T 205 4145 5 10 1 1 0 6 1
+pinnumber=36
+T 0 4100 5 10 0 0 0 0 1
+pinseq=36
+}
+P 0 4600 300 4600 1 0 0
+{
+T 0 4600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 4595 5 10 1 1 0 0 1
+pinlabel=Left+
+T 205 4645 5 10 1 1 0 6 1
+pinnumber=45
+T 0 4600 5 10 0 0 0 0 1
+pinseq=45
+}
+P 0 4900 300 4900 1 0 0
+{
+T 0 4900 5 10 0 0 0 0 1
+pintype=unknown
+T 355 4895 5 10 1 1 0 0 1
+pinlabel=Left-
+T 205 4945 5 10 1 1 0 6 1
+pinnumber=46
+T 0 4900 5 10 0 0 0 0 1
+pinseq=46
+}
+P 0 5300 300 5300 1 0 0
+{
+T 0 5300 5 10 0 0 0 0 1
+pintype=unknown
+T 355 5295 5 10 1 1 0 0 1
+pinlabel=Right+
+T 205 5345 5 10 1 1 0 6 1
+pinnumber=47
+T 0 5300 5 10 0 0 0 0 1
+pinseq=47
+}
+P 0 5600 300 5600 1 0 0
+{
+T 0 5600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 5595 5 10 1 1 0 0 1
+pinlabel=Right-
+T 205 5645 5 10 1 1 0 6 1
+pinnumber=48
+T 0 5600 5 10 0 0 0 0 1
+pinseq=48
+}
+P 2600 2900 2300 2900 1 0 0
+{
+T 2600 2900 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 2895 5 10 1 1 0 6 1
+pinlabel=Rear Shield
+T 2395 2945 5 10 1 1 0 0 1
+pinnumber=49
+T 2600 2900 5 10 0 0 0 0 1
+pinseq=49
+}
+P 2600 3200 2300 3200 1 0 0
+{
+T 2600 3200 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 3195 5 10 1 1 0 6 1
+pinlabel=Rear Shield
+T 2395 3245 5 10 1 1 0 0 1
+pinnumber=50
+T 2600 3200 5 10 0 0 0 0 1
+pinseq=50
+}
+P 2600 3500 2300 3500 1 0 0
+{
+T 2600 3500 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 3495 5 10 1 1 0 6 1
+pinlabel=Rear Shield
+T 2395 3545 5 10 1 1 0 0 1
+pinnumber=51
+T 2600 3500 5 10 0 0 0 0 1
+pinseq=51
+}
+P 2600 4100 2300 4100 1 0 0
+{
+T 2600 4100 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 4095 5 10 1 1 0 6 1
+pinlabel=Left Shield
+T 2395 4145 5 10 1 1 0 0 1
+pinnumber=52
+T 2600 4100 5 10 0 0 0 0 1
+pinseq=52
+}
+P 2600 4400 2300 4400 1 0 0
+{
+T 2600 4400 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 4395 5 10 1 1 0 6 1
+pinlabel=Right Shield
+T 2395 4445 5 10 1 1 0 0 1
+pinnumber=53
+T 2600 4400 5 10 0 0 0 0 1
+pinseq=53
+}
+P 2600 5000 2300 5000 1 0 0
+{
+T 2600 5000 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 4995 5 10 1 1 0 6 1
+pinlabel=Board Lock
+T 2395 5045 5 10 1 1 0 0 1
+pinnumber=54
+T 2600 5000 5 10 0 0 0 0 1
+pinseq=54
+}
+P 2600 5300 2300 5300 1 0 0
+{
+T 2600 5300 5 10 0 0 0 0 1
+pintype=unknown
+T 2245 5295 5 10 1 1 0 6 1
+pinlabel=Board Lock
+T 2395 5345 5 10 1 1 0 0 1
+pinnumber=55
+T 2600 5300 5 10 0 0 0 0 1
+pinseq=55
+}
+T 1300 2400 8 10 1 1 0 0 1
+value=ARJ41A-E
+T 1200 2000 8 10 1 1 0 0 1
+footprint=ARJ41A-MB
