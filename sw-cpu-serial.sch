@@ -27,3 +27,8 @@ N 48100 50500 51400 50500 4
 N 51400 50500 51400 49100 4
 N 51400 49100 51300 49100 4
 C 50000 47900 1 0 0 gnd-1.sym
+T 47500 47100 9 10 1 0 0 0 4
+Hook up serial - debug connector.
+Hoop up I2C - HDMI - level translation?
+SSP1 -> FPGA
+Hookup flash power.

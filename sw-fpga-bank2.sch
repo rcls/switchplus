@@ -172,3 +172,6 @@ footprint=0603
 T 40000 49700 5 10 0 1 0 0 1
 value=STERM
 }
+T 44500 45400 9 10 1 0 0 0 2
+Hookup flash power.
+Resistors -> 3 pin straps.
