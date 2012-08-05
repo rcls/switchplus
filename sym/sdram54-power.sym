@@ -1,0 +1,162 @@
+v 20110115 2
+B 0 300 2500 1800 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 400 100 400 300 1 0 0
+{
+T 400 100 5 10 0 0 0 0 1
+pintype=unknown
+T 400 355 5 10 1 1 90 0 1
+pinlabel=VSS
+T 350 205 5 10 1 1 90 6 1
+pinnumber=A1
+T 400 100 5 10 0 0 0 0 1
+pinseq=A1
+}
+P 700 100 700 300 1 0 0
+{
+T 700 100 5 10 0 0 0 0 1
+pintype=unknown
+T 700 355 5 10 1 1 90 0 1
+pinlabel=VSS
+T 650 205 5 10 1 1 90 6 1
+pinnumber=E3
+T 700 100 5 10 0 0 0 0 1
+pinseq=E3
+}
+P 1000 100 1000 300 1 0 0
+{
+T 1000 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1000 355 5 10 1 1 90 0 1
+pinlabel=VSS
+T 950 205 5 10 1 1 90 6 1
+pinnumber=J1
+T 1000 100 5 10 0 0 0 0 1
+pinseq=J1
+}
+P 1400 100 1400 300 1 0 0
+{
+T 1400 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1400 355 5 10 1 1 90 0 1
+pinlabel=VSSQ
+T 1350 205 5 10 1 1 90 6 1
+pinnumber=A3
+T 1400 100 5 10 0 0 0 0 1
+pinseq=A3
+}
+P 1700 100 1700 300 1 0 0
+{
+T 1700 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1700 355 5 10 1 1 90 0 1
+pinlabel=VSSQ
+T 1650 205 5 10 1 1 90 6 1
+pinnumber=B7
+T 1700 100 5 10 0 0 0 0 1
+pinseq=B7
+}
+P 2000 100 2000 300 1 0 0
+{
+T 2000 100 5 10 0 0 0 0 1
+pintype=unknown
+T 2000 355 5 10 1 1 90 0 1
+pinlabel=VSSQ
+T 1950 205 5 10 1 1 90 6 1
+pinnumber=C3
+T 2000 100 5 10 0 0 0 0 1
+pinseq=C3
+}
+P 2300 100 2300 300 1 0 0
+{
+T 2300 100 5 10 0 0 0 0 1
+pintype=unknown
+T 2300 355 5 10 1 1 90 0 1
+pinlabel=VSSQ
+T 2250 205 5 10 1 1 90 6 1
+pinnumber=D7
+T 2300 100 5 10 0 0 0 0 1
+pinseq=D7
+}
+P 300 2300 300 2100 1 0 0
+{
+T 300 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 300 2045 5 10 1 1 90 6 1
+pinlabel=VDD
+T 250 2195 5 10 1 1 90 0 1
+pinnumber=A9
+T 300 2300 5 10 0 0 0 0 1
+pinseq=A9
+}
+P 600 2300 600 2100 1 0 0
+{
+T 600 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 600 2045 5 10 1 1 90 6 1
+pinlabel=VDD
+T 550 2195 5 10 1 1 90 0 1
+pinnumber=E7
+T 600 2300 5 10 0 0 0 0 1
+pinseq=E7
+}
+P 900 2300 900 2100 1 0 0
+{
+T 900 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 900 2045 5 10 1 1 90 6 1
+pinlabel=VDD
+T 850 2195 5 10 1 1 90 0 1
+pinnumber=J9
+T 900 2300 5 10 0 0 0 0 1
+pinseq=J9
+}
+P 1400 2300 1400 2100 1 0 0
+{
+T 1400 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 1400 2045 5 10 1 1 90 6 1
+pinlabel=VDDQ
+T 1350 2195 5 10 1 1 90 0 1
+pinnumber=A7
+T 1400 2300 5 10 0 0 0 0 1
+pinseq=A7
+}
+P 1700 2300 1700 2100 1 0 0
+{
+T 1700 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 1700 2045 5 10 1 1 90 6 1
+pinlabel=VDDQ
+T 1650 2195 5 10 1 1 90 0 1
+pinnumber=B3
+T 1700 2300 5 10 0 0 0 0 1
+pinseq=B3
+}
+P 2000 2300 2000 2100 1 0 0
+{
+T 2000 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 2000 2045 5 10 1 1 90 6 1
+pinlabel=VDDQ
+T 1950 2195 5 10 1 1 90 0 1
+pinnumber=A7
+T 2000 2300 5 10 0 0 0 0 1
+pinseq=A7
+}
+P 2300 2300 2300 2100 1 0 0
+{
+T 2300 2300 5 10 0 0 0 0 1
+pintype=unknown
+T 2300 2045 5 10 1 1 90 6 1
+pinlabel=VDDQ
+T 2250 2195 5 10 1 1 90 0 1
+pinnumber=B3
+T 2300 2300 5 10 0 0 0 0 1
+pinseq=B3
+}
+T 200 1000 8 10 1 1 0 0 1
+description=54 BGA SDRAM Power
+T 200 1300 8 10 1 1 0 0 1
+footprint=54VFBGA
+T 1400 1300 8 10 1 1 0 0 1
+refdes=U?
