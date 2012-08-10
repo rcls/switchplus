@@ -1,20 +1,4 @@
 v 20110115 2
-C 44000 47600 1 0 0 lpc-serial.sym
-{
-T 44400 50700 5 10 1 1 0 0 1
-value=LPC Serial
-T 45500 50700 5 10 1 1 0 0 1
-refdes=U1
-}
-C 48900 48200 1 0 0 mx25l6445.sym
-{
-T 50100 49400 5 10 1 1 0 0 1
-device=MX25L6445
-T 50100 49600 5 10 1 1 0 0 1
-refdes=U?
-T 50100 49200 5 10 1 1 0 0 1
-footprint=SO8
-}
 N 47200 49700 48900 49700 4
 N 47200 49400 48900 49400 4
 N 47200 49100 48900 49100 4
@@ -31,4 +15,4 @@ T 47500 47100 9 10 1 0 0 0 4
 Hook up serial - debug connector.
 Hoop up I2C - HDMI - level translation?
 SSP1 -> FPGA
-Hookup flash power.
+Replace flash with connection to fpga...
