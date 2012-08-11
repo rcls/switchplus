@@ -5,7 +5,7 @@ P 3200 2800 2900 2800 1 0 0
 T 3200 2800 5 10 0 0 0 0 1
 pintype=unknown
 T 2845 2795 5 10 1 1 0 6 1
-pinlabel=SPIFI_CS
+pinlabel=SSP0_SSEL
 T 2995 2845 5 10 1 1 0 0 1
 pinnumber=C10
 T 3200 2800 5 10 0 0 0 0 1
@@ -16,7 +16,7 @@ P 3200 2500 2900 2500 1 0 0
 T 3200 2500 5 10 0 0 0 0 1
 pintype=unknown
 T 2845 2495 5 10 1 1 0 6 1
-pinlabel=SPIFI_SCK
+pinlabel=SSP0_SCK
 T 2995 2545 5 10 1 1 0 0 1
 pinnumber=B14
 T 3200 2500 5 10 0 0 0 0 1
@@ -27,7 +27,7 @@ P 3200 2100 2900 2100 1 0 0
 T 3200 2100 5 10 0 0 0 0 1
 pintype=unknown
 T 2845 2095 5 10 1 1 0 6 1
-pinlabel=SPIFI_MOSI
+pinlabel=SSP0_MOSI
 T 2995 2145 5 10 1 1 0 0 1
 pinnumber=C11
 T 3200 2100 5 10 0 0 0 0 1
@@ -38,33 +38,11 @@ P 3200 1800 2900 1800 1 0 0
 T 3200 1800 5 10 0 0 0 0 1
 pintype=unknown
 T 2845 1795 5 10 1 1 0 6 1
-pinlabel=SPIFI_MISO
+pinlabel=SSP0_MISO
 T 2995 1845 5 10 1 1 0 0 1
 pinnumber=B13
 T 3200 1800 5 10 0 0 0 0 1
 pinseq=B13
-}
-P 3200 1500 2900 1500 1 0 0
-{
-T 3200 1500 5 10 0 0 0 0 1
-pintype=unknown
-T 2845 1495 5 10 1 1 0 6 1
-pinlabel=SPIFI_SIO2
-T 2995 1545 5 10 1 1 0 0 1
-pinnumber=C12
-T 3200 1500 5 10 0 0 0 0 1
-pinseq=C12
-}
-P 3200 1200 2900 1200 1 0 0
-{
-T 3200 1200 5 10 0 0 0 0 1
-pintype=unknown
-T 2845 1195 5 10 1 1 0 6 1
-pinlabel=SPIFI_SIO3
-T 2995 1245 5 10 1 1 0 0 1
-pinnumber=A15
-T 3200 1200 5 10 0 0 0 0 1
-pinseq=A15
 }
 P 0 2800 300 2800 1 0 0
 {
