@@ -224,3 +224,5 @@ TODO:
 VDDA/VSSA
 Filter hierarchy.
 C 40200 47700 1 0 0 3.3V-plus-1.sym
+T 38400 48300 9 20 1 0 0 0 1
+2. CPU Power

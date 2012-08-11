@@ -314,3 +314,5 @@ N 50800 48900 51100 48900 4
 T 45600 47700 9 10 1 0 0 0 2
 Kill external LEDs?
 CT to caps?
+T 51800 48100 9 20 1 0 0 0 1
+7. Ethernet Physical

@@ -128,8 +128,6 @@ footprint=0603
 T 40000 49700 5 10 0 1 0 0 1
 value=STERM
 }
-T 44300 45500 9 10 1 0 0 0 1
-Sort out 3.3v v 3.3D power
 C 46600 48800 1 0 0 resistor-1.sym
 {
 T 46900 49200 5 10 0 0 0 0 1
@@ -170,7 +168,7 @@ device=none
 T 35400 46300 5 10 1 1 180 1 1
 value=SCL
 }
-T 44300 45100 9 10 1 0 0 0 2
+T 35700 48600 9 10 1 0 0 0 2
 Hook up serial - debug connector.
 Replace flash with connection to fpga...
 C 38400 48900 1 0 0 3.3V-plus-1.sym
@@ -178,3 +176,5 @@ C 46100 48900 1 0 0 3.3V-plus-1.sym
 N 39100 45900 39100 47500 4
 N 39100 47500 38900 47500 4
 N 39100 45900 39500 45900 4
+T 44200 45500 9 20 1 0 0 0 1
+3. FPGA Bank 2
