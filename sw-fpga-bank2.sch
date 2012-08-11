@@ -130,10 +130,8 @@ footprint=0603
 T 40000 49700 5 10 0 1 0 0 1
 value=STERM
 }
-T 44300 45500 9 10 1 0 0 0 4
+T 44300 45500 9 10 1 0 0 0 2
 Hookup flash power.
-Do we really need resistors on all the lines?
-... they do give us an out if I fuck up...
 Don't forget to add an oscillator...
 C 46600 48800 1 0 0 resistor-1.sym
 {
