@@ -188,29 +188,29 @@ value=SPIS
 C 60900 44200 1 0 0 io-1.sym
 {
 T 61800 44400 5 10 0 0 0 0 1
-net=SCK:1
+net=SPIC:1
 T 61100 44800 5 10 0 0 0 0 1
 device=none
 T 61200 44300 5 10 1 1 0 1 1
-value=SCK
+value=SPIC
 }
 C 60900 43800 1 0 0 io-1.sym
 {
 T 61800 44000 5 10 0 0 0 0 1
-net=SMOSI:1
+net=SPID:1
 T 61100 44400 5 10 0 0 0 0 1
 device=none
-T 61100 43900 5 10 1 1 0 1 1
-value=SMOSI
+T 61200 43900 5 10 1 1 0 1 1
+value=SPID
 }
 C 60900 43500 1 0 0 io-1.sym
 {
 T 61800 43700 5 10 0 0 0 0 1
-net=SMISO:1
+net=SPIQ:1
 T 61100 44100 5 10 0 0 0 0 1
 device=none
-T 61100 43600 5 10 1 1 0 1 1
-value=SMISO
+T 61200 43600 5 10 1 1 0 1 1
+value=SPIQ
 }
 C 45300 47700 1 0 0 io-1.sym
 {
