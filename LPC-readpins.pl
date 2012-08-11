@@ -161,6 +161,7 @@ my %wanted_functions;
 for my $p (@pins) {
     for (map { $_->{func} } @{$p->{funcs}}) {
         if (/^ENET_/) {
+            next  if /[23]$/  or  /RX_CLK|COL|CRS|TX_ER|RX_ER/;
 #            next  if /^ENET_RX_ER/;
             $wanted_functions{$_} = 1;
         }
@@ -190,9 +191,10 @@ for my $p (@pins) {
         elsif (/^SPIFI_/) {
             $wanted_functions{$_} = 1;
         }
-        elsif (/^SSP[01]_/) {
-            $wanted_functions{$_} = 1;
-        }
+# SPIFI covers SSP0...
+#        elsif (/^SSP0_/) {
+#            $wanted_functions{$_} = 1;
+#        }
         elsif (/^I2C/) {
             $wanted_functions{$_} = 1;
         }
@@ -297,36 +299,38 @@ sub assign_functions_with_one_pin()
 assign_pins_with_one_function;
 
 # FIXME - check these.
+assign 'D4', 'LCD_DCLK';
 assign 'C14', 'LCD_VD7';
 assign 'A12', 'LCD_VD14';
 assign 'B11', 'LCD_VD15';
 assign 'C8',  'LCD_VD16';
 
-assign 'E13', 'I2C1_SCL';
-assign 'G14', 'I2C1_SDA';
+#assign 'E13', 'I2C1_SCL';
+#assign 'G14', 'I2C1_SDA';
 
-assign 'M6',  'ENET_RXD2';
-assign 'N8',  'ENET_RXD3';
-assign 'N10', 'ENET_TXD2';
-assign 'M9',  'ENET_TXD3';
+#assign 'M6',  'ENET_RXD2';
+#assign 'N8',  'ENET_RXD3';
+#assign 'N10', 'ENET_TXD2';
+#assign 'M9',  'ENET_TXD3';
 assign 'M2',  'ENET_TX_EN';
 assign 'N4',  'ENET_RX_DV';
-assign 'T1',  'ENET_CRS';
+#assign 'T1',  'ENET_CRS';
 assign 'E4',  'ENET_MDC';
 #assign 'M11', 'ENET_TX_CLK';
 # FIXME - one of these is unneeded.  Actually, probably don't need either.
-assign 'N1',  'ENET_TX_ER';
-assign 'K2',  'ENET_RX_ER';
+#assign 'N1',  'ENET_TX_ER';
+#assign 'K2',  'ENET_RX_ER';
 
-assign 'E7',  'SSP1_MISO';
-assign 'B7',  'SSP1_MOSI';
-assign 'E9',  'SSP1_SSEL';
+#assign 'E7',  'SSP1_MISO';
+#assign 'B7',  'SSP1_MOSI';
+#assign 'E9',  'SSP1_SSEL';
 
-assign 'N6',  'SSP0_MISO';
-assign 'F13', 'SSP0_SCK';
+#assign 'N6',  'SSP0_MISO';
+#assign 'F13', 'SSP0_SCK';
 
-assign 'K14', 'USB0_IND0';
-assign 'J13', 'USB0_IND1';
+# Is this the best place to bring these out?
+assign 'K4', 'USB0_IND0';
+assign 'H5', 'USB0_IND1';
 
 #assign 'D16', 'U1_TXD';
 #assign 'K15', 'U2_RXD';
