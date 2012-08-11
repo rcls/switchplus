@@ -108,8 +108,9 @@ refdes=U2
 }
 T 62400 44000 9 10 1 0 90 0 1
 Unused unless we take it to the FPGA.
-T 56700 48500 9 10 1 0 0 0 4
+T 56700 48400 9 10 1 0 0 0 5
 INTR to CPU
 RST_N to CPU
 Serial to CPU
 Pullups to correct power
+(R)MII termination.
