@@ -116,8 +116,6 @@ footprint=0603
 T 47800 47700 5 10 0 1 90 0 1
 value=STERM
 }
-C 38400 48900 1 0 0 3.3v-digital-1.sym
-C 46100 48900 1 0 0 3.3v-digital-1.sym
 N 44500 48300 44500 47400 4
 C 39300 49700 1 0 0 resistor-1.sym
 {
@@ -130,9 +128,8 @@ footprint=0603
 T 40000 49700 5 10 0 1 0 0 1
 value=STERM
 }
-T 44300 45500 9 10 1 0 0 0 2
-Hookup flash power.
-Don't forget to add an oscillator...
+T 44300 45500 9 10 1 0 0 0 1
+Sort out 3.3v v 3.3D power
 C 46600 48800 1 0 0 resistor-1.sym
 {
 T 46900 49200 5 10 0 0 0 0 1
@@ -176,3 +173,8 @@ device=none
 T 35200 46300 5 10 1 1 180 1 1
 value=SCL
 }
+T 44300 45100 9 10 1 0 0 0 2
+Hook up serial - debug connector.
+Replace flash with connection to fpga...
+C 38400 48900 1 0 0 3.3V-plus-1.sym
+C 46100 48900 1 0 0 3.3V-plus-1.sym
