@@ -99,9 +99,9 @@ pintype=unknown
 T 355 1295 5 10 1 1 0 0 1
 pinlabel=USB0_IND0
 T 205 1345 5 10 1 1 0 6 1
-pinnumber=K14
+pinnumber=K4
 T 0 1300 5 10 0 0 0 0 1
-pinseq=K14
+pinseq=K4
 }
 P 0 1000 300 1000 1 0 0
 {
@@ -110,9 +110,9 @@ pintype=unknown
 T 355 995 5 10 1 1 0 0 1
 pinlabel=USB0_IND1
 T 205 1045 5 10 1 1 0 6 1
-pinnumber=J13
+pinnumber=H5
 T 0 1000 5 10 0 0 0 0 1
-pinseq=J13
+pinseq=H5
 }
 P 0 2100 300 2100 1 0 0
 {

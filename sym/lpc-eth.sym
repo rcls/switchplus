@@ -16,7 +16,7 @@ P 1900 5600 1600 5600 1 0 0
 T 1900 5600 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 5595 5 10 1 1 0 6 1
-pinlabel=ENET_TXD3
+pinlabel=GPIO5[18]
 T 1695 5645 5 10 1 1 0 0 1
 pinnumber=M9
 T 1900 5600 5 10 0 0 0 0 1
@@ -27,7 +27,7 @@ P 1900 5300 1600 5300 1 0 0
 T 1900 5300 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 5295 5 10 1 1 0 6 1
-pinlabel=ENET_TXD2
+pinlabel=GPIO5[17]
 T 1695 5345 5 10 1 1 0 0 1
 pinnumber=N10
 T 1900 5300 5 10 0 0 0 0 1
@@ -66,17 +66,6 @@ pinnumber=M11
 T 1900 4300 5 10 0 0 0 0 1
 pinseq=M11
 }
-P 1900 3900 1600 3900 1 0 0
-{
-T 1900 3900 5 10 0 0 0 0 1
-pintype=unknown
-T 1545 3895 5 10 1 1 0 6 1
-pinlabel=ENET_RX_CLK
-T 1695 3945 5 10 1 1 0 0 1
-pinnumber=D4
-T 1900 3900 5 10 0 0 0 0 1
-pinseq=D4
-}
 P 1900 3600 1600 3600 1 0 0
 {
 T 1900 3600 5 10 0 0 0 0 1
@@ -93,7 +82,7 @@ P 1900 3200 1600 3200 1 0 0
 T 1900 3200 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 3195 5 10 1 1 0 6 1
-pinlabel=ENET_RXD3
+pinlabel=GPIO4[14]
 T 1695 3245 5 10 1 1 0 0 1
 pinnumber=N8
 T 1900 3200 5 10 0 0 0 0 1
@@ -104,7 +93,7 @@ P 1900 2900 1600 2900 1 0 0
 T 1900 2900 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 2895 5 10 1 1 0 6 1
-pinlabel=ENET_RXD2
+pinlabel=GPIO4[15]
 T 1695 2945 5 10 1 1 0 0 1
 pinnumber=M6
 T 1900 2900 5 10 0 0 0 0 1
@@ -137,7 +126,7 @@ P 1900 1900 1600 1900 1 0 0
 T 1900 1900 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 1895 5 10 1 1 0 6 1
-pinlabel=ENET_COL
+pinlabel=GPIO4[11]
 T 1695 1945 5 10 1 1 0 0 1
 pinnumber=L11
 T 1900 1900 5 10 0 0 0 0 1
@@ -148,7 +137,7 @@ P 1900 1600 1600 1600 1 0 0
 T 1900 1600 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 1595 5 10 1 1 0 6 1
-pinlabel=ENET_CRS
+pinlabel=GPIO4[12]
 T 1695 1645 5 10 1 1 0 0 1
 pinnumber=T1
 T 1900 1600 5 10 0 0 0 0 1
@@ -163,7 +152,7 @@ P 1900 1200 1600 1200 1 0 0
 T 1900 1200 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 1195 5 10 1 1 0 6 1
-pinlabel=ENET_TX_ER
+pinlabel=GPIO6[13]
 T 1695 1245 5 10 1 1 0 0 1
 pinnumber=N1
 T 1900 1200 5 10 0 0 0 0 1
@@ -174,7 +163,7 @@ P 1900 900 1600 900 1 0 0
 T 1900 900 5 10 0 0 0 0 1
 pintype=unknown
 T 1545 895 5 10 1 1 0 6 1
-pinlabel=ENET_RX_ER
+pinlabel=GPIO4[13]
 T 1695 945 5 10 1 1 0 0 1
 pinnumber=N6
 T 1900 900 5 10 0 0 0 0 1

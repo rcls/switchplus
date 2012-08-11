@@ -249,5 +249,7 @@ T 50700 47300 5 10 1 1 0 1 1
 value=LCD18
 }
 N 50500 47300 50100 47300 4
-T 56100 41300 9 10 1 0 0 0 1
+T 56100 41200 9 10 1 0 0 0 3
 Hook up serial - debug connector.
+I2C Pullups - make sure we get the correct voltate
+Bring I2C1 to pads?

@@ -390,7 +390,7 @@ assign 'L1', 'CGU_OUT0';
 assign 'L12', 'CGU_OUT1';
 assign 'T10', 'CLKOUT';
 assign 'M12', 'I2S0_RX_MCLK';
-#assign 'F13', 'I2S0_TX_SCK';
+assign 'F13', 'I2S0_TX_SCK';
 assign 'P12', 'I2S1_RX_SCK';
 
 my @rows = split //, 'ABCDEFGHJKLMNPRT';

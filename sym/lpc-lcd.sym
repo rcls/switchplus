@@ -139,9 +139,9 @@ pintype=unknown
 T 455 1395 5 10 1 1 0 0 1
 pinlabel=LCD_VD12
 T 305 1445 5 10 1 1 0 6 1
-pinnumber=J3
+pinnumber=C12
 T 100 1400 5 10 0 0 0 0 1
-pinseq=J3
+pinseq=C12
 }
 P 100 1100 400 1100 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 455 1095 5 10 1 1 0 0 1
 pinlabel=LCD_VD13
 T 305 1145 5 10 1 1 0 6 1
-pinnumber=D5
+pinnumber=A15
 T 100 1100 5 10 0 0 0 0 1
-pinseq=D5
+pinseq=A15
 }
 P 100 800 400 800 1 0 0
 {
@@ -271,9 +271,9 @@ pintype=unknown
 T 2545 2195 5 10 1 1 0 6 1
 pinlabel=LCD_DCLK
 T 2695 2245 5 10 1 1 0 0 1
-pinnumber=H4
+pinnumber=D4
 T 2900 2200 5 10 0 0 0 0 1
-pinseq=H4
+pinseq=D4
 }
 P 2900 1900 2600 1900 1 0 0
 {

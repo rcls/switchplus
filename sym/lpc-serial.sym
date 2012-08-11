@@ -7,9 +7,9 @@ pintype=unknown
 T 2845 2795 5 10 1 1 0 6 1
 pinlabel=SSP0_SSEL
 T 2995 2845 5 10 1 1 0 0 1
-pinnumber=C10
+pinnumber=E11
 T 3200 2800 5 10 0 0 0 0 1
-pinseq=C10
+pinseq=E11
 }
 P 3200 2500 2900 2500 1 0 0
 {
@@ -115,7 +115,7 @@ P 0 500 300 500 1 0 0
 T 0 500 5 10 0 0 0 0 1
 pintype=unknown
 T 355 495 5 10 1 1 0 0 1
-pinlabel=I2C1_SCL
+pinlabel=GPIO7[15]
 T 205 545 5 10 1 1 0 6 1
 pinnumber=E13
 T 0 500 5 10 0 0 0 0 1
@@ -126,7 +126,7 @@ P 0 200 300 200 1 0 0
 T 0 200 5 10 0 0 0 0 1
 pintype=unknown
 T 355 195 5 10 1 1 0 0 1
-pinlabel=I2C1_SDA
+pinlabel=GPIO7[13]
 T 205 245 5 10 1 1 0 6 1
 pinnumber=G14
 T 0 200 5 10 0 0 0 0 1
