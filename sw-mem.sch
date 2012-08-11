@@ -4,14 +4,14 @@ C 39200 43100 1 0 0 lpc-emc.sym
 T 39600 49600 5 10 1 1 0 0 1
 value=LPC43 EMC
 T 40700 48900 5 10 1 1 0 0 1
-refdes=U?
+refdes=U1
 }
 C 43500 49700 1 180 1 sdram54-address.sym
 {
 T 43700 49700 5 10 1 1 180 6 1
 description=54 BGA SDRAM
 T 44200 46500 5 10 1 1 180 6 1
-refdes=U?
+refdes=U4
 T 44200 45900 5 10 1 1 180 6 1
 footprint=54VFBGA
 }
@@ -20,7 +20,7 @@ C 36900 43600 1 0 0 sdram54-data.sym
 T 37200 43600 5 10 1 1 0 0 1
 description=54BGA SDRAM
 T 37700 45600 5 10 1 1 0 0 1
-refdes=U?
+refdes=U4
 T 37600 44100 5 10 0 1 0 0 1
 footprint=54VFBGA
 }
@@ -118,9 +118,7 @@ C 44100 50200 1 0 1 resistor-1.sym
 T 43800 50600 5 10 0 0 0 6 1
 device=RESISTOR
 T 44000 50500 5 10 1 1 0 6 1
-refdes=R?
-T 43700 50500 5 10 1 1 0 6 1
-value=DNP
+refdes=R96
 }
 C 44200 50000 1 0 1 gnd-1.sym
 C 42600 49600 1 0 1 resistor-1.sym
@@ -128,32 +126,28 @@ C 42600 49600 1 0 1 resistor-1.sym
 T 42300 50000 5 10 0 0 0 6 1
 device=RESISTOR
 T 41600 49600 5 10 1 1 0 6 1
-refdes=R?
-T 41300 49600 5 10 1 1 0 6 1
-value=DNP
+refdes=R97
 }
 C 42700 49900 1 0 1 resistor-1.sym
 {
 T 42400 50300 5 10 0 0 0 6 1
 device=RESISTOR
 T 41600 49900 5 10 1 1 0 6 1
-refdes=R?
+refdes=R39
 }
 C 42800 50200 1 0 1 resistor-1.sym
 {
 T 42500 50600 5 10 0 0 0 6 1
 device=RESISTOR
 T 41600 50200 5 10 1 1 0 6 1
-refdes=R?
-T 41300 50200 5 10 1 1 0 6 1
-value=DNP
+refdes=R98
 }
 C 42900 50500 1 0 1 resistor-1.sym
 {
 T 42600 50900 5 10 0 0 0 6 1
 device=RESISTOR
 T 41600 50500 5 10 1 1 0 6 1
-refdes=R?
+refdes=R37
 }
 N 42000 50600 41700 50600 4
 N 41700 50600 41700 49700 4

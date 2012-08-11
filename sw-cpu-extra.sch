@@ -4,28 +4,28 @@ C 41000 42300 1 0 0 lpc-misc.sym
 T 41400 49000 5 10 1 1 0 0 1
 value=LPC Misc
 T 42300 49000 5 10 1 1 0 0 1
-refdes=U?
+refdes=U1
 }
 C 33500 46300 1 0 0 lpc-gpio.sym
 {
 T 33800 49700 5 10 1 1 0 0 1
 value=LPC GPIO
 T 34900 49700 5 10 1 1 0 0 1
-refdes=U?
+refdes=U1
 }
 C 33400 41500 1 0 0 lpc-gpio6.sym
 {
 T 33700 45900 5 10 1 1 0 0 1
 value=LPC GPIO6
 T 35000 45900 5 10 1 1 0 0 1
-refdes=U?
+refdes=U1
 }
 C 37400 41500 1 0 0 lpc-gpio7.sym
 {
 T 37800 45000 5 10 1 1 0 0 1
 value=LPC GPIO7
 T 38900 45000 5 10 1 1 0 0 1
-refdes=U?
+refdes=U1
 }
 T 40300 42000 9 10 1 0 0 0 1
 Hook-up unused pins as convenient...
@@ -34,7 +34,7 @@ C 40000 45800 1 0 0 crystal-1.sym
 T 40200 46300 5 10 0 0 0 0 1
 device=CRYSTAL
 T 40500 46000 5 10 1 1 0 0 1
-refdes=U?
+refdes=X1
 T 40200 46500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -43,7 +43,7 @@ C 40200 45400 1 90 0 capacitor.sym
 T 39500 45600 5 10 0 0 90 0 1
 device=CAPACITOR
 T 39700 45800 5 10 1 1 180 0 1
-refdes=C?
+refdes=C2
 T 39300 45600 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -52,7 +52,7 @@ C 40900 45400 1 90 0 capacitor.sym
 T 40200 45600 5 10 0 0 90 0 1
 device=CAPACITOR
 T 40400 45700 5 10 1 1 180 0 1
-refdes=C?
+refdes=C3
 T 40000 45600 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -66,21 +66,21 @@ C 39700 46800 1 0 0 resistor-1.sym
 T 40000 47200 5 10 0 0 0 0 1
 device=RESISTOR
 T 40200 47000 5 10 1 1 0 0 1
-refdes=R?
+refdes=R2
 }
 C 38800 46800 1 0 0 resistor-1.sym
 {
 T 39100 47200 5 10 0 0 0 0 1
 device=RESISTOR
 T 39200 47100 5 10 1 1 0 0 1
-refdes=R?
+refdes=R1
 }
 C 40800 46400 1 90 0 capacitor.sym
 {
 T 40100 46600 5 10 0 0 90 0 1
 device=CAPACITOR
-T 40300 46600 5 10 1 1 90 0 1
-refdes=C?
+T 40300 46700 5 10 1 1 180 0 1
+refdes=C1
 T 39900 46600 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -89,7 +89,7 @@ N 41000 46900 41000 46700 4
 C 38700 46500 1 0 0 switch-pushbutton-no-1.sym
 {
 T 38500 46500 5 10 1 1 0 0 1
-refdes=S?
+refdes=S1
 T 39100 47100 5 10 0 0 0 0 1
 device=SWITCH_PUSHBUTTON_NO
 }

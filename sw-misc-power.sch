@@ -4,7 +4,7 @@ C 40000 45200 1 0 0 ksz8895-power.sym
 T 41200 46700 5 10 1 1 0 0 1
 value=KSZ8895
 T 42200 46600 5 10 1 1 0 0 1
-refdes=U?
+refdes=U2
 }
 C 35600 45200 1 0 0 sdram54-power.sym
 {
@@ -13,7 +13,7 @@ description=54 BGA SDRAM Power
 T 35800 46500 5 10 1 1 0 0 1
 footprint=54VFBGA
 T 37000 46500 5 10 1 1 0 0 1
-refdes=U?
+refdes=U4
 }
 N 40700 48000 41300 48000 4
 N 41300 47900 41300 48000 4
@@ -53,7 +53,7 @@ C 43000 48100 1 0 0 capacitor.sym
 T 43200 48800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 43300 48400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C64
 T 43200 49000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -62,7 +62,7 @@ C 43000 48600 1 0 0 capacitor.sym
 T 43200 49300 5 10 0 0 0 0 1
 device=CAPACITOR
 T 43300 48900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C63
 T 43200 49500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -71,7 +71,7 @@ C 43000 49100 1 0 0 capacitor.sym
 T 43200 49800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 43300 49400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C61
 T 43200 50000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -80,7 +80,7 @@ C 40700 48100 1 0 0 capacitor.sym
 T 40900 48800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 41000 48400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C57
 T 40900 49000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -89,7 +89,7 @@ C 40700 48600 1 0 0 capacitor.sym
 T 40900 49300 5 10 0 0 0 0 1
 device=CAPACITOR
 T 41000 48900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C54
 T 40900 49500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -98,7 +98,7 @@ C 40700 49100 1 0 0 capacitor.sym
 T 40900 49800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 41000 49400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C53
 T 40900 50000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -107,7 +107,7 @@ C 41700 48100 1 0 0 capacitor.sym
 T 41900 48800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 42000 48400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C60
 T 41900 49000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -116,7 +116,7 @@ C 41700 48600 1 0 0 capacitor.sym
 T 41900 49300 5 10 0 0 0 0 1
 device=CAPACITOR
 T 42000 48900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C59
 T 41900 49500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -125,7 +125,7 @@ C 41700 49600 1 0 0 capacitor.sym
 T 41900 50300 5 10 0 0 0 0 1
 device=CAPACITOR
 T 42000 49900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C55
 T 41900 50500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -134,7 +134,7 @@ C 44000 48100 1 0 0 capacitor.sym
 T 44200 48800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 44300 48400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C67
 T 44200 49000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -143,7 +143,7 @@ C 44000 48600 1 0 0 capacitor.sym
 T 44200 49300 5 10 0 0 0 0 1
 device=CAPACITOR
 T 44300 48900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C66
 T 44200 49500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -152,7 +152,7 @@ C 44000 49100 1 0 0 capacitor.sym
 T 44200 49800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 44300 49400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C65
 T 44200 50000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -163,7 +163,7 @@ C 41700 49100 1 0 0 capacitor.sym
 T 41900 49800 5 10 0 0 0 0 1
 device=CAPACITOR
 T 42000 49400 5 10 1 1 0 0 1
-refdes=C?
+refdes=C58
 T 41900 50000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -174,7 +174,7 @@ C 40800 49700 1 0 0 fuse-2.sym
 T 41000 50250 5 10 0 0 0 0 1
 device=FUSE
 T 41000 50000 5 10 1 1 0 0 1
-refdes=FB?
+refdes=FB1
 T 41000 50450 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -183,7 +183,7 @@ C 43100 49700 1 0 0 fuse-2.sym
 T 43300 50250 5 10 0 0 0 0 1
 device=FUSE
 T 43300 50000 5 10 1 1 0 0 1
-refdes=FB?
+refdes=FB2
 T 43300 50450 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -206,7 +206,7 @@ C 39600 46500 1 180 0 crystal-1.sym
 T 39400 46000 5 10 0 0 180 0 1
 device=CRYSTAL
 T 39100 46100 5 10 1 1 0 0 1
-refdes=U?
+refdes=X2
 T 39400 45800 5 10 0 0 180 0 1
 symversion=0.1
 }
@@ -214,8 +214,8 @@ C 39000 45900 1 90 0 capacitor.sym
 {
 T 38300 46100 5 10 0 0 90 0 1
 device=CAPACITOR
-T 38500 46100 5 10 1 1 90 0 1
-refdes=C?
+T 38700 46400 5 10 1 1 180 0 1
+refdes=C56
 T 38100 46100 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -223,8 +223,8 @@ C 39900 45900 1 90 0 capacitor.sym
 {
 T 39200 46100 5 10 0 0 90 0 1
 device=CAPACITOR
-T 40000 46000 5 10 1 1 180 0 1
-refdes=C?
+T 40100 46000 5 10 1 1 180 0 1
+refdes=C62
 T 39000 46100 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -239,8 +239,8 @@ C 36700 48100 1 90 0 capacitor.sym
 {
 T 36000 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 36550 48450 5 10 1 1 0 0 1
-refdes=C?
+T 36350 48650 5 10 1 1 0 0 1
+refdes=C46
 T 35800 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -248,8 +248,8 @@ C 37200 48100 1 90 0 capacitor.sym
 {
 T 36500 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 37050 48450 5 10 1 1 0 0 1
-refdes=C?
+T 36850 48650 5 10 1 1 0 0 1
+refdes=C47
 T 36300 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -257,8 +257,8 @@ C 37700 48100 1 90 0 capacitor.sym
 {
 T 37000 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 37550 48450 5 10 1 1 0 0 1
-refdes=C?
+T 37350 48650 5 10 1 1 0 0 1
+refdes=C48
 T 36800 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -266,8 +266,8 @@ C 38200 48100 1 90 0 capacitor.sym
 {
 T 37500 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 38050 48450 5 10 1 1 0 0 1
-refdes=C?
+T 37850 47850 5 10 1 1 0 0 1
+refdes=C49
 T 37300 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -275,8 +275,8 @@ C 38700 48100 1 90 0 capacitor.sym
 {
 T 38000 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 38550 48450 5 10 1 1 0 0 1
-refdes=C?
+T 38350 48650 5 10 1 1 0 0 1
+refdes=C50
 T 37800 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -284,8 +284,8 @@ C 39200 48100 1 90 0 capacitor.sym
 {
 T 38500 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 39050 48450 5 10 1 1 0 0 1
-refdes=C?
+T 38850 48650 5 10 1 1 0 0 1
+refdes=C51
 T 38300 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -293,8 +293,8 @@ C 39700 48100 1 90 0 capacitor.sym
 {
 T 39000 48300 5 10 0 0 90 0 1
 device=CAPACITOR
-T 39550 48450 5 10 1 1 0 0 1
-refdes=C?
+T 39350 48650 5 10 1 1 0 0 1
+refdes=C52
 T 38800 48300 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -309,7 +309,7 @@ N 37600 47500 37600 47700 4
 N 36500 48100 39500 48100 4
 N 35900 48600 39500 48600 4
 C 37800 48600 1 0 0 3.3V-plus-1.sym
-C 37900 47800 1 0 0 gnd-1.sym
+C 38900 47800 1 0 0 gnd-1.sym
 N 36000 45300 36000 45100 4
 N 36000 45100 37900 45100 4
 N 37900 45100 37900 45300 4
@@ -322,8 +322,8 @@ C 45500 46800 1 0 0 resistor-1.sym
 {
 T 45800 47200 5 10 0 0 0 0 1
 device=RESISTOR
-T 45700 47100 5 10 1 1 0 0 1
-refdes=R?
+T 45600 47100 5 10 1 1 0 0 1
+refdes=R46
 T 46000 47100 5 10 1 1 0 0 1
 value=12k4
 }
@@ -336,3 +336,5 @@ instead of XTAL?
 T 36800 49200 9 20 1 0 0 0 2
 11. SDRAM and
 Ethernet Power
+N 39000 48100 38000 48100 4
+N 39000 48100 37500 48100 4

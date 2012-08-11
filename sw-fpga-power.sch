@@ -2,7 +2,7 @@ v 20110115 2
 C 43200 44000 1 0 0 spartan6-qfp144-power.sym
 {
 T 45200 45700 5 10 1 1 0 0 1
-refdes=U?
+refdes=U3
 T 44000 45100 5 10 1 1 0 0 1
 device=Spartan6 Power
 T 45400 45100 5 10 1 1 0 0 1
@@ -29,7 +29,7 @@ C 47200 44900 1 90 0 capacitor.sym
 T 46500 45100 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47200 44800 5 10 1 1 180 0 1
-refdes=C?
+refdes=C44
 T 46300 45100 5 10 0 0 90 0 1
 symversion=0.1
 T 47200 44900 5 10 0 1 0 0 1
@@ -42,7 +42,7 @@ C 47700 44900 1 90 0 capacitor.sym
 T 47000 45100 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47700 45600 5 10 1 1 180 0 1
-refdes=C?
+refdes=C43
 T 46800 45100 5 10 0 0 90 0 1
 symversion=0.1
 T 47700 44900 5 10 0 1 0 0 1
@@ -55,7 +55,7 @@ C 48200 44900 1 90 0 capacitor.sym
 T 47500 45100 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48400 45000 5 10 1 1 180 0 1
-refdes=C?
+refdes=C45
 T 47300 45100 5 10 0 0 90 0 1
 symversion=0.1
 T 48200 44900 5 10 0 1 0 0 1
@@ -70,7 +70,7 @@ C 47600 46200 1 90 0 capacitor.sym
 T 46900 46400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47500 46900 5 10 1 1 180 0 1
-refdes=C?
+refdes=C40
 T 46700 46400 5 10 0 0 90 0 1
 symversion=0.1
 T 47600 46200 5 10 0 1 0 0 1
@@ -83,7 +83,7 @@ C 48100 46200 1 90 0 capacitor.sym
 T 47400 46400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48400 46500 5 10 1 1 180 0 1
-refdes=C?
+refdes=C42
 T 47200 46400 5 10 0 0 90 0 1
 symversion=0.1
 T 48100 46200 5 10 0 1 0 0 1
@@ -99,7 +99,7 @@ C 47700 47200 1 90 0 capacitor.sym
 T 47000 47400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47400 47300 5 10 1 1 180 0 1
-refdes=C?
+refdes=C37
 T 46800 47400 5 10 0 0 90 0 1
 symversion=0.1
 T 47700 47200 5 10 0 1 0 0 1
@@ -112,7 +112,7 @@ C 48200 47200 1 90 0 capacitor.sym
 T 47500 47400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48200 47900 5 10 1 1 180 0 1
-refdes=C?
+refdes=C39
 T 47300 47400 5 10 0 0 90 0 1
 symversion=0.1
 T 48200 47200 5 10 0 1 0 0 1
@@ -125,7 +125,7 @@ C 48700 47200 1 90 0 capacitor.sym
 T 48000 47400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48800 47700 5 10 1 1 180 0 1
-refdes=C?
+refdes=C41
 T 47800 47400 5 10 0 0 90 0 1
 symversion=0.1
 T 48700 47200 5 10 0 1 0 0 1
@@ -145,7 +145,7 @@ C 47700 48200 1 90 0 capacitor.sym
 T 47000 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47700 48100 5 10 1 1 180 0 1
-refdes=C?
+refdes=C36
 T 46800 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 47700 48200 5 10 0 1 0 0 1
@@ -158,7 +158,7 @@ C 48200 48200 1 90 0 capacitor.sym
 T 47500 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48200 48900 5 10 1 1 180 0 1
-refdes=C?
+refdes=C35
 T 47300 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 48200 48200 5 10 0 1 0 0 1
@@ -171,7 +171,7 @@ C 48700 48200 1 90 0 capacitor.sym
 T 48000 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 48800 48700 5 10 1 1 180 0 1
-refdes=C?
+refdes=C38
 T 47800 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 48700 48200 5 10 0 1 0 0 1
@@ -187,7 +187,7 @@ C 41000 48200 1 90 0 capacitor.sym
 T 40300 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 41100 48100 5 10 1 1 180 0 1
-refdes=C?
+refdes=C26
 T 40100 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 41000 48200 5 10 0 1 0 0 1
@@ -200,7 +200,7 @@ C 41500 48200 1 90 0 capacitor.sym
 T 40800 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 41500 48900 5 10 1 1 180 0 1
-refdes=C?
+refdes=C25
 T 40600 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 41500 48200 5 10 0 1 0 0 1
@@ -213,7 +213,7 @@ C 42000 48200 1 90 0 capacitor.sym
 T 41300 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42000 48100 5 10 1 1 180 0 1
-refdes=C?
+refdes=C28
 T 41100 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 42000 48200 5 10 0 1 0 0 1
@@ -226,7 +226,7 @@ C 42500 48200 1 90 0 capacitor.sym
 T 41800 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42500 48900 5 10 1 1 180 0 1
-refdes=C?
+refdes=C27
 T 41600 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 43000 48400 5 10 0 1 0 0 1
@@ -239,7 +239,7 @@ C 43000 48200 1 90 0 capacitor.sym
 T 42300 48400 5 10 0 0 90 0 1
 device=CAPACITOR
 T 43000 48100 5 10 1 1 180 0 1
-refdes=C?
+refdes=C31
 T 42100 48400 5 10 0 0 90 0 1
 symversion=0.1
 T 43000 48200 5 10 0 1 0 0 1
@@ -263,7 +263,7 @@ C 41600 46600 1 90 0 capacitor.sym
 T 40900 46800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 41600 47300 5 10 1 1 180 0 1
-refdes=C?
+refdes=C29
 T 40700 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 41600 46600 5 10 0 1 0 0 1
@@ -276,7 +276,7 @@ C 42100 46600 1 90 0 capacitor.sym
 T 41400 46800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42100 46500 5 10 1 1 180 0 1
-refdes=C?
+refdes=C33
 T 41200 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 42100 46600 5 10 0 1 0 0 1
@@ -289,7 +289,7 @@ C 42600 46600 1 90 0 capacitor.sym
 T 41900 46800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42700 47300 5 10 1 1 180 0 1
-refdes=C?
+refdes=C32
 T 41700 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 42600 46600 5 10 0 1 0 0 1
@@ -302,7 +302,7 @@ C 43100 46600 1 90 0 capacitor.sym
 T 42400 46800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 43100 46500 5 10 1 1 180 0 1
-refdes=C?
+refdes=C34
 T 42200 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 43100 46600 5 10 0 1 0 0 1
@@ -323,7 +323,7 @@ C 41100 46600 1 90 0 capacitor.sym
 T 40400 46800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 41200 46500 5 10 1 1 180 0 1
-refdes=C?
+refdes=C30
 T 40200 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 41100 46600 5 10 0 1 0 0 1

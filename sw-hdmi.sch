@@ -6,14 +6,14 @@ device=Spartan6 Bank 0
 T 46300 45800 5 10 1 1 0 0 1
 footprint=QFP144
 T 46100 49000 5 10 1 1 0 0 1
-refdes=U?
+refdes=U3
 }
 C 41000 44800 1 0 0 hdmi.sym
 {
 T 41900 50600 5 10 0 1 0 0 1
 footprint=molex-hdmi
 T 41000 50600 5 10 1 1 0 0 1
-refdes=CONN?
+refdes=CONN2
 T 41100 49100 5 10 1 1 0 0 1
 value=HDMI
 }
@@ -56,7 +56,7 @@ C 42700 49600 1 0 0 resistor-1.sym
 T 43000 50000 5 10 0 0 0 0 1
 device=RESISTOR
 T 42900 49900 5 10 1 1 0 0 1
-refdes=R?
+refdes=R21
 T 43200 49900 5 10 1 1 0 0 1
 value=1k
 }

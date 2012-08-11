@@ -2,7 +2,7 @@ v 20110115 2
 C 39300 44800 1 0 0 spartan6-qfp144-bank2.sym
 {
 T 41100 48500 5 10 1 1 0 0 1
-refdes=U?
+refdes=U3
 T 40000 45000 5 10 1 1 0 0 1
 device=Spartan6 Bank 2
 T 41900 45000 5 10 1 1 0 0 1
@@ -13,7 +13,7 @@ C 45100 46500 1 0 0 at45db081.sym
 T 45900 47700 5 10 1 1 0 0 1
 device=AT45D081
 T 46200 47400 5 10 1 1 0 0 1
-refdes=U?
+refdes=U5
 T 46700 47100 5 10 1 1 0 0 1
 footprint=SO8
 }
@@ -33,7 +33,7 @@ C 43300 46700 1 0 0 resistor-1.sym
 T 43600 47100 5 10 0 0 0 0 1
 device=RESISTOR
 T 43600 46500 5 10 1 1 0 0 1
-refdes=R?
+refdes=R7
 T 43300 46700 5 10 0 1 0 0 1
 footprint=0603
 T 43300 46700 5 10 0 1 0 0 1
@@ -44,7 +44,7 @@ C 43300 48800 1 0 0 resistor-1.sym
 T 43600 49200 5 10 0 0 0 0 1
 device=RESISTOR
 T 43600 48600 5 10 1 1 0 0 1
-refdes=R399
+refdes=R99
 T 43300 48800 5 10 0 1 0 0 1
 footprint=0603
 T 43300 48800 5 10 0 1 0 0 1
@@ -63,7 +63,7 @@ C 45200 46500 1 90 0 capacitor.sym
 T 44500 46700 5 10 0 0 90 0 1
 device=CAPACITOR
 T 44900 47000 5 10 1 1 180 0 1
-refdes=C?
+refdes=C22
 T 44300 46700 5 10 0 0 90 0 1
 symversion=0.1
 T 45900 46700 5 10 0 1 0 0 1
@@ -77,7 +77,7 @@ C 38600 48800 1 0 0 resistor-1.sym
 T 38900 49200 5 10 0 0 0 0 1
 device=RESISTOR
 T 38900 49000 5 10 1 1 0 0 1
-refdes=R?
+refdes=R3
 T 38600 48800 5 10 0 1 0 0 1
 footprint=0603
 T 38600 48800 5 10 0 1 0 0 1
@@ -88,7 +88,7 @@ C 44400 49200 1 270 0 resistor-1.sym
 T 44800 48900 5 10 0 0 270 0 1
 device=RESISTOR
 T 44200 48400 5 10 1 1 270 0 1
-refdes=R?
+refdes=R5
 T 44400 49200 5 10 0 1 270 0 1
 footprint=0603
 T 44400 49200 5 10 0 1 0 0 1
@@ -99,7 +99,7 @@ C 43300 47600 1 0 0 resistor-1.sym
 T 43600 48000 5 10 0 0 0 0 1
 device=RESISTOR
 T 43700 47400 5 10 1 1 0 0 1
-refdes=R?
+refdes=R6
 T 43300 47600 5 10 0 1 0 0 1
 footprint=0603
 T 43800 47600 5 10 0 1 0 0 1
@@ -110,7 +110,7 @@ C 47800 47700 1 90 0 resistor-1.sym
 T 47400 48000 5 10 0 0 90 0 1
 device=RESISTOR
 T 48000 47900 5 10 1 1 90 0 1
-refdes=R?
+refdes=R9
 T 47800 47700 5 10 0 1 90 0 1
 footprint=0603
 T 47800 47700 5 10 0 1 90 0 1
@@ -122,7 +122,7 @@ C 39300 49700 1 0 0 resistor-1.sym
 T 39600 50100 5 10 0 0 0 0 1
 device=RESISTOR
 T 40100 49600 5 10 1 1 0 0 1
-refdes=R?
+refdes=R4
 T 40000 49800 5 10 0 1 0 0 1
 footprint=0603
 T 40000 49700 5 10 0 1 0 0 1
@@ -133,7 +133,7 @@ C 46600 48800 1 0 0 resistor-1.sym
 T 46900 49200 5 10 0 0 0 0 1
 device=RESISTOR
 T 47100 49100 5 10 1 1 0 0 1
-refdes=R?
+refdes=R8
 }
 N 47700 47700 47500 47700 4
 C 35700 45000 1 0 0 lpc-serial.sym

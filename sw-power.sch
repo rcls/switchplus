@@ -4,7 +4,7 @@ C 42700 46800 1 0 0 lmz12002.sym
 T 42800 47700 5 10 1 1 0 0 1
 device=LMZ12002
 T 44100 47700 5 10 1 1 0 0 1
-refdes=U?
+refdes=U6
 T 44800 47700 5 10 1 1 0 0 1
 footprint=TO-PMOD
 }
@@ -14,7 +14,7 @@ C 46300 46300 1 90 0 capacitor.sym
 T 45600 46500 5 10 0 0 90 0 1
 device=CAPACITOR
 T 46600 46700 5 10 1 1 180 0 1
-refdes=C?
+refdes=C72
 T 45400 46500 5 10 0 0 90 0 1
 symversion=0.1
 T 46300 46300 5 10 0 0 0 0 1
@@ -31,7 +31,7 @@ C 46300 45500 1 0 0 resistor-1.sym
 T 46600 45900 5 10 0 0 0 0 1
 device=RESISTOR
 T 46300 45300 5 10 1 1 0 0 1
-refdes=R?
+refdes=R50
 T 46300 45500 5 10 0 1 0 0 1
 footprint=0603
 T 46800 45300 5 10 1 1 0 0 1
@@ -42,7 +42,7 @@ C 45200 46300 1 90 0 capacitor.sym
 T 44500 46500 5 10 0 0 90 0 1
 device=CAPACITOR
 T 44800 46700 5 10 1 1 180 0 1
-refdes=C?
+refdes=C69
 T 44300 46500 5 10 0 0 90 0 1
 symversion=0.1
 T 45000 46400 5 10 0 1 0 0 1
@@ -56,7 +56,7 @@ C 43500 45900 1 90 0 resistor-1.sym
 T 43100 46200 5 10 0 0 90 0 1
 device=RESISTOR
 T 43700 46100 5 10 1 1 90 0 1
-refdes=R?
+refdes=R47
 T 43500 45900 5 10 0 1 0 0 1
 footprint=0603
 T 43400 46100 5 10 0 1 0 0 1
@@ -68,7 +68,7 @@ C 46700 45900 1 0 0 capacitor.sym
 T 46900 46600 5 10 0 0 0 0 1
 device=CAPACITOR
 T 46600 45900 5 10 1 1 0 0 1
-refdes=C?
+refdes=C73
 T 46900 46800 5 10 0 0 0 0 1
 symversion=0.1
 T 46700 45900 5 10 0 1 0 0 1
@@ -86,7 +86,7 @@ C 43100 46300 1 90 0 capacitor.sym
 T 42400 46500 5 10 0 0 90 0 1
 device=CAPACITOR
 T 43200 46400 5 10 1 1 180 0 1
-refdes=C?
+refdes=C68
 T 42200 46500 5 10 0 0 90 0 1
 symversion=0.1
 T 43100 46300 5 10 0 0 0 0 1
@@ -99,7 +99,7 @@ C 42500 45000 1 90 0 fuse-2.sym
 T 41950 45200 5 10 0 0 90 0 1
 device=FUSE
 T 42700 45200 5 10 1 1 90 0 1
-refdes=FB?
+refdes=FB3
 T 41750 45200 5 10 0 0 90 0 1
 symversion=0.1
 T 42500 45000 5 10 0 1 0 0 1
@@ -112,7 +112,7 @@ C 45800 46300 1 90 0 capacitor.sym
 T 45100 46500 5 10 0 0 90 0 1
 device=CAPACITOR
 T 45500 46200 5 10 1 1 90 0 1
-refdes=C?
+refdes=C71
 T 44900 46500 5 10 0 0 90 0 1
 symversion=0.1
 T 45200 46500 5 10 0 1 0 0 1
@@ -126,7 +126,7 @@ C 43100 41600 1 0 0 tps62150.sym
 T 44200 42900 5 10 1 1 0 0 1
 value=TPS62150
 T 44300 44200 5 10 1 1 0 0 1
-refdes=U?
+refdes=U7
 T 44100 43700 5 10 1 1 0 0 1
 footprint=QFN16
 }
@@ -135,7 +135,7 @@ C 42600 43600 1 90 0 capacitor.sym
 T 41900 43800 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42300 43500 5 10 1 1 90 0 1
-refdes=C?
+refdes=C70
 T 41700 43800 5 10 0 0 90 0 1
 symversion=0.1
 T 42400 43600 5 10 1 1 0 0 1
@@ -146,7 +146,7 @@ C 47200 43700 1 90 0 capacitor.sym
 T 46500 43900 5 10 0 0 90 0 1
 device=CAPACITOR
 T 47000 43600 5 10 1 1 90 0 1
-refdes=C?
+refdes=C75
 T 46300 43900 5 10 0 0 90 0 1
 symversion=0.1
 T 47000 43700 5 10 1 1 0 0 1
@@ -157,7 +157,7 @@ C 43300 41900 1 90 0 capacitor.sym
 T 42600 42100 5 10 0 0 90 0 1
 device=CAPACITOR
 T 42800 42100 5 10 1 1 90 0 1
-refdes=C?
+refdes=C74
 T 42400 42100 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -166,7 +166,7 @@ C 46700 42300 1 90 0 resistor-1.sym
 T 46300 42600 5 10 0 0 90 0 1
 device=RESISTOR
 T 46400 42500 5 10 1 1 90 0 1
-refdes=R?
+refdes=R52
 T 46700 42400 5 10 1 1 0 0 1
 value=180k
 }
@@ -175,7 +175,7 @@ C 45700 44400 1 0 0 inductor-1.sym
 T 45900 44900 5 10 0 1 0 0 1
 device=INDUCTOR
 T 45800 44300 5 10 1 1 0 0 1
-refdes=L?
+refdes=L1
 T 45900 45100 5 10 0 1 0 0 1
 symversion=0.1
 T 45800 44600 5 10 1 1 0 0 1
@@ -203,7 +203,7 @@ C 42500 44100 1 90 0 fuse-2.sym
 T 41950 44300 5 10 0 0 90 0 1
 device=FUSE
 T 42700 44400 5 10 1 1 90 0 1
-refdes=FB?
+refdes=FB4
 T 41750 44300 5 10 0 0 90 0 1
 symversion=0.1
 T 42500 44100 5 10 0 1 0 0 1
@@ -213,8 +213,8 @@ C 41800 44000 1 0 1 header4.sym
 {
 T 40800 44650 5 10 0 0 0 6 1
 device=HEADER3
-T 41400 45700 5 10 1 1 0 6 1
-refdes=J?
+T 41300 45700 5 10 1 1 0 6 1
+refdes=J1
 }
 N 41800 45000 47400 45000 4
 C 41600 45400 1 0 0 5V-plus-1.sym
@@ -226,7 +226,7 @@ C 41100 43600 1 180 1 pwrjack-1.sym
 T 41200 43100 5 10 0 0 180 6 1
 device=PWRJACK
 T 41100 43100 5 10 1 1 180 6 1
-refdes=CONN?
+refdes=CONN4
 T 41100 43600 5 10 0 0 0 0 1
 footprint=power-jack-2mm
 }
@@ -236,14 +236,14 @@ C 47400 45200 1 180 1 header4.sym
 T 48400 44550 5 10 0 0 180 6 1
 device=HEADER3
 T 47800 45400 5 10 1 1 180 6 1
-refdes=J?
+refdes=J2
 }
 C 47400 45800 1 0 0 header4.sym
 {
 T 48400 46450 5 10 0 0 0 0 1
 device=HEADER3
 T 47800 47500 5 10 1 1 0 0 1
-refdes=J?
+refdes=J3
 }
 C 47300 46100 1 0 0 gnd-1.sym
 N 47400 45000 47400 46000 4
@@ -252,7 +252,7 @@ C 46700 43200 1 90 0 resistor-1.sym
 T 46300 43500 5 10 0 0 90 0 1
 device=RESISTOR
 T 46400 43900 5 10 1 1 180 0 1
-refdes=R?
+refdes=R51
 T 46100 43400 5 10 1 1 0 0 1
 value=562k
 }
@@ -263,7 +263,7 @@ C 44400 45500 1 0 0 resistor-1.sym
 T 44700 45900 5 10 0 0 0 0 1
 device=RESISTOR
 T 45000 45300 5 10 1 1 0 0 1
-refdes=R?
+refdes=R49
 T 44400 45500 5 10 0 1 0 0 1
 footprint=0603
 T 44500 45300 5 10 1 1 0 0 1
@@ -285,8 +285,8 @@ C 46500 47100 1 0 0 resistor-1.sym
 {
 T 46800 47500 5 10 0 0 0 0 1
 device=RESISTOR
-T 46600 47400 5 10 1 1 0 0 1
-refdes=R?
+T 46500 47400 5 10 1 1 0 0 1
+refdes=R48
 T 46900 47400 5 10 1 1 0 0 1
 value=0R0
 }
@@ -295,18 +295,11 @@ C 47400 43300 1 0 0 resistor-1.sym
 T 47700 43700 5 10 0 0 0 0 1
 device=RESISTOR
 T 47500 43100 5 10 1 1 0 0 1
-refdes=R?
-T 47800 43100 5 10 1 1 0 0 1
+refdes=R53
+T 47900 43100 5 10 1 1 0 0 1
 value=0R0
 }
 N 48300 44200 48300 43400 4
 N 46500 47200 46500 46800 4
-C 41800 44400 1 0 1 header3-1.sym
-{
-T 40800 45050 5 10 0 0 0 6 1
-device=HEADER3
-T 41400 45700 5 10 1 1 0 6 1
-refdes=J?
-}
 T 45500 41700 9 20 1 0 0 0 1
 12. Main Power

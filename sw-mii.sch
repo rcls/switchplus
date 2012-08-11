@@ -46,16 +46,14 @@ C 61000 47800 1 0 0 resistor-1.sym
 T 61300 48200 5 10 0 0 0 0 1
 device=RESISTOR
 T 61200 48100 5 10 1 1 0 0 1
-refdes=R?
-T 61400 48100 5 10 1 1 0 0 1
-value=DNP
+refdes=R95
 }
 C 61000 47500 1 0 0 resistor-1.sym
 {
 T 61300 47900 5 10 0 0 0 0 1
 device=RESISTOR
 T 61500 47300 5 10 1 1 0 0 1
-refdes=R?
+refdes=R45
 }
 C 61700 47900 1 0 0 3.3V-plus-1.sym
 N 61900 47900 61900 47600 4
@@ -69,16 +67,14 @@ C 57400 45600 1 0 0 resistor-1.sym
 T 57700 46000 5 10 0 0 0 0 1
 device=RESISTOR
 T 57700 45900 5 10 1 1 0 0 1
-refdes=R?
+refdes=R42
 }
 C 57400 45300 1 0 0 resistor-1.sym
 {
 T 57700 45700 5 10 0 0 0 0 1
 device=RESISTOR
 T 57500 45100 5 10 1 1 0 0 1
-refdes=R?
-T 57800 45100 5 10 1 1 0 0 1
-value=DNP
+refdes=R94
 }
 N 57400 45400 57400 45700 4
 C 57200 45700 1 0 0 3.3V-plus-1.sym
