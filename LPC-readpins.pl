@@ -188,14 +188,14 @@ for my $p (@pins) {
             next  if /^EMC_CKEOUT(.*)/  and  $1 ne $emc_channel;
             $wanted_functions{$_} = 1;
         }
-        elsif (/^SPIFI_/) {
-            $wanted_functions{$_} = 1;
-        }
-# SPIFI covers SSP0...
-#        elsif (/^SSP0_/) {
+#        elsif (/^SPIFI_/) {
 #            $wanted_functions{$_} = 1;
 #        }
-        elsif (/^I2C/) {
+# SPIFI covers SSP0...
+        elsif (/^SSP/) {
+            $wanted_functions{$_} = 1;
+        }
+        elsif (/^I2C0/) {
             $wanted_functions{$_} = 1;
         }
 #        elsif (/^U[0]_(RX|TX)/) {
@@ -300,10 +300,15 @@ assign_pins_with_one_function;
 
 # FIXME - check these.
 assign 'D4', 'LCD_DCLK';
+assign 'B6', 'LCD_PWR';
+assign 'K1', 'LCD_VD4';
 assign 'C14', 'LCD_VD7';
+assign 'C12', 'LCD_VD12';
+assign 'A15', 'LCD_VD13';
 assign 'A12', 'LCD_VD14';
 assign 'B11', 'LCD_VD15';
 assign 'C8',  'LCD_VD16';
+assign 'A6',  'LCD_VD19';
 
 #assign 'E13', 'I2C1_SCL';
 #assign 'G14', 'I2C1_SDA';
@@ -313,7 +318,7 @@ assign 'C8',  'LCD_VD16';
 #assign 'N10', 'ENET_TXD2';
 #assign 'M9',  'ENET_TXD3';
 assign 'M2',  'ENET_TX_EN';
-assign 'N4',  'ENET_RX_DV';
+assign 'N4',  'ENET_RX_DV'; # or M7?
 #assign 'T1',  'ENET_CRS';
 assign 'E4',  'ENET_MDC';
 #assign 'M11', 'ENET_TX_CLK';
@@ -321,12 +326,14 @@ assign 'E4',  'ENET_MDC';
 #assign 'N1',  'ENET_TX_ER';
 #assign 'K2',  'ENET_RX_ER';
 
-#assign 'E7',  'SSP1_MISO';
-#assign 'B7',  'SSP1_MOSI';
-#assign 'E9',  'SSP1_SSEL';
+assign 'E7',  'SSP1_MISO';
+assign 'B7',  'SSP1_MOSI';
+assign 'E9',  'SSP1_SSEL';
 
-#assign 'N6',  'SSP0_MISO';
-#assign 'F13', 'SSP0_SCK';
+assign 'B13',  'SSP0_MISO';
+assign 'C11',  'SSP0_MOSI';
+assign 'B14', 'SSP0_SCK';
+assign 'E11',  'SSP0_SSEL';
 
 # Is this the best place to bring these out?
 assign 'K4', 'USB0_IND0';
