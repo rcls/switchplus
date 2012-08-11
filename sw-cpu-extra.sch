@@ -102,3 +102,5 @@ C 38600 46100 1 0 0 gnd-1.sym
 C 38600 46900 1 0 0 3.3V-plus-1.sym
 T 37000 48200 9 20 1 0 0 0 1
 1. CPU Misc & Extras
+T 37200 47700 9 10 1 0 0 0 1
+Bring 3v3/2 & 1v2 into ADC pins?
