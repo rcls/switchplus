@@ -44,26 +44,26 @@ pinnumber=H2
 T 0 3700 5 10 0 0 0 0 1
 pinseq=H2
 }
-P 0 2400 300 2400 1 0 0
+P 0 3200 300 3200 1 0 0
 {
-T 0 2400 5 10 0 0 0 0 1
+T 0 3200 5 10 0 0 0 0 1
 pintype=unknown
-T 355 2395 5 10 1 1 0 0 1
+T 355 3195 5 10 1 1 0 0 1
 pinlabel=USB0_RREF
-T 205 2445 5 10 1 1 0 6 1
+T 205 3245 5 10 1 1 0 6 1
 pinnumber=H1
-T 0 2400 5 10 0 0 0 0 1
+T 0 3200 5 10 0 0 0 0 1
 pinseq=H1
 }
-P 0 2100 300 2100 1 0 0
+P 0 2900 300 2900 1 0 0
 {
-T 0 2100 5 10 0 0 0 0 1
+T 0 2900 5 10 0 0 0 0 1
 pintype=unknown
-T 355 2095 5 10 1 1 0 0 1
+T 355 2895 5 10 1 1 0 0 1
 pinlabel=USB0_VSSA_REF
-T 205 2145 5 10 1 1 0 6 1
+T 205 2945 5 10 1 1 0 6 1
 pinnumber=G1
-T 0 2100 5 10 0 0 0 0 1
+T 0 2900 5 10 0 0 0 0 1
 pinseq=G1
 }
 P 0 500 300 500 1 0 0
@@ -114,36 +114,36 @@ pinnumber=J13
 T 0 1000 5 10 0 0 0 0 1
 pinseq=J13
 }
-P 0 3200 300 3200 1 0 0
+P 0 2100 300 2100 1 0 0
 {
-T 0 3200 5 10 0 0 0 0 1
+T 0 2100 5 10 0 0 0 0 1
 pintype=unknown
-T 355 3195 5 10 1 1 0 0 1
+T 355 2095 5 10 1 1 0 0 1
 pinlabel=USB0_VDDA3V3_DRIVER
-T 205 3245 5 10 1 1 0 6 1
+T 205 2145 5 10 1 1 0 6 1
 pinnumber=F3
-T 0 3200 5 10 0 0 0 0 1
+T 0 2100 5 10 0 0 0 0 1
 pinseq=F3
-}
-P 0 2900 300 2900 1 0 0
-{
-T 0 2900 5 10 0 0 0 0 1
-pintype=unknown
-T 355 2895 5 10 1 1 0 0 1
-pinlabel=USB0_VDDA3V3
-T 205 2945 5 10 1 1 0 6 1
-pinnumber=G3
-T 0 2900 5 10 0 0 0 0 1
-pinseq=G3
 }
 P 0 1800 300 1800 1 0 0
 {
 T 0 1800 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1795 5 10 1 1 0 0 1
-pinlabel=USB0_VSSA_TERM
+pinlabel=USB0_VDDA3V3
 T 205 1845 5 10 1 1 0 6 1
-pinnumber=H3
+pinnumber=G3
 T 0 1800 5 10 0 0 0 0 1
+pinseq=G3
+}
+P 0 2600 300 2600 1 0 0
+{
+T 0 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2595 5 10 1 1 0 0 1
+pinlabel=USB0_VSSA_TERM
+T 205 2645 5 10 1 1 0 6 1
+pinnumber=H3
+T 0 2600 5 10 0 0 0 0 1
 pinseq=H3
 }
