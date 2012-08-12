@@ -158,7 +158,7 @@ C 45400 51100 1 0 0 resistor-1.sym
 T 45700 51500 5 10 0 0 0 0 1
 device=RESISTOR
 T 45600 51400 5 10 1 1 0 0 1
-refdes=R?
+refdes=R56
 T 45900 51400 5 10 1 1 0 0 1
 value=50k
 T 45900 51200 5 10 0 1 0 0 1

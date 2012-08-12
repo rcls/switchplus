@@ -124,7 +124,7 @@ C 41700 49600 1 0 0 capacitor.sym
 {
 T 41900 50300 5 10 0 0 0 0 1
 device=CAPACITOR
-T 42000 49900 5 10 1 1 0 0 1
+T 42050 49850 5 10 1 1 0 0 1
 refdes=C55
 T 41900 50500 5 10 0 0 0 0 1
 symversion=0.1
@@ -173,7 +173,7 @@ C 40800 49700 1 0 0 fuse-2.sym
 {
 T 41000 50250 5 10 0 0 0 0 1
 device=FUSE
-T 41000 50000 5 10 1 1 0 0 1
+T 40600 49850 5 10 1 1 0 0 1
 refdes=FB1
 T 41000 50450 5 10 0 0 0 0 1
 symversion=0.1
@@ -182,7 +182,7 @@ C 43100 49700 1 0 0 fuse-2.sym
 {
 T 43300 50250 5 10 0 0 0 0 1
 device=FUSE
-T 43300 50000 5 10 1 1 0 0 1
+T 42900 49850 5 10 1 1 0 0 1
 refdes=FB2
 T 43300 50450 5 10 0 0 0 0 1
 symversion=0.1
@@ -336,9 +336,8 @@ footprint=0603
 N 45500 46600 46400 46600 4
 N 46400 46600 46400 46900 4
 C 45800 46300 1 0 0 gnd-1.sym
-T 38600 47200 9 10 1 0 0 0 2
-Bring X1 off FPGA
-instead of XTAL?
+T 38600 47200 9 10 1 0 0 0 1
+Bring oscillator off cpu/fpga?
 T 37100 49200 9 20 1 0 0 0 2
 11. SDRAM and
 Ethernet Power
