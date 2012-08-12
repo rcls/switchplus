@@ -235,8 +235,6 @@ Kill external LEDs?
 CT to caps?
 T 51800 48100 9 20 1 0 0 0 1
 7. Ethernet Physical
-T 52500 47700 9 10 1 0 0 0 1
-Check LEDs are active low.
 N 51200 42000 51400 42000 4
 N 50900 46500 51200 46500 4
 N 51200 46500 51200 47800 4

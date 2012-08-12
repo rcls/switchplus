@@ -96,10 +96,8 @@ refdes=U2
 }
 T 62400 44000 9 10 1 0 90 0 1
 Unused unless we take it to the FPGA.
-T 57000 48500 9 10 1 0 0 0 4
+T 57000 48500 9 10 1 0 0 0 2
 INTR to CPU
-RST_N to CPU
-Serial to CPU
 Docs say pullup SPI
 N 54500 47700 54900 47700 4
 N 54500 47000 54700 47000 4
