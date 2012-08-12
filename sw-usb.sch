@@ -34,7 +34,7 @@ C 45400 49600 1 0 0 resistor-1.sym
 T 45700 50000 5 10 0 0 0 0 1
 device=RESISTOR
 T 45600 49900 5 10 1 1 0 0 1
-refdes=R54
+refdes=R44
 T 45400 49600 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -127,7 +127,7 @@ C 44300 46800 1 0 0 resistor-1.sym
 T 44600 47200 5 10 0 0 0 0 1
 device=RESISTOR
 T 44500 47100 5 10 1 1 0 0 1
-refdes=R55
+refdes=R50
 T 44300 46800 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -136,7 +136,7 @@ C 44900 46500 1 0 0 resistor-1.sym
 T 45200 46900 5 10 0 0 0 0 1
 device=RESISTOR
 T 44900 46400 5 10 1 1 0 0 1
-refdes=R56
+refdes=R51
 T 44900 46500 5 10 0 1 0 0 1
 footprint=0603
 }
