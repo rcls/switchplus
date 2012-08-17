@@ -4,7 +4,7 @@ C 44000 45700 1 0 0 spartan6-qfp144-bank0.sym
 T 44800 45800 5 10 1 1 0 0 1
 device=Spartan6 Bank 0
 T 46300 45800 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 T 46100 49000 5 10 1 1 0 0 1
 refdes=U3
 }

@@ -289,6 +289,6 @@ pinseq=111
 T 800 100 8 10 1 1 0 0 1
 device=Spartan6 Bank 0
 T 2300 100 8 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 T 2100 3300 8 10 1 1 0 0 1
 refdes=U?

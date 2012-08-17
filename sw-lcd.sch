@@ -6,7 +6,7 @@ refdes=U3
 T 52800 42500 5 10 1 1 0 0 1
 device=Spartan6 Bank 3
 T 54400 42500 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 }
 C 46700 42200 1 0 0 lpc-lcd.sym
 {

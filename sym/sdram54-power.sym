@@ -157,6 +157,6 @@ pinseq=B3
 T 200 1000 8 10 1 1 0 0 1
 description=54 BGA SDRAM Power
 T 200 1300 8 10 1 1 0 0 1
-footprint=54VFBGA
+footprint=vfbga54
 T 1400 1300 8 10 1 1 0 0 1
 refdes=U?

@@ -128,7 +128,7 @@ value=TPS62150
 T 44300 44200 5 10 1 1 0 0 1
 refdes=U7
 T 44100 43700 5 10 1 1 0 0 1
-footprint=QFN16
+footprint=qfn16
 }
 C 42600 43600 1 90 0 capacitor.sym
 {

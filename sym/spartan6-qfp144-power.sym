@@ -379,4 +379,4 @@ refdes=U?
 T 800 1100 8 10 1 1 0 0 1
 device=Spartan6 Power
 T 2200 1100 8 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144

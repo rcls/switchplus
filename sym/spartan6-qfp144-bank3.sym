@@ -291,4 +291,4 @@ refdes=U?
 T 700 100 8 10 1 1 0 0 1
 device=Spartan6 Bank 3
 T 2300 100 8 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144

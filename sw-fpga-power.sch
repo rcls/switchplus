@@ -6,7 +6,7 @@ refdes=U3
 T 44000 45100 5 10 1 1 0 0 1
 device=Spartan6 Power
 T 45400 45100 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 }
 N 43800 44200 43800 43900 4
 N 43800 43900 46500 43900 4

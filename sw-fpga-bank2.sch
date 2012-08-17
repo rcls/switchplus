@@ -6,7 +6,7 @@ refdes=U3
 T 40000 45000 5 10 1 1 0 0 1
 device=Spartan6 Bank 2
 T 41900 45000 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 }
 C 45100 46500 1 0 0 at45db081.sym
 {
@@ -15,7 +15,7 @@ device=AT45D081
 T 46200 47400 5 10 1 1 0 0 1
 refdes=U5
 T 46700 47100 5 10 1 1 0 0 1
-footprint=SO8
+footprint=so8
 }
 N 44200 47700 45100 47700 4
 N 40200 49800 47500 49800 4

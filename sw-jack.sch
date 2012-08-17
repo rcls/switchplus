@@ -2,7 +2,7 @@ v 20110115 2
 C 43900 41200 1 0 0 ksz8895-phy.sym
 {
 T 44100 41200 5 10 1 1 0 0 1
-footprint=PQFP128
+footprint=pqfp128
 T 44000 47700 5 10 1 1 0 0 1
 value=KSZ8895
 T 44900 47700 5 10 1 1 0 0 1

@@ -247,4 +247,4 @@ description=54 BGA SDRAM
 T 700 3200 8 10 1 1 0 0 1
 refdes=U?
 T 700 3800 8 10 1 1 0 0 1
-footprint=54VFBGA
+footprint=vfbga54

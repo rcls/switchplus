@@ -13,7 +13,7 @@ description=54 BGA SDRAM
 T 44100 46500 5 10 1 1 180 6 1
 refdes=U4
 T 44100 45900 5 10 1 1 180 6 1
-footprint=54VFBGA
+footprint=vfbga54
 }
 C 36900 43600 1 0 0 sdram54-data.sym
 {
@@ -22,7 +22,7 @@ description=54BGA SDRAM
 T 37700 45600 5 10 1 1 0 0 1
 refdes=U4
 T 37600 44100 5 10 0 1 0 0 1
-footprint=54VFBGA
+footprint=vfbga54
 }
 N 38800 46400 39200 46400 4
 N 39200 46100 38800 46100 4

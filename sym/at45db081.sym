@@ -93,4 +93,4 @@ device=AT45D081
 T 1100 900 8 10 1 1 0 0 1
 refdes=U?
 T 1600 600 8 10 1 1 0 0 1
-footprint=SO8
+footprint=so8

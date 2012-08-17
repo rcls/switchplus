@@ -192,4 +192,4 @@ value=TPS62150
 T 1800 3300 8 10 1 1 0 0 1
 refdes=U?
 T 1000 2100 8 10 1 1 0 0 1
-footprint=QFN16
+footprint=qfn16

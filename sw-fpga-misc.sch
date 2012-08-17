@@ -6,7 +6,7 @@ refdes=U3
 T 40500 48300 5 10 1 1 0 0 1
 device=Spartan6 Misc
 T 41800 48300 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 }
 C 44700 47800 1 0 1 connector6.sym
 {
@@ -109,7 +109,7 @@ refdes=U3
 T 39300 43300 5 10 1 1 0 0 1
 device=Spartan6 QFP144 Bank 1
 T 41500 43300 5 10 1 1 0 0 1
-footprint=QFP144
+footprint=qfp144
 }
 C 37000 47300 1 0 0 resistor-1.sym
 {

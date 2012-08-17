@@ -203,4 +203,4 @@ description=54BGA SDRAM
 T 800 2000 8 10 1 1 0 0 1
 refdes=U?
 T 700 500 8 10 0 1 0 0 1
-footprint=54VFBGA
+footprint=vfbga54

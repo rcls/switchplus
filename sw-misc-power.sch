@@ -11,7 +11,7 @@ C 35900 45200 1 0 0 sdram54-power.sym
 T 35800 46200 5 10 1 1 0 0 1
 description=54 BGA SDRAM Power
 T 35800 46500 5 10 1 1 0 0 1
-footprint=54VFBGA
+footprint=vfbga54
 T 37000 46500 5 10 1 1 0 0 1
 refdes=U4
 }
