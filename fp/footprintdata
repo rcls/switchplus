@@ -1,0 +1,68 @@
+# PCB footprints
+# Convert to newlib by using footgen.py
+# This file is not copyrighted
+# You may use these footprints as you wish.
+# There is no guarantee that the data is accurate
+# check the datasheets for your components
+
+# 1mm pitch BGA, recommend NSMD pad size is 0.4mm with 0.45mm mask.  SMD opening
+# is 0.5mm.
+
+
+elementdir = "fp"		# where to put generated files
+# put all reference designators 1mm above origin
+refdesx = 0mm
+refdesy = 1mm
+# Xilinx BGA packages
+# data from XAPP157
+# By Ralph Loader based on file by Darrell Harmon
+# values for all 1mm pitch Xilinx BGA
+        type = "bga"
+	pitch = 1mm
+	silkwidth = 10 mils
+	silkoffset = 1mm    # used if silkbox is invalid
+	dia = 0.4mm
+	maskclear = 0.075mm
+	polyclear = 0.15mm
+        silkstyle = outside
+
+# Xilinx FT256 1mm pitch BGA
+	silkboxwidth = 17mm
+	silkboxheight = 17mm
+	rows = 16
+	cols = 16
+part "lbga256.fp"
+
+     pitch = 0.8mm
+     rows = 9
+     cols = 9
+     silkboxwidth = 8mm
+     silkboxheight = 14mm
+     omitballs = "A4:J6"
+part "vfbga54.fp"
+
+     type = "qfp"
+     pitch = 0.5mm
+     padwidth = 1mm
+     padheight = 0.25mm
+     silkstyle = "corners"
+
+     silkboxwidth = 20mm
+     silkboxheight = 20mm
+     width = 20.5mm
+     height = 20.5mm
+     pins = 144
+
+part "qfp144.fp"
+
+# Pin-pin outer dimensions are 23.2 by 17.2
+
+  width = 15.1mm
+  height = 21.1mm
+  silkboxwidth = 14mm
+  silkboxheight = 20mm
+  pins = 128
+  pinshigh = 38
+  padwidth 1.3mm
+
+part "pqfp128.fp"
