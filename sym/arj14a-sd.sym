@@ -128,7 +128,7 @@ pintype=unknown
 T 355 4095 5 10 1 1 0 0 1
 pinlabel=RX-
 T 205 4145 5 10 1 1 0 6 1
-pinnumber=16
+pinnumber=30
 T 0 4100 5 10 0 0 0 0 1
 pinseq=30
 }
