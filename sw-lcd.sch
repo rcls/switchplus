@@ -254,14 +254,14 @@ C 52400 41900 1 0 0 resistor-1.sym
 T 52700 42300 5 10 0 0 0 0 1
 device=RESISTOR
 T 52600 42200 5 10 1 1 0 0 1
-refdes=R59
+refdes=R38
 }
 C 53300 41800 1 0 0 capacitor.sym
 {
 T 53500 42500 5 10 0 0 0 0 1
 device=CAPACITOR
 T 53200 41600 5 10 1 1 0 0 1
-refdes=C80
+refdes=C47
 T 53500 42700 5 10 0 0 0 0 1
 symversion=0.1
 }

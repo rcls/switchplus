@@ -32,7 +32,7 @@ C 38700 49900 1 0 0 resistor-1.sym
 T 39000 50300 5 10 0 0 0 0 1
 device=RESISTOR
 T 39000 49700 5 10 1 1 0 0 1
-refdes=R11
+refdes=R13
 T 38700 49900 5 10 0 1 0 0 1
 footprint=0603
 T 39100 50100 5 10 0 1 0 0 1
@@ -43,7 +43,7 @@ C 37500 49400 1 0 0 resistor-1.sym
 T 37800 49800 5 10 0 0 0 0 1
 device=RESISTOR
 T 37600 49700 5 10 1 1 0 0 1
-refdes=R10
+refdes=R12
 T 37500 49400 5 10 0 1 0 0 1
 footprint=0603
 T 37800 49500 5 10 0 1 0 0 1
@@ -75,7 +75,7 @@ C 39500 49000 1 90 0 capacitor.sym
 T 38800 49200 5 10 0 0 90 0 1
 device=CAPACITOR
 T 39200 49100 5 10 1 1 180 0 1
-refdes=C23
+refdes=C24
 T 38600 49200 5 10 0 0 90 0 1
 symversion=0.1
 T 39300 49200 5 10 0 1 90 0 1
@@ -93,7 +93,7 @@ C 38400 49400 1 0 0 resistor-1.sym
 T 38700 49800 5 10 0 0 0 0 1
 device=RESISTOR
 T 38600 49200 5 10 1 1 0 0 1
-refdes=R12
+refdes=R14
 T 38800 49500 5 10 0 1 0 0 1
 footprint=0603
 T 38800 49500 5 10 0 1 0 0 1
@@ -116,7 +116,7 @@ C 37000 47300 1 0 0 resistor-1.sym
 T 37300 47700 5 10 0 0 0 0 1
 device=RESISTOR
 T 37400 47600 5 10 1 1 0 0 1
-refdes=R13
+refdes=R15
 T 37000 47300 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -125,7 +125,7 @@ C 37000 46700 1 0 0 resistor-1.sym
 T 37300 47100 5 10 0 0 0 0 1
 device=RESISTOR
 T 37200 47000 5 10 1 1 0 0 1
-refdes=R14
+refdes=R16
 T 37000 46700 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -134,7 +134,7 @@ C 37000 46100 1 0 0 resistor-1.sym
 T 37300 46500 5 10 0 0 0 0 1
 device=RESISTOR
 T 37200 46400 5 10 1 1 0 0 1
-refdes=R15
+refdes=R17
 T 37000 46100 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -143,7 +143,7 @@ C 37000 45200 1 0 0 resistor-1.sym
 T 37300 45600 5 10 0 0 0 0 1
 device=RESISTOR
 T 37200 45500 5 10 1 1 0 0 1
-refdes=R16
+refdes=R18
 T 37000 45200 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -152,7 +152,7 @@ C 43500 47100 1 0 0 resistor-1.sym
 T 43800 47500 5 10 0 0 0 0 1
 device=RESISTOR
 T 43700 47400 5 10 1 1 0 0 1
-refdes=R17
+refdes=R19
 T 43500 47100 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -161,7 +161,7 @@ C 43500 46500 1 0 0 resistor-1.sym
 T 43800 46900 5 10 0 0 0 0 1
 device=RESISTOR
 T 43700 46800 5 10 1 1 0 0 1
-refdes=R18
+refdes=R20
 T 43500 46500 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -170,7 +170,7 @@ C 43500 45600 1 0 0 resistor-1.sym
 T 43800 46000 5 10 0 0 0 0 1
 device=RESISTOR
 T 43700 45900 5 10 1 1 0 0 1
-refdes=R19
+refdes=R21
 T 43500 45600 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -179,7 +179,7 @@ C 43500 45000 1 0 0 resistor-1.sym
 T 43800 45400 5 10 0 0 0 0 1
 device=RESISTOR
 T 43700 45300 5 10 1 1 0 0 1
-refdes=R20
+refdes=R22
 T 43500 45000 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -277,7 +277,7 @@ C 45500 44500 1 90 0 capacitor.sym
 T 44800 44700 5 10 0 0 90 0 1
 device=CAPACITOR
 T 45500 44900 5 10 1 1 90 0 1
-refdes=C24
+refdes=C25
 T 44600 44700 5 10 0 0 90 0 1
 symversion=0.1
 T 45500 44500 5 10 0 1 0 0 1

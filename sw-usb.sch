@@ -33,14 +33,11 @@ C 45400 49600 1 0 0 resistor-1.sym
 T 45700 50000 5 10 0 0 0 0 1
 device=RESISTOR
 T 45700 49850 5 10 1 1 0 0 1
-refdes=R44
+refdes=R60
 T 45400 49600 5 10 0 1 0 0 1
 footprint=0603
 }
 N 45400 49100 45400 49700 4
-T 42500 49200 9 10 1 0 0 0 2
-FIXME -
-divider on USB0_VBUS?
 N 45400 49100 46300 49100 4
 N 46300 49400 45400 49400 4
 C 45800 48800 1 0 0 gnd-1.sym
@@ -67,7 +64,7 @@ C 44200 47500 1 90 0 capacitor.sym
 T 43500 47700 5 10 0 0 90 0 1
 device=CAPACITOR
 T 43600 47500 5 10 1 1 0 0 1
-refdes=C77
+refdes=C81
 T 43300 47700 5 10 0 0 90 0 1
 symversion=0.1
 T 44400 47700 5 10 1 1 0 0 1
@@ -80,7 +77,7 @@ C 44500 48100 1 90 0 capacitor.sym
 T 43800 48300 5 10 0 0 90 0 1
 device=CAPACITOR
 T 44650 48550 5 10 1 1 180 0 1
-refdes=C76
+refdes=C82
 T 43600 48300 5 10 0 0 90 0 1
 symversion=0.1
 T 44400 48100 5 10 1 1 0 0 1
@@ -126,7 +123,7 @@ C 44300 46800 1 0 0 resistor-1.sym
 T 44600 47200 5 10 0 0 0 0 1
 device=RESISTOR
 T 44400 47050 5 10 1 1 0 0 1
-refdes=R50
+refdes=R61
 T 44300 46800 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -135,7 +132,7 @@ C 44300 46500 1 0 0 resistor-1.sym
 T 44600 46900 5 10 0 0 0 0 1
 device=RESISTOR
 T 45100 46650 5 10 1 1 0 0 1
-refdes=R51
+refdes=R62
 T 44300 46500 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -157,7 +154,7 @@ C 45400 51500 1 0 0 resistor-1.sym
 T 45700 51900 5 10 0 0 0 0 1
 device=RESISTOR
 T 45600 51300 5 10 1 1 0 0 1
-refdes=R56
+refdes=R58
 T 45900 51600 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -168,6 +165,6 @@ C 46300 51500 1 0 0 resistor-1.sym
 T 46600 51900 5 10 0 0 0 0 1
 device=RESISTOR
 T 47200 51550 5 10 1 1 0 0 1
-refdes=R62
+refdes=R59
 }
 C 47100 51300 1 0 0 gnd-1.sym
