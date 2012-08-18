@@ -5,6 +5,8 @@ T 41400 49000 5 10 1 1 0 0 1
 value=LPC Misc
 T 42300 49000 5 10 1 1 0 0 1
 refdes=U1
+T 42600 44400 5 10 1 1 0 0 1
+footprint=lbga256
 }
 C 33500 46300 1 0 0 lpc-gpio.sym
 {
