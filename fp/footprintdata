@@ -63,6 +63,33 @@ part "qfp144.fp"
   silkboxheight = 20mm
   pins = 128
   pinshigh = 38
-  padwidth 1.3mm
+  padwidth = 1.3mm
 
 part "pqfp128.fp"
+
+  ep = 1.7mm
+  width = 2.3mm
+  height = 2.3mm
+  padwidth = 0.85mm
+#  silkboxstyle = "corners"
+  silkboxwidth = 3mm
+  silkboxheight = 3mm
+  pinshigh = 0
+  pins = 16
+
+part "qfn16.fp"
+
+  ep = 0
+  type = "so"
+  pins = 8
+  width = 3.5mm
+  padheight = 20mils
+  padwidth = 1.5mm
+  pitch = 50mils
+  silkstyle = "inside"
+  silkoffset = 15 mils
+  silkboxwidth = 3.9mm
+  silkboxheight = 5mm
+  pinshigh = 0
+
+part "so8.fp"

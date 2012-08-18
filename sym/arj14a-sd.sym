@@ -353,7 +353,7 @@ T 2400 5600 5 10 0 0 0 0 1
 pinseq=43
 }
 T 400 5800 8 10 1 1 0 0 1
-value=ARJ41A-SD
+value=ARJ14A-SD
 T 800 5100 8 10 1 1 0 0 1
 refdes=CONN?
 T 800 4400 8 10 1 1 0 0 1
