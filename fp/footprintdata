@@ -93,3 +93,15 @@ part "qfn16.fp"
   pinshigh = 0
 
 part "so8.fp"
+
+   type = "sip"
+   width = 0.1 in
+   pitch = 0.1 in
+   drill = 1mm
+   paddia = 1.5mm
+   pins = 4
+   silkoffset = 0mm
+   silkboxwidth = 0.1in
+   silkboxheight = 0.4in
+
+part "sip4"
