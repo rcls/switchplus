@@ -70,7 +70,7 @@ symversion=0.1
 T 44400 47700 5 10 1 1 0 0 1
 value=4u7
 T 44200 47500 5 10 0 1 0 0 1
-footprint=0603
+footprint=0402
 }
 C 44500 48100 1 90 0 capacitor.sym
 {
@@ -83,7 +83,7 @@ symversion=0.1
 T 44400 48100 5 10 1 1 0 0 1
 value=4u7
 T 44500 48100 5 10 0 1 0 0 1
-footprint=0603
+footprint=0402
 }
 N 44300 46600 44300 48100 4
 N 44300 47500 44000 47500 4
