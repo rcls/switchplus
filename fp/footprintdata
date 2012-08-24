@@ -71,7 +71,6 @@ part "pqfp128.fp"
   width = 2.3mm
   height = 2.3mm
   padwidth = 0.85mm
-#  silkboxstyle = "corners"
   silkboxwidth = 3mm
   silkboxheight = 3mm
   pinshigh = 0
@@ -94,6 +93,13 @@ part "qfn16.fp"
 
 part "so8.fp"
 
+   width = 1.6mm
+   padwidth = 1.7mm
+   pins = 12
+   silkboxwidth = 4.5mm
+   silkboxheight = 8.08mm
+part "header-female-50mil-6-by-2.fp"
+
    type = "sip"
    width = 0.1 in
    pitch = 0.1 in
@@ -104,4 +110,4 @@ part "so8.fp"
    silkboxwidth = 0.1in
    silkboxheight = 0.4in
 
-part "sip4"
+part "sip4.fp"
