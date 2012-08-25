@@ -67,7 +67,7 @@ while (<$SYMBOL>) {
     die  "seq $seq v. number $number"  if  $seq ne $number;
 
     die  "$label 0"  if  $number  eq  '0';
-    die  unless  exists $pins{$seq};
+    die  $seq unless  exists $pins{$seq};
     die  "$label v. $pins{$seq}"  if  $label  ne  $pins{$seq};
     die  'unknown'  if  $label  eq  'unknown';
 

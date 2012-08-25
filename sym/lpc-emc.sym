@@ -368,22 +368,22 @@ P 3100 1500 2800 1500 1 0 0
 T 3100 1500 5 10 0 0 0 0 1
 pintype=unknown
 T 2745 1495 5 10 1 1 0 6 1
-pinlabel=EMC_CLK0
+pinlabel=EMC_CLK23
 T 2895 1545 5 10 1 1 0 0 1
-pinnumber=N5
+pinnumber=D14
 T 3100 1500 5 10 0 0 0 0 1
-pinseq=N5
+pinseq=D14
 }
 P 3100 1200 2800 1200 1 0 0
 {
 T 3100 1200 5 10 0 0 0 0 1
 pintype=unknown
 T 2745 1195 5 10 1 1 0 6 1
-pinlabel=EMC_CKEOUT0
+pinlabel=EMC_CKEOUT2
 T 2895 1245 5 10 1 1 0 0 1
-pinnumber=H12
+pinnumber=P1
 T 3100 1200 5 10 0 0 0 0 1
-pinseq=H12
+pinseq=P1
 }
 P 3100 900 2800 900 1 0 0
 {
@@ -423,11 +423,11 @@ P 3100 200 2800 200 1 0 0
 T 3100 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2745 195 5 10 1 1 0 6 1
-pinlabel=EMC_DYCS0
+pinlabel=EMC_DYCS2
 T 2895 245 5 10 1 1 0 0 1
-pinnumber=J15
+pinnumber=R13
 T 3100 200 5 10 0 0 0 0 1
-pinseq=J15
+pinseq=R13
 }
 T 400 6500 8 10 1 1 0 0 1
 value=LPC43 EMC

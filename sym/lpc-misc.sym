@@ -363,7 +363,18 @@ pintype=unknown
 T 355 195 5 10 1 1 0 0 1
 pinlabel=SD_CLK
 T 205 245 5 10 1 1 0 6 1
-pinnumber=D14
+pinnumber=N5
 T 0 200 5 10 0 0 0 0 1
-pinseq=D14
+pinseq=N5
+}
+P 2800 1800 2500 1800 1 0 0
+{
+T 2800 1800 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 1795 5 10 1 1 0 6 1
+pinlabel=I2S1_TX_SCK
+T 2595 1845 5 10 1 1 0 0 1
+pinnumber=H4
+T 2800 1800 5 10 0 0 0 0 1
+pinseq=H4
 }

@@ -10,9 +10,9 @@ footprint=lbga256
 }
 C 33500 46300 1 0 0 lpc-gpio.sym
 {
-T 33800 49700 5 10 1 1 0 0 1
+T 33900 50300 5 10 1 1 0 0 1
 value=LPC GPIO
-T 34900 49700 5 10 1 1 0 0 1
+T 34900 50300 5 10 1 1 0 0 1
 refdes=U1
 }
 C 33400 41500 1 0 0 lpc-gpio6.sym

@@ -24,7 +24,8 @@ my $pin_item;
 my @pins;
 
 # Which EMC channel are we going to use?
-my $emc_channel = 0;
+my $emc_channel = 2;
+my $emc_clkchannel = 23;
 
 $\ = "\n";
 
@@ -184,7 +185,7 @@ for my $p (@pins) {
             next  if /^EMC_DQMOUT[^01]/;
             next  if /^EMC_CS/; # We just want DYCS, right?
             next  if /^EMC_OE/;
-            next  if /^EMC_CLK(.*)/  and  $1 ne $emc_channel;
+            next  if /^EMC_CLK(.*)/  and  $1 ne $emc_clkchannel;
             next  if /^EMC_CKEOUT(.*)/  and  $1 ne $emc_channel;
             $wanted_functions{$_} = 1;
         }
@@ -321,7 +322,7 @@ assign 'M2',  'ENET_TX_EN';
 assign 'N4',  'ENET_RX_DV'; # or M7?
 #assign 'T1',  'ENET_CRS';
 assign 'E4',  'ENET_MDC';
-#assign 'M11', 'ENET_TX_CLK';
+assign 'M11', 'ENET_TX_CLK';
 # FIXME - one of these is unneeded.  Actually, probably don't need either.
 #assign 'N1',  'ENET_TX_ER';
 #assign 'K2',  'ENET_RX_ER';
@@ -329,6 +330,7 @@ assign 'E4',  'ENET_MDC';
 assign 'E7',  'SSP1_MISO';
 assign 'B7',  'SSP1_MOSI';
 assign 'E9',  'SSP1_SSEL';
+assign 'D10', 'SSP1_SCK';
 
 assign 'B13',  'SSP0_MISO';
 assign 'C11',  'SSP0_MOSI';
@@ -385,12 +387,13 @@ unless (grep { not exists $assigned_funcpins{$_} } keys %wanted_functions) {
 
 # Now assign some leftovers.
 assign 'D12', 'GP_CLKIN';
-assign 'D14', 'SD_CLK';
+assign 'N5', 'SD_CLK';
 assign 'L1', 'CGU_OUT0';
 assign 'L12', 'CGU_OUT1';
 assign 'T10', 'CLKOUT';
 assign 'M12', 'I2S0_RX_MCLK';
 assign 'F13', 'I2S0_TX_SCK';
+assign 'H4', 'I2S1_TX_SCK';
 assign 'P12', 'I2S1_RX_SCK';
 
 my @rows = split //, 'ABCDEFGHJKLMNPRT';
