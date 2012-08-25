@@ -139,9 +139,9 @@ pintype=unknown
 T 2000 2045 5 10 1 1 90 6 1
 pinlabel=VDDQ
 T 1950 2195 5 10 1 1 90 0 1
-pinnumber=A7
+pinnumber=C7
 T 2000 2300 5 10 0 0 0 0 1
-pinseq=A7
+pinseq=C7
 }
 P 2300 2300 2300 2100 1 0 0
 {
@@ -150,9 +150,9 @@ pintype=unknown
 T 2300 2045 5 10 1 1 90 6 1
 pinlabel=VDDQ
 T 2250 2195 5 10 1 1 90 0 1
-pinnumber=B3
+pinnumber=D3
 T 2300 2300 5 10 0 0 0 0 1
-pinseq=B3
+pinseq=D3
 }
 T 200 1000 8 10 1 1 0 0 1
 description=54 BGA SDRAM Power
