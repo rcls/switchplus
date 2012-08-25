@@ -38,6 +38,7 @@ part "lbga256.fp"
      cols = 9
      silkboxwidth = 8mm
      silkboxheight = 14mm
+     dia = 0.349mm
      omitballs = "A4:J6"
 part "vfbga54.fp"
 
