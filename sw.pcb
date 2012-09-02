@@ -3296,13 +3296,6 @@ Element["" "smt-osc-3mm.fp" "U8" "unknown" 23.5000mm 2.0000mm -2.6500mm -0.7000m
 
 	)
 
-Element["" "0603" "FB7" "unknown" 7.3500mm 31.7000mm 0.7999mm -0.5501mm 0 100 ""]
-(
-	Pad[-25.59mil -4.92mil -25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "1" "1" "square"]
-	Pad[25.59mil -4.92mil 25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "2" "2" "square"]
-
-	)
-
 Element["onsolder" "0603" "R26" "unknown" 46.9000mm 34.3500mm 0.8000mm 1.4501mm 0 100 "auto"]
 (
 	Pad[-0.5480mm 0.3712mm -0.3712mm 0.5480mm 29.52mil 20.00mil 35.52mil "1" "1" "onsolder,square,edge2"]
@@ -3327,8 +3320,6 @@ Rat[42.9999mm 718.50mil 2 41.1000mm 15.2750mm 0  ""]
 Rat[31.6250mm 143.70mil 3 35.6408mm 103.32mil 3  ""]
 Rat[13.0000mm 2.0000mm 2 341.54mil 29.68mil 0  ""]
 Rat[12.7500mm 28.9999mm 2 317.18mil 29.4516mm 0  ""]
-Rat[317.18mil 29.4516mm 0 263.78mil 31.5750mm 0  ""]
-Rat[263.78mil 31.5750mm 0 163.02mil 31.3747mm 0  ""]
 Rat[35.6408mm 103.32mil 3 39.6842mm 216.31mil 0  ""]
 Rat[39.6842mm 216.31mil 0 45.6760mm 216.31mil 0  ""]
 Rat[45.6760mm 216.31mil 0 46.6750mm 216.53mil 0  ""]
@@ -3402,7 +3393,6 @@ Rat[115.75mil 1233.80mil 0 5.1000mm 28.2000mm 3  ""]
 Rat[214.20mil 31.3747mm 0 4.1336mm 30.3279mm 0  ""]
 Rat[4.1336mm 30.3279mm 0 64.57mil 1233.80mil 0  ""]
 Rat[64.57mil 1233.80mil 0 0.9336mm 30.3279mm 0  ""]
-Rat[649.61mil 32.9999mm 3 314.96mil 31.5750mm 0  ""]
 Rat[36.4500mm 343.51mil 0 35.3748mm 324.81mil 0  ""]
 Rat[36.8501mm 12.6250mm 0 35.3748mm 12.7500mm 0  ""]
 Rat[1581.90mil 748.81mil 0 38.4500mm 18.2750mm 0  ""]
