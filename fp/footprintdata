@@ -106,9 +106,13 @@ part "header-female-50mil-6-by-2.fp"
    pitch = 0.1 in
    drill = 1mm
    paddia = 1.5mm
-   pins = 4
    silkoffset = 0mm
    silkboxwidth = 0.1in
-   silkboxheight = 0.4in
 
+   pins = 2
+   silkboxheight = 0.2in
+part "sip2.fp"
+
+   pins = 4
+   silkboxheight = 0.4in
 part "sip4.fp"
