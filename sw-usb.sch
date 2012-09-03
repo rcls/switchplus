@@ -13,7 +13,7 @@ value=Micro USB
 T 42800 50900 5 10 1 1 0 0 1
 refdes=CONN5
 T 42800 50700 5 10 1 1 0 0 1
-footprint=micro-ab-usb
+footprint=micro-usb-top
 }
 N 45200 50900 45800 50900 4
 N 45800 50900 45800 50500 4
