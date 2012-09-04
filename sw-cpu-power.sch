@@ -212,17 +212,6 @@ symversion=0.1
 T 40600 45700 5 10 0 1 0 0 1
 footprint=0402
 }
-C 41100 45700 1 90 0 capacitor.sym
-{
-T 40400 45900 5 10 0 0 90 0 1
-device=CAPACITOR
-T 40850 46200 5 10 1 1 180 0 1
-refdes=C21
-T 40200 45900 5 10 0 0 90 0 1
-symversion=0.1
-T 41100 45700 5 10 0 1 0 0 1
-footprint=0402
-}
 C 38600 45700 1 90 0 capacitor.sym
 {
 T 37900 45900 5 10 0 0 90 0 1
