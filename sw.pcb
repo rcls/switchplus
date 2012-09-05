@@ -6,13 +6,13 @@ FileVersion[20091103]
 PCB["" 80.0000mm 62.5000mm]
 
 Grid[196.850394 0.0000 0.0000 1]
-Cursor[29.3000mm 33.9500mm 0.000000]
+Cursor[4.8500mm 12.6500mm 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[5.91mil 5.91mil 5.91mil 6.00mil 0.3000mm 5.87mil]
 Flags("showdrc,rubberband,nameonpcb,autodrc,uniquename,clearnew,snappin,showmask,thindrawpoly")
 Groups("1,2,c:3,4:5,6:7,8,s")
-Styles["Signal,19.68mil,1.2000mm,0.8000mm,0.1501mm:Power,1.0000mm,1.4000mm,1.0000mm,5.91mil:Fat,1.0000mm,1.5000mm,1.0000mm,10.00mil:Skinny,5.91mil,0.6000mm,0.3000mm,5.91mil"]
+Styles["Signal,19.68mil,1.2000mm,0.8000mm,0.1501mm:Power,0.6000mm,1.4000mm,1.0000mm,5.91mil:Fat,1.0000mm,1.5000mm,1.0000mm,10.00mil:Skinny,5.91mil,0.6000mm,0.3000mm,5.91mil"]
 
 Symbol[' ' 18.00mil]
 (
@@ -821,7 +821,7 @@ Via[45.7500mm 39.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[48.0500mm 37.9000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[48.9500mm 37.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[49.7500mm 37.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[14.5000mm 32.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[14.5000mm 32.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[16.5000mm 34.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[15.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[16.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
@@ -829,11 +829,11 @@ Via[22.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[23.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[24.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[24.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[26.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[26.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[26.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[25.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[25.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[17.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[20.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[20.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[20.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[16.5000mm 33.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[25.0000mm 48.7000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
@@ -846,24 +846,24 @@ Via[33.9500mm 32.6500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[33.0000mm 33.0500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[33.4000mm 34.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[17.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[39.5500mm 58.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
+Via[39.5500mm 58.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
 Via[39.5500mm 57.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[36.7500mm 58.7000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[37.5000mm 58.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
+Via[37.5000mm 58.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
 Via[41.6500mm 58.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[41.6500mm 57.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[39.5500mm 56.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
+Via[41.6500mm 57.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
+Via[39.5500mm 56.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
 Via[39.5500mm 55.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[41.6500mm 56.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[41.6500mm 55.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[39.5500mm 54.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
+Via[41.6500mm 55.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
+Via[39.5500mm 54.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S,6S)"]
 Via[41.6500mm 54.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[41.1000mm 49.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[25.6000mm 53.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[26.2000mm 52.7500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[30.2500mm 58.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[31.6500mm 58.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[43.6000mm 2318.90mil 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[43.6000mm 2318.90mil 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[937.01mil 52.6000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[29.4000mm 58.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[22.1000mm 53.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
@@ -908,15 +908,15 @@ Via[24.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[24.5000mm 34.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[48.7500mm 41.0500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[41.8000mm 40.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[35.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[39.1000mm 1637.80mil 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[38.0000mm 40.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[35.5000mm 44.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
+Via[39.1000mm 1637.80mil 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
+Via[38.0000mm 40.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[34.5000mm 31.7000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[21.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[27.5000mm 34.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[32.0000mm 32.9000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[25.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[26.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[26.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[27.5000mm 40.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[28.5000mm 40.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[20.5000mm 40.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
@@ -941,7 +941,7 @@ Via[24.5000mm 39.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[19.5000mm 39.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[19.5000mm 41.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[19.5000mm 40.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[19.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[19.5000mm 43.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[18.5000mm 38.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[20.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[20.5000mm 34.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
@@ -950,7 +950,7 @@ Via[23.5000mm 33.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[18.5000mm 41.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[16.5000mm 38.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[15.5000mm 37.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
-Via[15.5000mm 39.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[15.5000mm 39.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[44.8500mm 56.6000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[44.7000mm 57.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[13.0000mm 39.5000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
@@ -1156,17 +1156,17 @@ Via[2.3500mm 3.4500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[3.3000mm 3.3000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[7.4000mm 2.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[8.6500mm 2.5500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[28.5000mm 42.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
+Via[28.5000mm 42.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S,5S)"]
 Via[16.5000mm 35.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[2.9500mm 30.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
-Via[5.7500mm 30.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
+Via[5.7500mm 30.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[12.1500mm 30.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[28.7500mm 2.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[32.7500mm 2.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" ""]
 Via[45.1000mm 31.9000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[47.8500mm 29.9000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S)"]
 Via[44.2000mm 51.2000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(2S)"]
-Via[36.6500mm 51.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S)"]
+Via[36.6500mm 51.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S,6S)"]
 Via[36.0000mm 49.5000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(2S)"]
 Via[31.9000mm 51.0000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[16.2500mm 53.6500mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(2S)"]
@@ -3330,7 +3330,6 @@ Element["" "0603" "C1" "unknown" 49.4500mm 59.3000mm -0.4499mm -0.6501mm 3 100 "
 	)
 Rat[55.3500mm 34.3500mm 3 51.5154mm 41.4153mm 0  "via"]
 Rat[55.4500mm 28.1000mm 3 43.0000mm 18.2500mm 2  "via"]
-Rat[12.7500mm 29.0000mm 2 5.7500mm 1186.40mil 0  ""]
 Rat[75.8000mm 12.3751mm 3 0.3000mm 0.3000mm 1  "via"]
 Rat[72.3500mm 14.3750mm 3 74.5000mm 12.3751mm 3  ""]
 Rat[57.3500mm 34.3500mm 3 59.0000mm 20.0734mm 2  "via"]
@@ -5000,16 +4999,16 @@ Layer(5 "Power")
 	Line[59.7500mm 0.8000mm 60.5500mm 1.6000mm 1.0000mm 20.00mil "clearline"]
 	Line[44.7500mm 0.9500mm 44.7500mm 9.0500mm 1.0000mm 20.00mil "clearline"]
 	Line[60.5000mm 9.2100mm 60.5000mm 16.8000mm 2.0000mm 20.00mil "clearline"]
-	Line[4.3200mm 25.8500mm 4.7000mm 25.4700mm 5.91mil 11.82mil "clearline"]
-	Line[4.7000mm 25.4700mm 4.7000mm 13.0500mm 5.91mil 11.82mil "clearline"]
-	Line[4.7000mm 13.0500mm 6.5000mm 11.2500mm 5.91mil 11.82mil "clearline"]
+	Line[4.3200mm 25.8500mm 4.4000mm 25.7700mm 5.91mil 11.82mil "clearline"]
+	Line[4.4000mm 25.7700mm 4.4000mm 13.3500mm 5.91mil 11.82mil "clearline"]
+	Line[4.4000mm 13.3500mm 6.5000mm 11.2500mm 5.91mil 11.82mil "clearline"]
+	Line[36.6500mm 51.6000mm 36.6500mm 52.7000mm 0.6000mm 11.82mil "clearline"]
+	Line[36.6500mm 52.7000mm 37.5500mm 53.6000mm 0.6000mm 11.82mil ""]
+	Line[41.2000mm 34.2000mm 42.7500mm 34.2000mm 5.91mil 11.82mil "clearline"]
+	Line[42.7500mm 34.2000mm 43.2500mm 34.7000mm 5.91mil 11.82mil ""]
 	Polygon("clearpoly")
 	(
-		[43.0000mm 18.2500mm] [56.2500mm 18.2500mm] [56.2500mm 52.6500mm] [43.0000mm 52.6500mm] 
-	)
-	Polygon("clearpoly")
-	(
-		[12.7500mm 29.0000mm] [30.5000mm 29.0000mm] [30.5000mm 45.0000mm] [12.7500mm 45.0000mm] 
+		[43.0000mm 18.2500mm] [56.2500mm 18.2500mm] [56.2500mm 52.3500mm] [43.0000mm 52.3500mm] 
 	)
 	Polygon("clearpoly")
 	(
@@ -5017,15 +5016,7 @@ Layer(5 "Power")
 	)
 	Polygon("clearpoly")
 	(
-		[1445.00mil 2053.10mil] [44.6000mm 52.1400mm] [44.6000mm 59.5000mm] [36.7000mm 59.5000mm] 
-	)
-	Polygon("clearpoly")
-	(
-		[13.0000mm 2.0000mm] [35.5000mm 2.0000mm] [35.5000mm 26.7500mm] [13.0000mm 26.7500mm] 
-	)
-	Polygon("clearpoly")
-	(
-		[40.2000mm 36.3000mm] [43.1000mm 36.3000mm] [43.1000mm 32.2000mm] [40.2000mm 32.2000mm] 
+		[1.8000mm 1.9500mm] [35.5000mm 2.0000mm] [35.5000mm 26.7500mm] [1.8000mm 26.7500mm] 
 	)
 	Polygon("clearpoly")
 	(
@@ -5037,10 +5028,6 @@ Layer(5 "Power")
 	)
 	Polygon("clearpoly")
 	(
-		[1.7000mm 1.5000mm] [15.2500mm 1.5000mm] [15.2500mm 7.9500mm] [1.7000mm 7.9500mm] 
-	)
-	Polygon("clearpoly")
-	(
 		[79.6500mm 61.0500mm] [70.2500mm 61.0500mm] [70.2500mm 0.4000mm] [79.6500mm 0.4000mm] 
 	)
 	Polygon("clearpoly")
@@ -5049,11 +5036,79 @@ Layer(5 "Power")
 	)
 	Polygon("clearpoly")
 	(
-		[36.2500mm 50.9500mm] [37.3000mm 50.9500mm] [37.3000mm 52.7000mm] [36.2500mm 52.7000mm] 
+		[23.9000mm 26.7500mm] [16.3000mm 26.7500mm] [16.3000mm 42.4000mm] [23.9000mm 42.4000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[20.0500mm 42.4000mm] [21.9000mm 42.4000mm] [21.9000mm 43.4000mm] [20.0500mm 43.4000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[26.1000mm 42.4000mm] [26.9000mm 42.4000mm] [26.9000mm 43.4000mm] [26.1000mm 43.4000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[23.9000mm 41.1000mm] [26.9000mm 41.1000mm] [26.9000mm 42.4000mm] [23.9000mm 42.4000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[36.2000mm 52.3500mm] [42.8000mm 52.3500mm] [42.8000mm 59.0500mm] [36.2000mm 59.0500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[42.8000mm 55.8000mm] [46.4500mm 55.8000mm] [46.4500mm 52.3500mm] [42.8000mm 52.3500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[3.2000mm 26.7500mm] [6.4500mm 26.7500mm] [6.4500mm 31.9500mm] [3.2000mm 31.9500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[25.9000mm 34.6000mm] [23.9000mm 34.6000mm] [23.9000mm 38.4000mm] [25.9000mm 38.4000mm] 
 	)
 )
 Layer(6 "PSig")
 (
+	Polygon("clearpoly")
+	(
+		[45.8500mm 56.0000mm] [43.0000mm 56.0000mm] [43.0000mm 60.2500mm] [45.8500mm 60.2500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[43.0000mm 60.2500mm] [36.0000mm 60.2500mm] [36.0000mm 59.2500mm] [43.0000mm 59.2500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[10.8500mm 43.6000mm] [36.0000mm 43.6000mm] [36.0000mm 60.2500mm] [10.8500mm 60.2500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[10.4000mm 42.6000mm] [19.8500mm 42.6000mm] [19.8500mm 43.6000mm] [10.4000mm 43.6000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[22.1000mm 42.6000mm] [25.9000mm 42.6000mm] [25.9000mm 43.6000mm] [22.1000mm 43.6000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[27.1000mm 43.6000mm] [41.3500mm 43.6000mm] [41.3500mm 29.2000mm] [27.1000mm 29.2000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[36.0000mm 43.6000mm] [42.7500mm 43.6000mm] [42.7500mm 52.1500mm] [36.0000mm 52.1500mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[7.7500mm 26.9500mm] [16.1000mm 26.9500mm] [16.1000mm 42.6000mm] [7.7500mm 42.6000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[24.1000mm 29.2000mm] [27.1000mm 29.2000mm] [27.1000mm 34.4000mm] [24.1000mm 34.4000mm] 
+	)
+	Polygon("clearpoly")
+	(
+		[26.1000mm 34.4000mm] [27.1000mm 34.4000mm] [27.1000mm 40.9000mm] [26.1000mm 40.9000mm] 
+	)
 )
 Layer(7 "BotPwr")
 (
