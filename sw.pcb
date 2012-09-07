@@ -5,8 +5,8 @@ FileVersion[20100606]
 
 PCB["" 80.0000mm 62.5000mm]
 
-Grid[39.370079 0.0000 0.0000 1]
-Cursor[35.0000mm 20.2500mm 0.000000]
+Grid[196.850394 0.0000 0.0000 1]
+Cursor[18.0000mm 37.1500mm 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[5.91mil 0.1501mm 5.91mil 5.00mil 0.3000mm 0.1498mm]
@@ -787,7 +787,7 @@ Symbol['~' 12.00mil]
 	SymbolLine[20.00mil 35.00mil 25.00mil 30.00mil 8.00mil]
 )
 Attribute("PCB::grid::unit" "mm")
-Attribute("PCB::grid::size" "0.0100mm")
+Attribute("PCB::grid::size" "0.0500mm")
 Via[59.1000mm 32.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[59.1000mm 29.0000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[59.1000mm 22.5000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
@@ -3016,6 +3016,8 @@ Element["" "lbga256" "U1" "LPC_Misc" 21.5000mm 39.0000mm -10.2500mm -9.0000mm 0 
 	Pad[6.5000mm -3.5000mm 6.5000mm -3.5000mm 0.4000mm 0.3000mm 0.5500mm "E15" "E15" "edge2"]
 	Pad[7.5000mm -3.5000mm 7.5000mm -3.5000mm 0.4000mm 0.3000mm 0.5500mm "E16" "E16" "edge2"]
 	Pad[-7.5000mm -2.5800mm -7.5000mm -2.5800mm 0.4000mm 0.3000mm 0.5500mm "F1" "F1" ""]
+	Pad[-7.6000mm -2.4800mm -7.4000mm -2.4800mm 0.2000mm 0.3000mm 0.3500mm "F1" "F1" ""]
+	Pad[-7.6000mm -2.5300mm -7.4000mm -2.5300mm 0.2000mm 0.3000mm 0.3500mm "F1" "F1" ""]
 	Pad[-6.5000mm -2.5000mm -6.5000mm -2.5000mm 0.4000mm 0.3000mm 0.5500mm "F2" "F2" ""]
 	Pad[-5.5000mm -2.5000mm -5.5000mm -2.5000mm 0.4000mm 0.3000mm 0.5500mm "F3" "F3" ""]
 	Pad[-4.5000mm -2.5000mm -4.5000mm -2.5000mm 0.4000mm 0.3000mm 0.5500mm "F4" "F4" ""]
@@ -3032,6 +3034,8 @@ Element["" "lbga256" "U1" "LPC_Misc" 21.5000mm 39.0000mm -10.2500mm -9.0000mm 0 
 	Pad[6.5000mm -2.5000mm 6.5000mm -2.5000mm 0.4000mm 0.3000mm 0.5500mm "F15" "F15" "edge2"]
 	Pad[7.5000mm -2.5000mm 7.5000mm -2.5000mm 0.4000mm 0.3000mm 0.5500mm "F16" "F16" "edge2"]
 	Pad[-7.5000mm -1.4200mm -7.5000mm -1.4200mm 0.4000mm 0.3000mm 0.5500mm "G1" "G1" ""]
+	Pad[-7.6000mm -1.5200mm -7.4000mm -1.5200mm 0.2000mm 0.3000mm 0.3500mm "G1" "G1" ""]
+	Pad[-7.6000mm -1.4700mm -7.4000mm -1.4700mm 0.2000mm 0.3000mm 0.3500mm "G1" "G1" ""]
 	Pad[-6.5000mm -1.5000mm -6.5000mm -1.5000mm 0.4000mm 0.3000mm 0.5500mm "G2" "G2" ""]
 	Pad[-5.5000mm -1.5000mm -5.5000mm -1.5000mm 0.4000mm 0.3000mm 0.5500mm "G3" "G3" ""]
 	Pad[-4.5000mm -1.5000mm -4.5000mm -1.5000mm 0.4000mm 0.3000mm 0.5500mm "G4" "G4" ""]
@@ -4319,8 +4323,8 @@ Layer(1 "Top")
 	Line[38.0500mm 11.3750mm 38.0500mm 11.3750mm 5.91mil 11.82mil "clearline"]
 	Line[38.0500mm 11.3750mm 38.0500mm 10.6000mm 5.91mil 11.82mil "clearline"]
 	Line[38.0500mm 9.5000mm 38.8500mm 9.5000mm 5.91mil 11.82mil "clearline"]
-	Line[4.9700mm 36.7750mm 13.6100mm 36.7750mm 0.2900mm 12.00mil "clearline"]
-	Line[4.9700mm 37.2250mm 13.6100mm 37.2250mm 0.2900mm 12.00mil "clearline"]
+	Line[4.9700mm 36.7750mm 13.5100mm 36.7750mm 0.2900mm 11.82mil "clearline"]
+	Line[4.9700mm 37.2250mm 13.5100mm 37.2250mm 0.2900mm 11.82mil "clearline"]
 	Line[28.0000mm 41.5000mm 27.5000mm 41.0000mm 5.91mil 11.82mil "clearline"]
 	Line[27.5000mm 41.0000mm 27.5000mm 40.0000mm 5.91mil 11.82mil "clearline"]
 	Line[29.0000mm 41.5000mm 28.5000mm 41.0000mm 5.91mil 11.82mil "clearline"]
