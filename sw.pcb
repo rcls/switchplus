@@ -6,13 +6,13 @@ FileVersion[20100606]
 PCB["" 80.0000mm 62.5000mm]
 
 Grid[196.850394 0.0000 0.0000 1]
-Cursor[30.2500mm 24.1000mm 0.000000]
+Cursor[47.2500mm 20.0500mm 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[5.91mil 0.1501mm 5.91mil 5.00mil 0.3000mm 0.1498mm]
 Flags("showdrc,rubberband,nameonpcb,autodrc,clearnew,snappin,showmask,thindrawpoly")
-Groups("1,2,c:3,4:5,6:7,8,s")
-Styles["Signal,0.2400mm,0.9000mm,0.5000mm,5.91mil:Power,0.6000mm,1.4000mm,1.0000mm,5.91mil:Fat,0.2000mm,1.5000mm,1.0000mm,5.91mil:Skinny,5.91mil,0.6000mm,0.3000mm,5.91mil"]
+Groups("1,2,c:3,4:5,6:7,8,s:9")
+Styles["Signal,0.0100mm,0.9000mm,0.5000mm,5.91mil:Power,0.6000mm,1.4000mm,1.0000mm,5.91mil:Fat,0.2000mm,1.5000mm,1.0000mm,5.91mil:Skinny,5.91mil,0.6000mm,0.3000mm,5.91mil"]
 
 Symbol[' ' 18.00mil]
 (
@@ -806,7 +806,7 @@ Via[44.9500mm 28.1500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
 Via[44.9500mm 27.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[44.9500mm 38.8500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[44.9500mm 39.6500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(4S)"]
-Via[52.6000mm 21.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(6S,9X)"]
+Via[52.6000mm 21.2000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(6S)"]
 Via[44.9500mm 33.3500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
 Via[44.9500mm 34.1500mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(6S)"]
 Via[52.1000mm 41.4000mm 23.62mil 11.82mil 0.0000 11.82mil "" "thermal(2S)"]
@@ -3399,57 +3399,57 @@ Element["" "0603" "N2" "unknown" 36.7000mm 44.0000mm -1.8501mm -2.6161mm 0 100 "
 
 Element["onsolder" "0201" "C24" "unknown" 71.0000mm 10.9500mm -1.0501mm 1.7501mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C84" "unknown" 71.0000mm 37.6000mm -1.1001mm -0.1999mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C50" "unknown" 71.0000mm 23.6000mm -0.9001mm -0.2499mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C21" "unknown" 71.0000mm 9.6500mm -1.5001mm -0.2499mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C83" "unknown" 71.0000mm 24.9000mm -0.9501mm 1.8001mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C87" "unknown" 71.0000mm 52.8500mm -0.9501mm 1.7001mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C85" "unknown" 71.0000mm 38.9000mm -1.1000mm 1.7501mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
 Element["onsolder" "0201" "C86" "unknown" 71.0000mm 51.5500mm -1.5001mm -0.1999mm 0 100 "auto"]
 (
-	Pad[-11.81mil 0.0000 -11.81mil 0.0000 15.74mil 20.00mil 21.74mil "1" "1" "onsolder,square"]
-	Pad[11.81mil 0.0000 11.81mil 0.0000 15.74mil 20.00mil 21.74mil "2" "2" "onsolder,square,edge2"]
+	Pad[-0.3125mm -0.0625mm -0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "1" "1" "onsolder,square"]
+	Pad[0.3125mm -0.0625mm 0.3125mm 0.0625mm 0.3750mm 11.82mil 0.5250mm "2" "2" "onsolder,square"]
 
 	)
 
@@ -5842,7 +5842,24 @@ Layer(8 "Bot")
 		)
 	)
 )
-Layer(9 "silk")
+Layer(9 "outline")
+(
+	Line[0.0000 0.0000 80.0000mm 0.0000 5.91mil 11.82mil "clearline"]
+	Line[80.0000mm 0.0000 80.0000mm 62.5000mm 5.91mil 11.82mil "clearline"]
+	Line[80.0000mm 62.5000mm 0.0000 62.5000mm 5.91mil 11.82mil "clearline"]
+	Line[0.0000 62.5000mm 0.0000 39.5500mm 5.91mil 11.82mil "clearline"]
+	Line[1.2000mm 33.7900mm 0.0000 33.7900mm 5.91mil 11.82mil "clearline"]
+	Line[1.2000mm 34.7900mm 0.0000 34.7900mm 5.91mil 11.82mil "clearline"]
+	Line[0.0000 34.7900mm 0.0000 38.5500mm 5.91mil 11.82mil "clearline"]
+	Line[0.0000 33.7900mm 0.0000 0.0000 5.91mil 11.82mil "clearline"]
+	Line[1.2000mm 38.5500mm 0.0000 38.5500mm 5.91mil 11.82mil "clearline"]
+	Line[1.2000mm 39.5500mm 0.0000 39.5500mm 5.91mil 11.82mil "clearline"]
+	Arc[1.2000mm 1350.00mil 0.5000mm 0.5000mm 5.91mil 11.82mil -90 -90 "clearline"]
+	Arc[1.2000mm 1350.00mil 0.5000mm 0.5000mm 5.91mil 11.82mil 180 -90 "clearline"]
+	Arc[1.2000mm 39.0500mm 0.5000mm 0.5000mm 5.91mil 11.82mil 180 -90 "clearline"]
+	Arc[1.2000mm 39.0500mm 0.5000mm 0.5000mm 5.91mil 11.82mil 180 90 "clearline"]
+)
+Layer(10 "silk")
 (
 	Line[19.3500mm 1250.00mil 24.3500mm 1250.00mil 5.91mil 11.82mil "found,clearline"]
 	Line[22.3500mm 1250.00mil 22.0000mm 36.0000mm 5.91mil 11.82mil "clearline"]
@@ -5867,7 +5884,7 @@ Layer(9 "silk")
 	Text[3.0000mm 0.7500mm 1 77 "TX" "clearline,onsolder"]
 	Text[1.7000mm 0.4500mm 1 77 "G6.13" "clearline,onsolder"]
 )
-Layer(10 "silk")
+Layer(11 "silk")
 (
 	Line[57.6500mm 49.6500mm 57.3000mm 55.4500mm 5.00mil 11.82mil ""]
 	Text[0.3000mm 46.4000mm 0 100 "UsbBrdJackGnd" "clearline"]
