@@ -6,7 +6,7 @@ FileVersion[20100606]
 PCB["" 80.0000mm 62.5000mm]
 
 Grid[196.850394 0.0000 0.0000 1]
-Cursor[71.6000mm 34.9000mm 0.000000]
+Cursor[47.3487mm 47.2487mm 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[5.91mil 0.1501mm 5.91mil 5.00mil 0.3000mm 0.1498mm]
@@ -1263,6 +1263,8 @@ Via[35.7500mm 26.0000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S)"]
 Via[42.0500mm 26.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[38.8000mm 19.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[74.4500mm 34.7500mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(2S)"]
+Via[49.8000mm 45.9000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
+Via[50.3000mm 48.7500mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S)"]
 
 Element["" "so8" "U5" "unknown" 40.9500mm 4.8500mm 1.7500mm 2.2500mm 0 100 ""]
 (
@@ -3487,6 +3489,13 @@ Element["onsolder" "0603" "N7" "unknown" 73.0000mm 34.7500mm -0.1001mm 2.0001mm 
 	Pad[25.59mil 4.92mil 25.59mil -4.92mil 29.52mil 20.00mil 35.52mil "2" "2" "onsolder,square"]
 
 	)
+
+Element["onsolder" "0603" "N8" "unknown" 50.3000mm 47.3500mm -0.4001mm -2.9001mm 1 100 "auto"]
+(
+	Pad[-4.92mil 25.59mil 4.92mil 25.59mil 29.52mil 20.00mil 35.52mil "1" "1" "onsolder,square"]
+	Pad[-4.92mil -25.59mil 4.92mil -25.59mil 29.52mil 20.00mil 35.52mil "2" "2" "onsolder,square"]
+
+	)
 Layer(1 "Top")
 (
 	Line[61.6000mm 53.3000mm 61.6000mm 39.4500mm 0.2400mm 11.82mil "clearline"]
@@ -5452,6 +5461,7 @@ Layer(7 "BotPwr")
 	Line[47.2000mm 35.0000mm 47.1500mm 35.0000mm 5.91mil 11.82mil "clearline"]
 	Line[35.7500mm 26.0000mm 35.6500mm 26.1000mm 5.91mil 11.82mil "clearline"]
 	Line[35.6500mm 26.1000mm 35.6500mm 26.8000mm 5.91mil 11.82mil "clearline"]
+	Line[50.3000mm 48.7500mm 50.3000mm 48.0000mm 5.91mil 11.82mil "clearline"]
 	Polygon("clearpoly")
 	(
 		[56.2500mm 0.5000mm] [12.4000mm 0.5000mm] [12.4000mm 43.9000mm] [56.2500mm 43.9000mm] 
@@ -5897,6 +5907,8 @@ Layer(8 "Bot")
 	Line[42.0500mm 22.9000mm 38.8000mm 19.6000mm 5.91mil 11.82mil "clearline"]
 	Line[72.3500mm 34.7500mm 72.3500mm 32.7500mm 5.91mil 11.82mil "clearline"]
 	Line[74.4500mm 34.7500mm 73.6500mm 34.7500mm 5.91mil 11.82mil "clearline"]
+	Line[49.8000mm 45.9000mm 50.3000mm 46.4000mm 5.91mil 11.82mil "clearline"]
+	Line[50.3000mm 46.4000mm 50.3000mm 46.7000mm 5.91mil 11.82mil "clearline"]
 	Polygon("clearpoly")
 	(
 		[48.0000mm 49.5000mm] [63.2000mm 49.5000mm] [63.2000mm 62.2000mm] [48.0000mm 62.2000mm] 
@@ -6049,6 +6061,7 @@ NetList()
 		Connect("J2-1")
 		Connect("N5-1")
 		Connect("N6-2")
+		Connect("N8-1")
 		Connect("R1-1")
 		Connect("R2-2")
 		Connect("R5-1")
@@ -6405,6 +6418,7 @@ NetList()
 	)
 	Net("SRST" "(unknown)")
 	(
+		Connect("N8-2")
 		Connect("R47-1")
 		Connect("U1-E16")
 		Connect("U2-115")
