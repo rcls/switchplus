@@ -6,7 +6,7 @@ FileVersion[20100606]
 PCB["" 80.0000mm 62.5000mm]
 
 Grid[196.850394 0.0000 0.0000 1]
-Cursor[63.8500mm 36.0000mm 0.000000]
+Cursor[80.0000mm 0.0000 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[5.91mil 0.1501mm 5.91mil 5.00mil 0.3000mm 0.1498mm]
@@ -1260,6 +1260,8 @@ Via[22.5500mm 43.0000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(2S,5S)"]
 Via[22.9000mm 30.4500mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[35.5500mm 28.8500mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 Via[35.7500mm 26.0000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" "thermal(4S)"]
+Via[42.0500mm 26.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
+Via[38.8000mm 19.6000mm 0.6000mm 11.82mil 0.0000 0.3000mm "" ""]
 
 Element["" "so8" "U5" "unknown" 40.9500mm 4.8500mm 1.7500mm 2.2500mm 0 100 ""]
 (
@@ -3394,7 +3396,7 @@ Element["" "tiny-tactile" "S3" "unknown" 48.2987mm 48.7987mm 1.7025mm -0.8000mm 
 
 	)
 
-Element["" "0603" "N2" "unknown" 36.7000mm 44.0000mm -1.8501mm -2.6161mm 0 100 ""]
+Element["" "0603" "N2" "unknown" 36.7000mm 44.0000mm -0.8501mm -2.5661mm 0 100 ""]
 (
 	Pad[-0.1250mm -0.6500mm 0.1250mm -0.6500mm 0.7500mm 11.82mil 0.9000mm "1" "1" "square"]
 	Pad[-0.1250mm 0.6500mm 0.1250mm 0.6500mm 0.7500mm 11.82mil 0.9000mm "2" "2" "square"]
@@ -4698,6 +4700,11 @@ Layer(1 "Top")
 	Line[54.0000mm 21.4500mm 54.0000mm 21.0000mm 5.91mil 11.82mil "clearline"]
 	Line[53.7500mm 20.0500mm 53.7500mm 20.7500mm 5.91mil 11.82mil "clearline"]
 	Line[53.7500mm 20.7500mm 54.0000mm 21.0000mm 5.91mil 11.82mil "clearline"]
+	Line[43.8000mm 27.0000mm 42.4500mm 27.0000mm 5.91mil 11.82mil "clearline"]
+	Line[42.4500mm 27.0000mm 42.0500mm 26.6000mm 5.91mil 11.82mil "clearline"]
+	Line[38.8000mm 19.6000mm 36.5000mm 19.6000mm 5.91mil 11.82mil "clearline"]
+	Line[36.5000mm 19.6000mm 36.3500mm 19.7500mm 5.91mil 11.82mil "clearline"]
+	Line[36.3500mm 19.7500mm 35.0000mm 19.7500mm 5.91mil 11.82mil "clearline"]
 	Polygon("clearpoly,fullpoly")
 	(
 		[13.8000mm 36.4200mm] [14.2000mm 36.4200mm] [13.8000mm 36.6200mm] 
@@ -5878,6 +5885,8 @@ Layer(8 "Bot")
 	Line[24.5000mm 28.8500mm 35.5500mm 28.8500mm 5.91mil 11.82mil "clearline"]
 	Line[35.5500mm 28.8500mm 35.6500mm 28.7500mm 5.91mil 11.82mil "clearline"]
 	Line[35.6500mm 28.7500mm 35.6500mm 28.1000mm 5.91mil 11.82mil "clearline"]
+	Line[42.0500mm 26.6000mm 42.0500mm 22.9000mm 5.91mil 11.82mil "clearline"]
+	Line[42.0500mm 22.9000mm 38.8000mm 19.6000mm 5.91mil 11.82mil "clearline"]
 	Polygon("clearpoly")
 	(
 		[48.0000mm 49.5000mm] [63.2000mm 49.5000mm] [63.2000mm 62.2000mm] [48.0000mm 62.2000mm] 
@@ -6344,6 +6353,11 @@ NetList()
 	(
 		Connect("U1-B16")
 		Connect("U3-40")
+	)
+	Net("RCLK" "(unknown)")
+	(
+		Connect("U2-75")
+		Connect("U3-46")
 	)
 	Net("SCL" "(unknown)")
 	(
