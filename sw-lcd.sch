@@ -100,9 +100,6 @@ device=none
 T 60500 43300 5 10 1 1 0 1 1
 value=SPIQ
 }
-T 57000 45500 9 10 1 0 0 0 2
-Hook up serial - debug connector.
-Bring I2C1 to pads?
 C 52100 41700 1 0 0 resistor-1.sym
 {
 T 52400 42100 5 10 0 0 0 0 1
@@ -111,6 +108,8 @@ T 52000 41500 5 10 1 1 0 0 1
 refdes=R38
 T 52100 41700 5 10 0 1 0 0 1
 footprint=0603
+T 52100 41700 5 10 0 1 0 0 1
+value=PTERM
 }
 C 53000 41600 1 0 0 capacitor.sym
 {
@@ -122,6 +121,8 @@ T 53200 42500 5 10 0 0 0 0 1
 symversion=0.1
 T 53000 41600 5 10 0 1 0 0 1
 footprint=0603
+T 53000 41600 5 10 0 1 0 0 1
+value=PTERM
 }
 C 53400 41500 1 0 0 gnd-1.sym
 N 51900 41800 52100 41800 4
