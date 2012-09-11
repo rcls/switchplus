@@ -29,8 +29,6 @@ value=LPC GPIO7
 T 38900 45000 5 10 1 1 0 0 1
 refdes=U1
 }
-T 40300 42000 9 10 1 0 0 0 1
-Hook-up unused pins as convenient...
 C 39800 45400 1 90 0 capacitor.sym
 {
 T 39100 45600 5 10 0 0 90 0 1

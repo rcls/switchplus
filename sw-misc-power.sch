@@ -415,8 +415,6 @@ footprint=0603
 N 45500 46600 46400 46600 4
 N 46400 46600 46400 46900 4
 C 45800 46300 1 0 0 gnd-1.sym
-T 38600 47200 9 10 1 0 0 0 1
-Bring oscillator off cpu/fpga?
 T 37100 49200 9 20 1 0 0 0 2
 11. SDRAM and
 Ethernet Power
