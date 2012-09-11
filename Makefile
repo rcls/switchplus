@@ -41,3 +41,24 @@ sw-gerbers: group2.gbr_ext=Innerlayer2.gbr
 
 .PHONY: zips
 zips: sw.zip
+
+
+W=www
+sw-png: LS=Top,TopPwr,GND,GNDmsc,Power,PSig,BotPwr,Bot
+
+PCBPNG=/home/archive/bin/pcb -x png --as-shown --use-alpha --layer-stack silk,$(LS)
+
+PNGS=sw-png
+.PHONY: pngs $(PNGS)
+$(PNGS): %-png: $W/%.png $W/%-s.png $W/%b.png $W/%b-s.png
+
+pngs: $(PNGS)
+
+$W/%.png: %.pcb
+	$(PCBPNG) --outfile $@ --dpi 300 $<
+$W/%-s.png: %.pcb
+	$(PCBPNG) --outfile $@ --dpi 100 $<
+$W/%b.png: %.pcb
+	$(PCBPNG),solderside --outfile $@ --dpi 300 $<
+$W/%b-s.png: %.pcb
+	$(PCBPNG),solderside --outfile $@ --dpi 100 $<
