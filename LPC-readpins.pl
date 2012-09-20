@@ -427,7 +427,7 @@ print '<head><title>PINS</title></head>';
 print "<style type='text/css'>";
 print ".$_ { background: $colors{$_}; }"  for  sort keys %colors;
 print '.TDI, .TDO, .TCK, .TMS, .TRST, .DBGEN, .RESET, .XTAL { font-weight: bold; }';
-print '.GPIO, .SGPIO { color: #aaaaaa; }';
+print '.GPIO { color: #aaaaaa; }';
 print '.SGPIO { text-decoration: underline; }';
 print '</style>';
 print '<body>';
@@ -449,8 +449,9 @@ for my $r (@rows) {
             $text =~ s|_(....)|<br />$1|;
             $text =~ s|(....)_|$1<br />|;
         }
-        $class = 'SGPIO'
-            if  $class eq 'GPIO'  and  grep { /^SGPIO/ } @{$pinfuncs{"$r$c"}};
+        $class .= ' SGPIO'
+#            if  $class eq 'GPIO'  and  grep { /^SGPIO/ } @{$pinfuncs{"$r$c"}};
+            if  grep { /^SGPIO/ } @{$pinfuncs{"$r$c"}};
         print "<td class='$class'>$text</td>";
     }
     print "<th>$r</th>";

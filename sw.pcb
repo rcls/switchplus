@@ -6,7 +6,7 @@ FileVersion[20100606]
 PCB["" 80.0000mm 62.5000mm]
 
 Grid[39.370079 0.0000 0.0000 1]
-Cursor[33.4200mm 40.7100mm 0.000000]
+Cursor[0.3400mm 0.5600mm 0.000000]
 PolyArea[3100.006200]
 Thermal[0.500000]
 DRC[0.1501mm 0.1501mm 5.91mil 5.00mil 0.3000mm 0.1500mm]
@@ -1375,7 +1375,7 @@ Element["onsolder" "0603" "R49" "PULL" 46.4000mm 22.5000mm -1.3041mm 2.1761mm 0 
 
 	)
 
-Element["onsolder" "0603" "N5" "unknown" 51.7000mm 39.5500mm 0.8134mm 0.6172mm 0 100 "auto"]
+Element["onsolder" "0603" "N5" "DNP" 51.7000mm 39.5500mm 0.8134mm 0.6172mm 0 100 "auto"]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")
@@ -1411,7 +1411,7 @@ Element["onsolder" "0603" "R48" "PULL" 45.1000mm 30.5500mm -3.2700mm 0.5881mm 0 
 
 	)
 
-Element["onsolder" "0603" "N6" "unknown" 46.8500mm 30.5500mm 0.9660mm 1.6760mm 0 100 "auto"]
+Element["onsolder" "0603" "N6" "DNP" 46.8500mm 30.5500mm 0.9660mm 1.6760mm 0 100 "auto"]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")
@@ -1435,7 +1435,7 @@ Element["" "0603" "R40" "PULL" 17.1000mm 52.3500mm 0.7536mm -0.8133mm 0 100 ""]
 
 	)
 
-Element["" "0603" "N3" "unknown" 15.4000mm 52.3500mm -2.2340mm -0.1242mm 0 100 ""]
+Element["" "0603" "N3" "DNP" 15.4000mm 52.3500mm -2.2340mm -0.1242mm 0 100 ""]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")
@@ -1615,7 +1615,7 @@ Element["onsolder" "0603" "N1" "DNP" 34.5000mm 7.8000mm -2.5842mm 0.7521mm 0 100
 
 	)
 
-Element["onsolder" "s0805" "FB2" "unknown" 56.4000mm 34.6000mm -1.8000mm 2.3000mm 0 100 "auto"]
+Element["onsolder" "s0805" "FB2" "FB" 56.4000mm 34.6000mm -1.8000mm 2.3000mm 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -1651,7 +1651,7 @@ Element["" "sip4" "J1" "unknown" 208.66mil 49.4000mm 5.5000mm -0.6300mm 0 100 ""
 
 	)
 
-Element["onsolder" "0603" "C62" "1u" 60.0500mm 1112.20mil 0.7500mm 0.8000mm 0 100 "auto"]
+Element["onsolder" "0603" "C62" "0u47" 60.0500mm 1112.20mil 0.7500mm 0.8000mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1663,7 +1663,7 @@ Element["onsolder" "0603" "C62" "1u" 60.0500mm 1112.20mil 0.7500mm 0.8000mm 0 10
 
 	)
 
-Element["onsolder" "0603" "C70" "1u" 60.0500mm 39.7500mm 0.7500mm 0.8000mm 0 100 "auto"]
+Element["onsolder" "0603" "C70" "0u47" 60.0500mm 39.7500mm 0.7500mm 0.8000mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1675,7 +1675,7 @@ Element["onsolder" "0603" "C70" "1u" 60.0500mm 39.7500mm 0.7500mm 0.8000mm 0 100
 
 	)
 
-Element["onsolder" "0603" "C71" "1u" 60.0500mm 34.2500mm 0.7500mm 1.0500mm 0 100 "auto"]
+Element["onsolder" "0603" "C71" "4u7" 60.0500mm 34.2500mm 0.7500mm 1.0500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1687,7 +1687,7 @@ Element["onsolder" "0603" "C71" "1u" 60.0500mm 34.2500mm 0.7500mm 1.0500mm 0 100
 
 	)
 
-Element["onsolder" "0603" "C72" "1u" 58.0500mm 25.7500mm -3.2000mm 0.8000mm 0 100 "auto"]
+Element["onsolder" "0603" "C72" "0u47" 58.0500mm 25.7500mm -3.2000mm 0.8000mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1699,7 +1699,7 @@ Element["onsolder" "0603" "C72" "1u" 58.0500mm 25.7500mm -3.2000mm 0.8000mm 0 10
 
 	)
 
-Element["onsolder" "0603" "C60" "1u" 60.0500mm 915.35mil 0.7500mm 0.7500mm 0 100 "auto"]
+Element["onsolder" "0603" "C60" "0u47" 60.0500mm 915.35mil 0.7500mm 0.7500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1711,7 +1711,7 @@ Element["onsolder" "0603" "C60" "1u" 60.0500mm 915.35mil 0.7500mm 0.7500mm 0 100
 
 	)
 
-Element["onsolder" "0603" "C64" "1u" 58.0500mm 37.2500mm 1.0000mm 0.7500mm 0 100 "auto"]
+Element["onsolder" "0603" "C64" "0u47" 58.0500mm 37.2500mm 1.0000mm 0.7500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1723,7 +1723,7 @@ Element["onsolder" "0603" "C64" "1u" 58.0500mm 37.2500mm 1.0000mm 0.7500mm 0 100
 
 	)
 
-Element["onsolder" "0603" "C65" "1u" 58.0500mm 31.2500mm -2.9000mm 0.9500mm 0 100 "auto"]
+Element["onsolder" "0603" "C65" "4u7" 58.0500mm 31.2500mm -2.9000mm 0.9500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1735,7 +1735,7 @@ Element["onsolder" "0603" "C65" "1u" 58.0500mm 31.2500mm -2.9000mm 0.9500mm 0 10
 
 	)
 
-Element["onsolder" "0603" "C58" "1u" 48.5000mm 795.28mil -1.0500mm -23.62mil 0 100 "auto"]
+Element["onsolder" "0603" "C58" "0u47" 48.5000mm 795.28mil -1.0500mm -23.62mil 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1747,7 +1747,7 @@ Element["onsolder" "0603" "C58" "1u" 48.5000mm 795.28mil -1.0500mm -23.62mil 0 1
 
 	)
 
-Element["onsolder" "0603" "C59" "1u" 43.9500mm 27.7500mm -3.0000mm 0.4000mm 0 100 "auto"]
+Element["onsolder" "0603" "C59" "4u7" 43.9500mm 27.7500mm -3.0000mm 0.4000mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1759,7 +1759,7 @@ Element["onsolder" "0603" "C59" "1u" 43.9500mm 27.7500mm -3.0000mm 0.4000mm 0 10
 
 	)
 
-Element["onsolder" "0603" "C61" "1u" 43.9500mm 39.2500mm -2.8000mm 0.9500mm 0 100 "auto"]
+Element["onsolder" "0603" "C61" "0u47" 43.9500mm 39.2500mm -2.8000mm 0.9500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1771,7 +1771,7 @@ Element["onsolder" "0603" "C61" "1u" 43.9500mm 39.2500mm -2.8000mm 0.9500mm 0 10
 
 	)
 
-Element["onsolder" "0603" "C66" "1u" 53.0000mm 795.28mil -39.39mil -0.6000mm 0 100 "auto"]
+Element["onsolder" "0603" "C66" "0u47" 53.0000mm 795.28mil -39.39mil -0.6000mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1783,7 +1783,7 @@ Element["onsolder" "0603" "C66" "1u" 53.0000mm 795.28mil -39.39mil -0.6000mm 0 1
 
 	)
 
-Element["onsolder" "0603" "C68" "1u" 43.9500mm 33.7500mm 1.4000mm 0.6500mm 0 100 "auto"]
+Element["onsolder" "0603" "C68" "4u7" 43.9500mm 33.7500mm 1.4000mm 0.6500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1795,7 +1795,7 @@ Element["onsolder" "0603" "C68" "1u" 43.9500mm 33.7500mm 1.4000mm 0.6500mm 0 100
 
 	)
 
-Element["onsolder" "0603" "C69" "1u" 52.5000mm 42.3000mm -0.8000mm 2.0500mm 0 100 "auto"]
+Element["onsolder" "0603" "C69" "0u47" 52.5000mm 42.3000mm -0.8000mm 2.0500mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -1878,7 +1878,7 @@ Element["" "arj14a-mb" "CONN3" "ARJ14A-SD" 75.0000mm 31.2500mm -8.9142mm 29.6022
 
 	)
 
-Element["onsolder" "s0805" "FB1" "unknown" 56.4000mm 28.3500mm -49.20mil 90.53mil 0 100 "auto"]
+Element["onsolder" "s0805" "FB1" "FB" 56.4000mm 28.3500mm -49.20mil 90.53mil 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -2031,7 +2031,7 @@ Element["onsolder" "0402" "C30" "1u" 15.5000mm 14.7500mm 42.36mil 0.7341mm 0 100
 
 	)
 
-Element["onsolder" "0402" "C32" "1u" 25.3000mm 6.8500mm -2.8735mm 36.78mil 0 100 "auto"]
+Element["onsolder" "0402" "C32" "4u7" 25.3000mm 6.8500mm -2.8735mm 36.78mil 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -2067,7 +2067,7 @@ Element["onsolder" "0402" "C29" "1u" 33.2500mm 17.6500mm -115.99mil 36.30mil 0 1
 
 	)
 
-Element["onsolder" "0402" "C27" "1u" 24.5000mm 24.1000mm 0.5881mm 0.2841mm 0 100 "auto"]
+Element["onsolder" "0402" "C27" "4u7" 24.5000mm 24.1000mm 0.5881mm 0.2841mm 0 100 "auto"]
 (
 	Attribute("device" "CAPACITOR")
 	Attribute("manufacturer" "unknown")
@@ -2566,7 +2566,7 @@ Element["" "vfbga54" "U4" "unknown" 40.6000mm 54.8000mm 2.4500mm -8.6000mm 0 100
 
 	)
 
-Element["onsolder" "0603" "N4" "unknown" 41.1000mm 45.5500mm -0.7500mm 2.1019mm 0 100 "auto"]
+Element["onsolder" "0603" "N4" "PULL" 41.1000mm 45.5500mm -0.7500mm 2.1019mm 0 100 "auto"]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")
@@ -2969,7 +2969,7 @@ Element["onsolder" "0402" "C26" "1u" 29.0000mm 24.2000mm -1.1000mm -0.6500mm 0 1
 
 	)
 
-Element["" "smt-xtal-3mm" "X2" "unknown" 54.7500mm 45.6000mm 1.7500mm 1.5000mm 0 100 ""]
+Element["" "smt-xtal-3mm" "X2" "25M" 54.7500mm 45.6000mm 1.7500mm 1.5000mm 0 100 ""]
 (
 	Attribute("device" "unknown")
 	Attribute("manufacturer" "unknown")
@@ -2988,7 +2988,7 @@ Element["" "smt-xtal-3mm" "X2" "unknown" 54.7500mm 45.6000mm 1.7500mm 1.5000mm 0
 
 	)
 
-Element["" "smt-xtal-3mm" "X1" "unknown" 10.2500mm 34.5500mm -114.84mil -2.9933mm 0 100 ""]
+Element["" "smt-xtal-3mm" "X1" "20M" 10.2500mm 34.5500mm -114.84mil -2.9933mm 0 100 ""]
 (
 	Attribute("device" "unknown")
 	Attribute("manufacturer" "unknown")
@@ -3049,7 +3049,7 @@ Element["onsolder" "0603" "R59" "22k" 8.0000mm 37.0000mm 0.8034mm 0.7462mm 0 100
 
 	)
 
-Element["onsolder" "0603" "FB6" "unknown" 17.5000mm 35.9500mm -3.8500mm -1.7000mm 0 100 "auto"]
+Element["onsolder" "0603" "FB6" "FB" 17.5000mm 35.9500mm -3.8500mm -1.7000mm 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -3061,7 +3061,7 @@ Element["onsolder" "0603" "FB6" "unknown" 17.5000mm 35.9500mm -3.8500mm -1.7000m
 
 	)
 
-Element["onsolder" "0603" "FB5" "unknown" 15.5000mm 35.6000mm -3.2500mm 0.8500mm 0 100 "auto"]
+Element["onsolder" "0603" "FB5" "FB" 15.5000mm 35.6000mm -3.2500mm 0.8500mm 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -3746,7 +3746,7 @@ Element["onsolder" "0603" "R53" "8k45" 51.7500mm 15.6500mm -45.12mil 2.0700mm 0 
 
 	)
 
-Element["onsolder" "1206" "FB3" "unknown" 44.7500mm 12.1500mm 1.3065mm 1.0757mm 0 100 "auto"]
+Element["onsolder" "1206" "FB3" "FB" 44.7500mm 12.1500mm 1.3065mm 1.0757mm 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -4081,7 +4081,7 @@ Element["" "sip4" "J2" "unknown" 59.1500mm 57.2500mm -1.0500mm -6.7000mm 0 100 "
 
 	)
 
-Element["onsolder" "1206" "FB4" "unknown" 54.9000mm 61.0000mm -4.9726mm 39.22mil 0 100 "auto"]
+Element["onsolder" "1206" "FB4" "FB" 54.9000mm 61.0000mm -4.9726mm 39.22mil 0 100 "auto"]
 (
 	Attribute("device" "FUSE")
 	Attribute("manufacturer" "unknown")
@@ -4291,7 +4291,7 @@ Element["" "tiny-tactile" "S3" "unknown" 48.2987mm 48.7987mm 1.7025mm -0.8000mm 
 
 	)
 
-Element["" "0603" "N2" "unknown" 36.7000mm 44.0000mm -0.8501mm -2.5661mm 0 100 ""]
+Element["" "0603" "N2" "DNP" 36.7000mm 44.0000mm -0.8501mm -2.5661mm 0 100 ""]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")
@@ -4447,7 +4447,7 @@ Element["onsolder" "0603" "N7" "JLED" 73.0000mm 34.7500mm -0.1001mm 2.0001mm 0 1
 
 	)
 
-Element["onsolder" "0603" "N8" "unknown" 50.3000mm 47.3500mm -0.4001mm -2.9001mm 1 100 "auto"]
+Element["onsolder" "0603" "N8" "DNP" 50.3000mm 47.3500mm -0.4001mm -2.9001mm 1 100 "auto"]
 (
 	Attribute("device" "RESISTOR")
 	Attribute("manufacturer" "unknown")

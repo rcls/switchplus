@@ -59,7 +59,7 @@ symversion=0.1
 T 43000 48100 5 10 0 1 0 0 1
 footprint=0603
 T 43000 48100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 43000 48600 1 0 0 capacitor.sym
 {
@@ -72,7 +72,7 @@ symversion=0.1
 T 43000 48600 5 10 0 1 0 0 1
 footprint=0603
 T 43000 48600 5 10 0 1 0 0 1
-value=1u
+value=4u7
 }
 C 43000 49100 1 0 0 capacitor.sym
 {
@@ -85,7 +85,7 @@ symversion=0.1
 T 43000 49100 5 10 0 1 0 0 1
 footprint=0603
 T 43000 49100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 40700 48100 1 0 0 capacitor.sym
 {
@@ -98,7 +98,7 @@ symversion=0.1
 T 40700 48100 5 10 0 1 0 0 1
 footprint=0603
 T 40700 48100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 40700 48600 1 0 0 capacitor.sym
 {
@@ -111,7 +111,7 @@ symversion=0.1
 T 40700 48600 5 10 0 1 0 0 1
 footprint=0603
 T 40700 48600 5 10 0 1 0 0 1
-value=1u
+value=4u7
 }
 C 40700 49100 1 0 0 capacitor.sym
 {
@@ -124,7 +124,7 @@ symversion=0.1
 T 40700 49100 5 10 0 1 0 0 1
 footprint=0603
 T 40700 49100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 41700 48100 1 0 0 capacitor.sym
 {
@@ -137,7 +137,7 @@ symversion=0.1
 T 41700 48100 5 10 0 1 0 0 1
 footprint=0603
 T 41700 48100 5 10 0 1 0 0 1
-value=1u
+value=4u7
 }
 C 41700 48600 1 0 0 capacitor.sym
 {
@@ -150,7 +150,7 @@ symversion=0.1
 T 41700 48600 5 10 0 1 0 0 1
 footprint=0603
 T 41700 48600 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 41700 49600 1 0 0 capacitor.sym
 {
@@ -163,7 +163,7 @@ symversion=0.1
 T 41700 49600 5 10 0 1 0 0 1
 footprint=0603
 T 41700 49600 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 44000 48100 1 0 0 capacitor.sym
 {
@@ -176,7 +176,7 @@ symversion=0.1
 T 44000 48100 5 10 0 1 0 0 1
 footprint=0603
 T 44000 48100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 C 44000 48600 1 0 0 capacitor.sym
 {
@@ -189,7 +189,7 @@ symversion=0.1
 T 44000 48600 5 10 0 1 0 0 1
 footprint=0603
 T 44000 48600 5 10 0 1 0 0 1
-value=1u
+value=4u7
 }
 C 44000 49100 1 0 0 capacitor.sym
 {
@@ -202,7 +202,7 @@ symversion=0.1
 T 44000 49100 5 10 0 1 0 0 1
 footprint=0603
 T 44000 49100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 N 44500 49300 44500 48300 4
 N 42200 49800 42200 48300 4
@@ -217,7 +217,7 @@ symversion=0.1
 T 41700 49100 5 10 0 1 0 0 1
 footprint=0603
 T 41700 49100 5 10 0 1 0 0 1
-value=1u
+value=0u47
 }
 N 43500 49300 43500 48300 4
 N 41200 49300 41200 48300 4
@@ -231,6 +231,8 @@ T 41000 50450 5 10 0 0 0 0 1
 symversion=0.1
 T 40800 49700 5 10 0 1 0 0 1
 footprint=s0805
+T 40800 49700 5 10 0 1 0 0 1
+value=FB
 }
 C 43100 49700 1 0 0 fuse-2.sym
 {
@@ -242,6 +244,8 @@ T 43300 50450 5 10 0 0 0 0 1
 symversion=0.1
 T 43100 49700 5 10 0 1 0 0 1
 footprint=s0805
+T 43100 49700 5 10 0 1 0 0 1
+value=FB
 }
 N 40700 49800 40800 49800 4
 C 40100 48800 1 0 0 3.3V-plus-1.sym
@@ -426,6 +430,8 @@ T 39300 46700 5 10 1 1 0 0 1
 refdes=X2
 T 39500 46500 5 10 0 1 0 0 1
 footprint=smt-xtal-3mm
+T 39500 46500 5 10 0 1 0 0 1
+value=25M
 }
 N 39300 46000 39300 45900 4
 N 39600 46000 39600 45900 4
