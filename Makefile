@@ -1,5 +1,5 @@
 
-all: sw-gerbers
+all: blink.bin
 
 RENAME=mv $*-gerber/$*.$1 $*-gerber/$($1_ext)
 DELETE=rm $*-gerber/$*.$1
@@ -62,3 +62,16 @@ $W/%b.png: %.pcb
 	$(PCBPNG),solderside --outfile $@ --dpi 300 $<
 $W/%b-s.png: %.pcb
 	$(PCBPNG),solderside --outfile $@ --dpi 100 $<
+
+CC=arm-linux-gnu-gcc
+LD=arm-linux-gnu-ld
+OBJCOPY=arm-linux-gnu-objcopy
+CFLAGS=-O2 -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding
+
+%: %.c
+
+%.bin.o: %.o
+	$(LD) --Ttext=0x10000000 -r -o $@ $+
+
+%.bin: %.bin.o
+	$(OBJCOPY) -O binary $< $@
