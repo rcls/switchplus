@@ -13,6 +13,8 @@ void * xrealloc(void * ptr, size_t size)
 void slurp_file(int file, unsigned char * * restrict buffer,
                 size_t * restrict offset, size_t * restrict size);
 
+void dump_file(int file, const void * data, size_t len);
+
 inline ssize_t checkz(ssize_t r, const char * w)
 {
     if (r < 0)

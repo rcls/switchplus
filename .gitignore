@@ -1,3 +1,10 @@
 \#*#
 PCB.*.save
 /docs/
+*.dfu
+*.boot
+*.elf
+*.zero
+*.bin
+utils/addheader
+utils/runit

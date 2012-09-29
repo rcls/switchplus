@@ -34,3 +34,12 @@ void slurp_file(int file, unsigned char * * restrict buffer,
     }
     while (r);
 }
+
+
+void dump_file(int file, const void * data, size_t len)
+{
+    const unsigned char * start = data;
+    const unsigned char * end = start + len;
+    for (const unsigned char * p = start; p != end;)
+        p += checkz(write(file, p, end - p), "writing output");
+}

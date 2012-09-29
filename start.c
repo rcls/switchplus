@@ -12,49 +12,73 @@
 
 // Bring up SPI interface...
 
-#include <stdint.h>
-
-typedef volatile unsigned char v8;
-typedef volatile uint32_t v32;
-typedef v8 v8_32[32];
-typedef v32 v32_32[32];
-
-#define GPIO 0x400F4000
-
-#define GPIO_BYTE ((v8_32 *) GPIO)
-#define GPIO_DIR ((v32 *) (GPIO + 0x2000))
-
-#define UART3_THR ((v32 *) 0x400C2000)
-#define UART3_RBR ((v32 *) 0x400C2000)
-#define UART3_LSR ((v32 *) 0x400C2014)
-
-#define SCU 0x40086000
-
-#define SFSP ((v32_32 *) SCU)
-
-#define SSP0 0x40083000
-#define SSP0_CR0 ((v32 *) SSP0)
-#define SSP0_CR1 ((v32 *) (SSP0 + 4))
-#define SSP0_DR ((v32 *) (SSP0 + 8))
-#define SSP0_SR ((v32 *) (SSP0 + 12))
-#define SSP0_CPSR ((v32 *) (SSP0 + 16))
-#define SSP0_IMSC ((v32 *) (SSP0 + 20))
-#define SSP0_RIS ((v32 *) (SSP0 + 24))
-#define SSP0_MIS ((v32 *) (SSP0 + 28))
-#define SSP0_ICR ((v32 *) (SSP0 + 32))
-#define SSP0_DMACR ((v32 *) (SSP0 + 36))
+#include "registers.h"
 
 // data is big endian, lsb align.
-uint32_t spi_io (uint32_t data, int num_bytes);
+static unsigned spi_io (unsigned data, int num_bytes)
+{
+    // Wait for idle.
+    while (*SSP0_SR & 16);
+    // Clear input FIFO.
+    while (*SSP0_SR & 4)
+        *SSP0_DR;
 
-uint32_t spi_reg_read (uint32_t address);
-uint32_t spi_reg_write (uint32_t address, uint32_t byte);
+    // Take the SSEL GPIO low.
+    GPIO_BYTE[7][16] = 0;
 
-void ser_w_byte (uint32_t byte);
-void ser_w_hex_byte (uint32_t byte);
+    for (int i = 0; i < num_bytes; ++i)
+        *SSP0_DR = (data >> (num_bytes - i - 1) * 8) & 255;
 
-void _start (void) __attribute__ ((section (".start")));
-void _start (void)
+    // Wait for idle.
+    while (*SSP0_SR & 16);
+
+    // Take the SSEL GPIO high again.
+    GPIO_BYTE[7][16] = 1;
+
+    unsigned result = 0;
+    for (int i = 0; i < num_bytes; ++i) {
+        while (!(*SSP0_SR & 4));
+        result = result * 256 + (*SSP0_DR & 255);
+    }
+
+    return result;
+}
+
+static unsigned spi_reg_read (unsigned address)
+{
+    return spi_io (0x30000 + ((address & 255) * 256), 3) & 255;
+}
+
+static unsigned spi_reg_write (unsigned address, unsigned data)
+{
+    return spi_io (0x20000 + ((address & 255) * 256) + data, 3) & 255;
+}
+
+static void ser_w_byte (unsigned byte)
+{
+#if 0
+    while (!(*UART3_LSR & 32));         // Wait for THR to be empty.
+    *UART3_THR = byte;
+#endif
+}
+
+static void ser_w_string (const char * s)
+{
+    for (; *s; s++)
+        ser_w_byte (*s);
+}
+
+static void ser_w_hex (unsigned value, int nibbles, const char * term)
+{
+    for (int i = nibbles; i != 0; ) {
+        --i;
+        ser_w_byte("0123456789abcdef"[(value >> (i * 4)) & 15]);
+    }
+    ser_w_string (term);
+}
+
+//void _start (void) __attribute__ ((section (".start")));
+void doit (void)
 {
     ser_w_byte ('R');
 
@@ -71,7 +95,7 @@ void _start (void)
     GPIO_BYTE[7][9] = 1;
 
     // Wait ~ 100us.
-    for (volatile int i = 0; i < 1200; ++i);
+    for (volatile int i = 0; i < 10000; ++i);
 
     // Switch SPI is on SSP0.
     // SPIS is SSP0_SSEL on E11, PF_1 - use as GPIO7[16], function 4.
@@ -104,65 +128,25 @@ void _start (void)
 
     ser_w_byte ('S');
 
-    ser_w_hex_byte (spi_reg_read (0));
-    ser_w_hex_byte (spi_reg_read (1));
+    /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
+    /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
     spi_reg_write (1, 1);
-    ser_w_hex_byte (spi_reg_read (1));
+    /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
 
-    ser_w_byte ('D');
+    while (1) {
+        unsigned fakeotp[64];
+        for (int i = 0; i != 64; ++i)
+            fakeotp[i] = OTP[i];
 
-    while (1);
-}
+        fakeotp[12] = 6 << 25;
 
-
-uint32_t spi_io (uint32_t data, int num_bytes)
-{
-    // Wait for idle.
-    while (*SSP0_SR & 16);
-    // Clear input FIFO.
-    while (*SSP0_SR & 4)
-        *SSP0_DR;
-
-    // Take the SSEL GPIO low.
-    GPIO_BYTE[7][16] = 0;
-
-    for (int i = 0; i < num_bytes; ++i)
-        *SSP0_DR = (data >> (num_bytes - i - 1) * 8) & 255;
-
-    // Wait for idle.
-    while (*SSP0_SR & 16);
-
-    // Take the SSEL GPIO high again.
-    GPIO_BYTE[7][16] = 1;
-
-    uint32_t result = 0;
-    for (int i = 0; i < num_bytes; ++i) {
-        while (!(*SSP0_SR & 4));
-        result = result * 256 + (*SSP0_DR & 255);
+        typedef unsigned F (void*);
+        ((F*) 0x1040158d) (fakeotp);
     }
-
-    return result;
 }
 
-uint32_t spi_reg_read (uint32_t address)
-{
-    return spi_io (0x30000 + ((address & 255) * 256), 3) & 255;
-}
-
-uint32_t spi_reg_write (uint32_t address, uint32_t data)
-{
-    return spi_io (0x20000 + ((address & 255) * 256) + data, 3) & 255;
-}
-
-void ser_w_byte (uint32_t byte)
-{
-    while (!(*UART3_LSR & 32));         // Wait for THR to be empty.
-    *UART3_THR = byte;
-}
-
-void ser_w_hex_byte (uint32_t byte)
-{
-    static unsigned char nibble[] = "0123456789abcdef";
-    ser_w_byte (nibble[(byte >> 4) & 15]);
-    ser_w_byte (nibble[byte & 15]);
-}
+unsigned start[70] __attribute__ ((section (".start")));
+unsigned start[70] = {
+    0x10089ff0,
+    (unsigned) doit
+};

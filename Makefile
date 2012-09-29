@@ -66,12 +66,30 @@ $W/%b-s.png: %.pcb
 CC=arm-linux-gnu-gcc
 LD=arm-linux-gnu-ld
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-O2 -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding
+CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding -Wno-error=unused-function
+
+%.s: %.c
+	$(CC) $(CFLAGS) -S -o $@ $<
 
 %: %.c
 
-%.bin.o: %.o
-	$(LD) --Ttext=0x10000000 -r -o $@ $+
+#	$(LD) --Ttext=0x10000000 -r -o $@ $+
+%.bin.elf: %.o
+	$(LD) -T sram-link.ld -o $@ $+
 
-%.bin: %.bin.o
+%.bin: %.bin.elf
 	$(OBJCOPY) -O binary $< $@
+
+%.zero.elf: %.o
+	$(LD) -T zero.ld -o $@ $+
+
+%.zero: %.zero.elf
+	$(OBJCOPY) -O binary $< $@
+
+%.boot: %
+	utils/addheader < $< > $@
+
+%.dfu: %
+	cp $< $@.tmp
+	/home/ralph/dfu-util/src/dfu-suffix -v 0x1fc9 -p 0x000c -a $@.tmp
+	mv $@.tmp $@
