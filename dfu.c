@@ -4,8 +4,8 @@
 
 static void ser_w_byte (unsigned byte)
 {
-    while (!(*UART3_LSR & 32));         // Wait for THR to be empty.
-    *UART3_THR = byte;
+    while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
+    *USART3_THR = byte;
 }
 
 static void ser_w_string(const char * term)

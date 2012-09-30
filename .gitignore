@@ -8,3 +8,4 @@ PCB.*.save
 *.bin
 utils/addheader
 utils/runit
+utils/flasher

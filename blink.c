@@ -4,19 +4,10 @@
 
 void doit (void)
 {
-    *UART3_THR = 'R';
-    *UART3_THR = 'C';
-    *UART3_THR = 'L';
-    *UART3_THR = '\r';
-    *UART3_THR = '\n';
     GPIO_BYTE[4][1] = 1;
     GPIO_BYTE[4][2] = 0;
     GPIO_DIR[4] |= 6;
-    *UART3_THR = '1';
-    *UART3_THR = '2';
-    *UART3_THR = '3';
-    *UART3_THR = '\r';
-    *UART3_THR = '\n';
+
     int dir = 0;
     while (1) {
         for (volatile int i = 0; i != 1048576; ++i);
