@@ -93,3 +93,9 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding -Wno-e
 	cp $< $@.tmp
 	/home/ralph/dfu-util/src/dfu-suffix -v 0x1fc9 -p 0x000c -a $@.tmp
 	mv $@.tmp $@
+
+%.flasher: % flash.zero
+	utils/flasher flash.zero $< > $@.tmp
+	utils/addheader < $@.tmp > $@.tmp2
+	rm $@.tmp
+	mv $@.tmp2 $@

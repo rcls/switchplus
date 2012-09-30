@@ -14,8 +14,8 @@ void * xmalloc(size_t size)
 void * xrealloc(void * ptr, size_t size)
 {
     void * res = realloc(ptr, size);
-    if (!res)
-        err(1, "realloc");
+    if (!res && size)
+        errx(1, "realloc");
     return res;
 }
 
