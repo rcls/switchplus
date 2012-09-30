@@ -11,9 +11,21 @@ typedef v32 v32_32[32];
 #define GPIO_BYTE ((v8_32 *) GPIO)
 #define GPIO_DIR ((v32 *) (GPIO + 0x2000))
 
-#define UART3_THR ((v32 *) 0x400C2000)
-#define UART3_RBR ((v32 *) 0x400C2000)
-#define UART3_LSR ((v32 *) 0x400C2014)
+#define USART3_THR ((v32 *) 0x400c2000)
+#define USART3_RBR ((v32 *) 0x400c2000)
+#define USART3_DLL ((v32 *) 0x400c2000)
+#define USART3_DLM ((v32 *) 0x400c2004)
+#define USART3_IER ((v32 *) 0x400c2004)
+#define USART3_FCR ((v32 *) 0x400c2008)
+#define USART3_LCR ((v32 *) 0x400c200c)
+#define USART3_LSR ((v32 *) 0x400c2014)
+#define USART3_SCR ((v32 *) 0x400c201c)
+#define USART3_ACR ((v32 *) 0x400c2020)
+#define USART3_ICR ((v32 *) 0x400c2024)
+#define USART3_FDR ((v32 *) 0x400c2028)
+#define USART3_OSR ((v32 *) 0x400c202c)
+#define USART3_HDEN ((v32 *) 0x400c2040)
+
 
 #define SCU 0x40086000
 
@@ -24,6 +36,7 @@ typedef v32 v32_32[32];
 #define CGU 0x40050000
 #define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
 #define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
+#define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
 
 #define SSP0 0x40083000
 #define SSP0_CR0 ((v32 *) SSP0)

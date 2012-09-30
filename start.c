@@ -56,9 +56,9 @@ static unsigned spi_reg_write (unsigned address, unsigned data)
 
 static void ser_w_byte (unsigned byte)
 {
-#if 0
-    while (!(*UART3_LSR & 32));         // Wait for THR to be empty.
-    *UART3_THR = byte;
+#if 1
+    while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
+    *USART3_THR = byte;
 #endif
 }
 
@@ -80,12 +80,33 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 //void _start (void) __attribute__ ((section (".start")));
 void doit (void)
 {
+    // Bring up USART3.
+    SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.
+    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
+
+    // Set the USART3 clock to be the 12MHz IRC.
+    *BASE_UART3_CLK = 0x01000800;
+
+    *USART3_LCR = 0x83;                 // Enable divisor access.
+
+    // From the user-guide: Based on these findings, the suggested USART setup
+    // would be: DLM = 0, DLL = 4, DIVADDVAL = 5, and MULVAL = 8.
+    *USART3_DLM = 0;
+    *USART3_DLL = 4;
+    *USART3_FDR = 0x85;
+
+    *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
+    *USART3_FCR = 1;                    // Enable fifos.
+
+    // Now tell the world.
+    ser_w_string ("Serial is up\r\n");
+
     ser_w_byte ('R');
 
     // SMRXD0 - ENET_RXD0 - T12 - P1_15
     // SMRXD1 - ENET_RXD1 - L3 - P0_0
     SFSP[0][0] |= 24; // Disable pull-up, enable pull-down.
-    SFSP[1][15] |= 25;
+    SFSP[1][15] |= 24;
 
     // Switch reset is E16, GPIO7[9], PE_9.
     GPIO_BYTE[7][9] = 0;
@@ -130,10 +151,18 @@ void doit (void)
 
     /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
     /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
-    spi_reg_write (1, 1);
+    spi_reg_write (1, 1);         // Start switch.
     /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
 
     while (1) {
+        // Generate 480MHz off IRC...
+        // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
+        * (v32*) 0x40050020 = 0x01000818;   // Control.
+        * (v32*) 0x40050024 = 0x06167ffa;   // mdiv
+        * (v32*) 0x40050028 = 0x00302062;   // np_div.
+
+        for (volatile int i = 0; i != 100000; ++i);
+
         unsigned fakeotp[64];
         for (int i = 0; i != 64; ++i)
             fakeotp[i] = OTP[i];
