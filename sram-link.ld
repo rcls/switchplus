@@ -4,6 +4,8 @@ SECTIONS
      *(.start)
      *(.text)
      *(.rodata*)
+     *(.data*)
+     *(.bss*)
      . = NEXT(4);
   }
 }

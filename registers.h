@@ -94,4 +94,42 @@ typedef v32 v32_32[32];
 #define EDMA_CURHOST_TRANS_BUF ((v32 *) (ENET + 0x1000 + 80))
 #define EDMA_CURHOST_RECBUF ((v32 *) (ENET + 0x1000 + 84))
 
+#define USB0 0x40006000
+
+#define CAPLENGTH ((v32*) (USB0 + 0x100))
+#define HCSPARAMS ((v32*) (USB0 + 0x104))
+#define HCCPARAMS ((v32*) (USB0 + 0x108))
+#define DCIVERSION ((v32*) (USB0 + 0x120))
+#define DCCPARAMS ((v32*) (USB0 + 0x124))
+
+#define USBCMD ((v32*) (USB0 + 0x140))
+#define USBSTS ((v32*) (USB0 + 0x144))
+#define USBINTR ((v32*) (USB0 + 0x148))
+#define FRINDEX ((v32*) (USB0 + 0x14c))
+#define DEVICEADDR ((v32*) (USB0 + 0x154))
+#define PERIODICLISTBASE ((v32*) (USB0 + 0x154))
+#define ENDPOINTLISTADDR ((v32*) (USB0 + 0x158))
+#define ASYNCLISTADDR ((v32*) (USB0 + 0x158))
+#define TTCTRL ((v32*) (USB0 + 0x15c))
+#define BURSTSIZE ((v32*) (USB0 + 0x160))
+#define TXFILLTUNING ((v32*) (USB0 + 0x164))
+#define BINTERVAL ((v32*) (USB0 + 0x174))
+#define ENDPTNAK ((v32*) (USB0 + 0x178))
+#define ENDPTNAKEN ((v32*) (USB0 + 0x17c))
+#define PORTSC1 ((v32*) (USB0 + 0x184))
+#define OTGSC ((v32*) (USB0 + 0x1a4))
+#define USBMODE ((v32*) (USB0 + 0x1a8))
+
+#define ENDPTSETUPSTAT ((v32*) (USB0 + 0x1ac))
+#define ENDPTPRIME ((v32*) (USB0 + 0x1b0))
+#define ENDPTFLUSH ((v32*) (USB0 + 0x1b4))
+#define ENDPTSTAT ((v32*) (USB0 + 0x1b8))
+#define ENDPTCOMPLETE ((v32*) (USB0 + 0x1bc))
+#define ENDPTCTRL0 ((v32*) (USB0 + 0x1c0))
+#define ENDPTCTRL1 ((v32*) (USB0 + 0x1c4))
+#define ENDPTCTRL2 ((v32*) (USB0 + 0x1c8))
+#define ENDPTCTRL3 ((v32*) (USB0 + 0x1cc))
+#define ENDPTCTRL4 ((v32*) (USB0 + 0x1d0))
+#define ENDPTCTRL5 ((v32*) (USB0 + 0x1d4))
+
 #endif
