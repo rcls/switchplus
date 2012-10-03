@@ -2,26 +2,30 @@
 
 #include "registers.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #define JOIN2(a,b) a##b
 #define JOIN(a,b) JOIN2(a,b)
 #define STATIC_ASSERT(b) int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
 
-// struct dTD_s has 4-byte alignment; dTD_t has 32-byte alignment.
-typedef struct dTD_s __attribute__ ((aligned (32))) dTD_t;
-
-struct dTD_s {
-    dTD_t * volatile next;
+typedef struct dTD_t {
+    struct dTD_t * volatile next;
     volatile unsigned length_and_status;
     unsigned volatile buffer_page[5];
-};
+
+    unsigned dummy;                     // Hopefully we can use this.
+} __attribute__ ((aligned (32))) dTD_t;
 
 typedef struct dQH_t {
     // 48 byte queue head.
     volatile unsigned capabilities;
     dTD_t * volatile current;
-    struct dTD_s dTD;
+
+    dTD_t * volatile next;
+    volatile unsigned length_and_status;
+    unsigned volatile buffer_page[5];
+
     volatile unsigned reserved;
     volatile unsigned setup0;
     volatile unsigned setup1;
@@ -42,10 +46,7 @@ typedef struct qh_pair_t {
 static qh_pair_t QH[6] __attribute__ ((aligned (2048)));
 
 #define NUM_DTDS 52
-static struct {
-    dTD_t dtd __attribute__ ((aligned (32)));
-    unsigned pad;
-} DTD[NUM_DTDS];
+static dTD_t DTD[NUM_DTDS] __attribute__ ((aligned (32)));
 
 static dTD_t * dtd_free_list;
 
@@ -54,71 +55,164 @@ static const unsigned char device_descriptor[] = {
     DEVICE_DESCRIPTOR_SIZE,
     1,                                  // type:
     0, 2,                               // bcdUSB.
-    255,                                // class - vendor specific.
-    1,                                  // subclass.
-    1,                                  // protocol.
+    2,                                  // class - vendor specific.
+    6,                                  // subclass.
+    0,                                  // protocol.
     64,                                 // Max packet size.
     0x55, 0xf0,                         // Vendor-ID.
     'L', 'R',                           // Device-ID.
     0x34, 0x12,                         // Revision number.
-    0,                                  // Manufacturer string index.
-    0,                                  // Product string index.
-    0,                                  // Serial number string index.
+    1,                                  // Manufacturer string index.
+    2,                                  // Product string index.
+    3,                                  // Serial number string index.
     1                                   // Number of configurations.
     };
 STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
 
 
-#define CONFIG_DESCRIPTOR_SIZE 32
+#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7)
 static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
     2,                                  // type: config.
     CONFIG_DESCRIPTOR_SIZE & 0xff,      // size.
     CONFIG_DESCRIPTOR_SIZE >> 8,
-    1,                                  // num interfaces.
+    2,                                  // num interfaces.
     1,                                  // configuration number.
     0,                                  // string descriptor index.
     0x80,                               // attributes, not self powered.
     250,                                // current (500mA).
-    // Interface.
+    // Interface (comm).
     9,                                  // length.
     4,                                  // type: interface.
     0,                                  // interface number.
     0,                                  // alternate setting.
+    1,                                  // number of endpoints.
+    2,                                  // interface class.
+    6,                                  // interface sub-class.
+    0,                                  // protocol.
+    0,                                  // interface string index.
+    // CDC header...
+    5,
+    0x24,
+    0,
+    0x10, 1,
+    // Ethernet functional descriptor.
+    13,
+    0x24,                               // cs_interface,
+    15,                                 // ethernet
+    4,                                  // Mac address string.
+    0, 0, 0, 0,                         // Statistics bitmap.
+    0, 7,                               // Max segment size.
+    0, 0,                               // Multicast filters.
+    0,                                  // Number of power filters.
+    // Union...
+    5,
+    0x24,
+    6,
+    0,                                  // Interface 0 is control.
+    1,                                  // Interface 1 is sub-ordinate.
+    // Endpoint.
+    7,
+    5,
+    0x81,                               // IN 1
+    3,                                  // Interrupt
+    64, 0,                              // 64 bytes
+    11,                                 // binterval
+    // Endpoint.
+    // 7,
+    // 5,
+    // 0x81,                               // IN 1
+    // 3,                                  // Interrupt
+    // 64, 0,                              // 64 bytes
+    // 11,                                 // binterval
+    // Interface (data).
+    9,                                  // length.
+    4,                                  // type: interface.
+    1,                                  // interface number.
+    0,                                  // alternate setting.
+    0,                                  // number of endpoints.
+    10,                                 // interface class (data).
+    6,                                  // interface sub-class.
+    0,                                  // protocol.
+    0,                                  // interface string index.
+    // Interface (data).
+    9,                                  // length.
+    4,                                  // type: interface.
+    1,                                  // interface number.
+    1,                                  // alternate setting.
     2,                                  // number of endpoints.
-    255,                                // interface class.
-    0,                                  // interface sub-class.
+    10,                                 // interface class (data).
+    6,                                  // interface sub-class.
     0,                                  // protocol.
     0,                                  // interface string index.
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
-    1,                                  // OUT 1.
+    2,                                  // OUT 2.
     0x2,                                // bulk
     0, 2,                               // packet size
     0,
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
-    0x81,                               // IN 1.
+    0x82,                               // IN 2.
     0x2,                                // bulk
     0, 2,                               // packet size
     0
 };
 STATIC_ASSERT (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor));
 
+// String0 - lang. descs.
+static const unsigned char string0[] = {
+    4, 3, 9, 4
+};
+static const unsigned char string1[] = {
+    12, 3, 'R', 0, 'a', 0, 'l', 0, 'p', 0, 'h', 0
+};
+static const unsigned char string2[] = {
+    14, 3, 'S', 0, 'w', 0, 'i', 0, 't', 0, 'c', 0, 'h', 0
+};
+static const unsigned char string3[] = {
+    10, 3, '0', 0, '0', 0, '0', 0, '1', 0
+};
+static const unsigned char string4[] = {
+    26, 3,
+    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0,
+    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0
+};
+static const unsigned char * const string_descriptors[] = {
+    string0, string1, string2, string3, string4
+};
+
+
+static const unsigned char network_connected[] = {
+    0xa1, 0, 1, 0, 0, 0, 0, 0
+};
+// static const unsigned char network_disconnected[] = {
+//     0xa1, 0, 0, 0, 0, 0, 0, 0
+// };
+
+static const unsigned char speed_notification100[] = {
+    0xa1, 0x2a, 0, 0, 0, 0, 0, 8,
+    0, 00, 0xe1, 0x5e, 0x5f, 00, 0xe1, 0x5e, 0x5f,
+};
+
+
 #if 0
 #define QUALIFIER_DESCRIPTOR_SIZE 10
 const unsigned char qualifier_descriptor[] = {
-    10,                                 // Length.
+    QUALIFIER_DESCRIPTOR_SIZE,          // Length.
     6,                                  // Type
     0, 2,                               // usb version
-    0x255, 1, 1,
-    64, 0, 0
-}
+    255, 1, 1,
+    64, 1, 0
+};
+STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 #endif
 
+//static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (4096)));
+static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (4096)));
 
 static void ser_w_byte (unsigned byte)
 {
@@ -144,23 +238,25 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 }
 
 
-dTD_t * get_dtd (void)
+static dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
     if (r != NULL)
         dtd_free_list = r->next;
+    else
+        ser_w_string ("Out of DTDs!!!\r\n");
     return r;
 }
 
 
-void put_dtd (dTD_t * dtd)
+static void put_dtd (dTD_t * dtd)
 {
     dtd->next = dtd_free_list;
     dtd_free_list = dtd;
 }
 
 
-void schedule_dtd (int ep, dTD_t * dtd)
+static void schedule_dtd (int ep, dTD_t * dtd)
 {
     dQH_t * qh;
     if (ep >= 0x80) {                   // IN.
@@ -219,11 +315,11 @@ void schedule_dtd (int ep, dTD_t * dtd)
 
     // 1. Write dQH next pointer AND dQH terminate bit to 0 as a single
     // DWord operation.
-    qh->dTD.next = dtd;
+    qh->next = dtd;
 
     // 2. Clear active and halt bits in dQH (in case set from a previous
     // error).
-    qh->dTD.length_and_status &= ~0xc0;
+    qh->length_and_status &= ~0xc0;
 
     // 3. Prime endpoint by writing '1' to correct bit position in
     // ENDPTPRIME.
@@ -231,6 +327,25 @@ void schedule_dtd (int ep, dTD_t * dtd)
     while (*ENDPTPRIME & ep);
     if (!(*ENDPTSTAT & ep))
         ser_w_string ("Oops, EPST\r\n");
+}
+
+
+static bool schedule_buffer (int ep, const void * data, unsigned length)
+{
+    dTD_t * dtd = get_dtd();
+    if (dtd == NULL)
+        return false;                   // Bugger.
+
+    // Set terminate & active bits.
+    dtd->length_and_status = (length << 16) + 0x8080;
+    dtd->buffer_page[0] = (unsigned) data;
+    dtd->buffer_page[1] = (0xfffff000 & (unsigned) data) + 4096;
+    dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
+    dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
+    dtd->buffer_page[4] = (0xfffff000 & (unsigned) data) + 16384;
+
+    schedule_dtd (ep, dtd);
+    return true;
 }
 
 
@@ -244,16 +359,8 @@ void respond_to_setup (unsigned ep, unsigned setup1,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    dTD_t * dtd = get_dtd();
-    if (dtd == NULL)
+    if (!schedule_buffer (ep + 0x80, descriptor, length))
         return;                         // Bugger.
-
-    // Set terminate & active bits.
-    dtd->length_and_status = (length << 16) + 0x8080;
-    dtd->buffer_page[0] = (unsigned) descriptor;
-    dtd->buffer_page[1] = (0xfffff000 & (unsigned) descriptor) + 4096;
-
-    schedule_dtd (ep + 0x80, dtd);
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         ser_w_string ("Oops, EPSS\r\n");
@@ -262,15 +369,8 @@ void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // No data so no ack...
 
     // Now the status dtd...
-    dtd = get_dtd();
-    if (dtd == NULL)
-        return;                         // Bugger.
-
-    dtd->length_and_status = 0x8080;
-    //static unsigned dummy0;
-    dtd->buffer_page[0] = 0;
-    //dtd->buffer_page[0] = (unsigned) &dummy0;
-    schedule_dtd (ep, dtd);
+    if (!schedule_buffer (ep, NULL, 0))
+        return;
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         ser_w_string ("Oops, EPSS\r\n");
@@ -278,6 +378,127 @@ void respond_to_setup (unsigned ep, unsigned setup1,
     /* for (int i = 0 ; i != length; ++i) */
     /*     ser_w_hex (((unsigned char *) descriptor)[i], 2, " "); */
     /* ser_w_string ("\r\n"); */
+}
+
+
+static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
+{
+    dTD_t * next = d->next;
+    put_dtd (d);
+    if (next == NULL || next == (dTD_t*) 1) {
+        next = NULL;
+        qh->last = NULL;
+    }
+
+    qh->first = next;
+    return next;
+}
+
+typedef void retire_function_t (int ep, dQH_t * qh, dTD_t * dtd);
+
+static void endpt_complete (int ep, dQH_t * qh, retire_function_t * cb)
+{
+    // Clean-up the DTDs...
+    if (qh->first == NULL)
+        return;
+
+    // Just clear any success...
+    dTD_t * d = qh->first;
+    while (!(d->length_and_status & 0x80)) {
+        ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
+        if (cb)
+            cb (ep, qh, d);
+        d = retire_dtd (d, qh);
+        if (d == NULL)
+            return;
+    }
+
+    if (!(d->length_and_status & 0x7f))
+        return;                         // Still going.
+
+    // FIXME - what do we actually want to do on errors?
+    ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
+    if (cb)
+        cb (ep, qh, d);
+    if (retire_dtd (d, qh))
+        *ENDPTPRIME = ep;               // Reprime the endpoint.
+}
+
+
+static void start_mgmt (void)
+{
+    if (*ENDPTCTRL1 & 0x800000)
+        return;                         // Already running.
+
+    ser_w_string ("Starting mgmt...\r\n");
+
+    // FIXME - 81 length?
+    QH[1].IN.capabilities = 0x20040000;
+    QH[1].IN.next = (dTD_t*) 1;
+    // FIXME - default mgmt packets?
+    *ENDPTCTRL1 = 0xcc0000;
+
+    // Default mgmt packets.
+    schedule_buffer (0x81, network_connected, sizeof network_connected);
+    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100);
+}
+
+
+static void start_network (void)
+{
+    if (*ENDPTCTRL2 & 0x80)
+        return;                         // Already running.
+
+    ser_w_string ("Starting network...\r\n");
+
+    QH[2].IN.capabilities = 0x02000000;
+    QH[2].IN.next = (dTD_t*) 1;
+    QH[2].OUT.capabilities = 0x02000000;
+    QH[2].OUT.next = (dTD_t*) 1;
+
+    *ENDPTCTRL2 = 0x00c800c8;
+
+    for (int i = 0; i != 3; ++i)
+        schedule_buffer (2, (void *) tx_ring_buffer + 4096 * i, 0x0800);
+    // FIXME - setup ethernet.
+}
+
+
+static void stop_network (void)
+{
+    if (!(*ENDPTCTRL2 & 0x80))
+        return                          // Already stopped.
+
+    ser_w_string ("Stopping network...\r\n");
+
+    do {
+        *ENDPTFLUSH = 0x40004;
+        while (*ENDPTFLUSH & 0x40004);
+    }
+    while (*ENDPTSTAT & 0x40004);
+    *ENDPTCTRL2 = 0;
+    // Cleanup any dtds.  FIXME - fix buffer handling.
+    endpt_complete (0, &QH[2].OUT, NULL);
+    endpt_complete (0, &QH[2].IN, NULL);
+    // FIXME - stop ethernet.
+}
+
+
+static void stop_mgmt (void)
+{
+    stop_network();
+
+    if (!(*ENDPTCTRL1 & 0x800000))
+        return;                         // Already stopped.
+
+    *ENDPTCTRL1 = 0;
+    do {
+        *ENDPTFLUSH = 0x20000;
+        while (*ENDPTFLUSH & 0x20000);
+    }
+    while (*ENDPTSTAT & 0x20000);
+    // Cleanup any dtds.  FIXME - fix buffer handling.
+    endpt_complete (0, &QH[1].IN, NULL);
 }
 
 
@@ -306,14 +527,14 @@ static void process_setup (int i)
     case 0x0080:                        // Get status.
         respond_to_setup (i, setup1, &zero, 2);
         break;
-    case 0x0100:                        // Clear feature device.
-        break;
-    case 0x0101:                        // Clear feature interface.
-        break;
-    case 0x0102:                        // Clear feature endpoint.
-        break;
-    case 0x0880:                        // Get configuration.
-        break;
+    // case 0x0100:                        // Clear feature device.
+    //     break;
+    // case 0x0101:                        // Clear feature interface.
+    //     break;
+    // case 0x0102:                        // Clear feature endpoint.
+    //     break;
+    // case 0x0880:                        // Get configuration.
+    //     break;
     case 0x0680:                        // Get descriptor.
         switch (setup0 >> 24) {
         case 1:                         // Device.
@@ -324,35 +545,76 @@ static void process_setup (int i)
             respond_to_setup (i, setup1, config_descriptor,
                               CONFIG_DESCRIPTOR_SIZE);
             break;
-        case 3:                         // String.
-        case 6:                         // Device qualifier.
+        // case 6:                         // Device qualifier.
+        //     respond_to_setup (i, setup1, qualifier_descriptor,
+        //                       QUALIFIER_DESCRIPTOR_SIZE);
+        //     break;
+        case 3: {                        // String.
+            unsigned index = (setup0 >> 16) & 255;
+            if (index < sizeof string_descriptors / 4) {
+                respond_to_setup (i, setup1,
+                                  string_descriptors[index],
+                                  *string_descriptors[index]);
+                break;
+            }
+            // FALL THROUGH.
+        }
         case 7:                         // Other speed config.
         default:
             *ENDPTCTRL0 = 0x810081;     // Stall....
+            ser_w_string ("STALL on get descriptor.\r\n");
             break;
         }
         break;
-    case 0x0a81:                        // Get interface.
-        break;
+    // case 0x0a81:                        // Get interface.
+    //     break;
     case 0x0500:                        // Set address.
-        // FIXME - now or later?
+        if (((setup0 >> 16) & 127) == 0)
+            stop_mgmt();                // Stop everything if back to address 0.
         *DEVICEADDR = ((setup0 >> 16) << 25) | (1 << 24);
         respond_to_setup (i, setup1, NULL, 0);
         break;
     case 0x0900:                        // Set configuration.
+        // This leaves us in the default alternative, so always stop the
+        // network.
+        stop_network();
+        start_mgmt();
         respond_to_setup (i, setup1, NULL, 0);
         break;
-    case 0x0700:                        // Set descriptor.
-        break;
-    case 0x0300:                        // Set feature device.
-        break;
-    case 0x0301:                        // Set feature interface.
-        break;
-    case 0x0302:                        // Set feature endpoint.
-        break;
+    // case 0x0700:                        // Set descriptor.
+    //     break;
+    // case 0x0300:                        // Set feature device.
+    //     break;
+    // case 0x0301:                        // Set feature interface.
+    //     break;
+    // case 0x0302:                        // Set feature endpoint.
+    //     break;
     case 0x0b01:                        // Set interface.
+        if ((setup1 & 0xffff) == 1) {
+            if (setup0 & 0xffff0000)
+                start_network();
+            else
+                stop_network();
+        }
+        respond_to_setup (i, setup1, NULL, 0);
         break;
-    case 0x0c82:                        // Synch frame.
+    // case 0x0c82:                        // Synch frame.
+    //     break;
+    // case 0x2140:                        // Set ethernet multicast.
+    //     break;
+    // case 0x2141:                        // Set eth. power mgmt filter.
+    //     break;
+    // case 0x2142:                        // Get eth. power mgmt filter.
+    //     break;
+    case 0x2143:                        // Set eth. packet filter.
+        // Just fake it for now...
+        respond_to_setup (i, setup1, NULL, 0);
+        break;
+    // case 0x2144:                        // Get eth. statistic.
+    //     break;
+    default:
+        *ENDPTCTRL0 = 0x810081;         // Stall....
+        ser_w_string ("STALL on setup request.\r\n");
         break;
     }
 
@@ -361,70 +623,57 @@ static void process_setup (int i)
 }
 
 
-static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
-{
-    dTD_t * next = d->next;
-    put_dtd (d);
-    if (next == NULL || next == (dTD_t*) 1) {
-        next = NULL;
-        qh->last = NULL;
-    }
 
-    qh->first = next;
-    return next;
+static void endpt_mgmt_complete (int ep, dQH_t * qh, dTD_t * dtd)
+{
+    // Retire the buffer also...
 }
 
 
-static void endpt_in_complete (int ep, dQH_t * qh)
+static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    // Clean-up the DTDs...
-    if (qh->first == NULL)
-        return;
-
-    // Just clear any success...
-    dTD_t * d = qh->first;
-    while (!(d->length_and_status & 0x80)) {
-        ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
-        d = retire_dtd (d, qh);
-        if (d == NULL)
-            return;
-    }
-
-    if (!(d->length_and_status & 0x7f))
-        return;                         // Still going.
-
-    // FIXME - what do we actually want to do on errors?
-    ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
-    if (retire_dtd (d, qh))
-        *ENDPTPRIME = ep;               // Reprime the endpoint.
+    // Send the buffer off to the network...
+    // For now, flip the ethertype bits and bounce the packet back.
+    // FIXME - overflow on full packet....
+    unsigned buffer = dtd->buffer_page[0];
+    unsigned char * p = (unsigned char *) (buffer & 0xfffff800);
+    p[12] ^= 255;
+    p[13] ^= 255;
+    schedule_buffer (0x82, p, buffer & 0x7ff);
+    ser_w_hex (buffer, 8, "tx complete.\r\n");
 }
 
 
-static void endpt_out_complete (int ep, dQH_t * qh)
+static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    // For now...
-    endpt_in_complete (ep, qh);
+    // Re-queue the buffer for network data.
+    // For now, push it back onto the tx queue.
+    schedule_buffer (2, (unsigned char *) (dtd->buffer_page[0] & 0xfffff000),
+                     0x0800);
+    ser_w_string ("rx complete.\r\n");
 }
+
 
 void doit (void)
 {
 //    RESET_CTRL[0] = 1 << 17;
 #if 0
+    *PLL0USB_CTRL = 0x0100081c;         // Off, direct in, direct out.
     // Configure the clock to USB.
     // Generate 480MHz off IRC...
     // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
     * (v32*) 0x40050020 = 0x01000818;   // Control.
     * (v32*) 0x40050024 = 0x06167ffa;   // mdiv
     * (v32*) 0x40050028 = 0x00302062;   // np_div.
-#endif
+    *PLL0USB_CTRL = 0x0100081d;         // On, direct in, direct out.
 
-    for (int i = 0; i != 100000; ++i)
-        asm volatile ("");              // FIXME - wait for lock properly.
+    while (!(PLL0USB_STAT & 1));
+#endif
 
     dtd_free_list = NULL;
     for (int i = 0; i != NUM_DTDS; ++i) {
-        ser_w_hex ((unsigned) &DTD[i].dtd, 8, " is a DTD\r\n");
-        put_dtd (&DTD[i].dtd);
+        ser_w_hex ((unsigned) &DTD[i], 8, " is a DTD\r\n");
+        put_dtd (&DTD[i]);
     }
 
     for (int i = 0; i != 6; ++i) {
@@ -442,7 +691,7 @@ void doit (void)
     *USBINTR = 0;
     *USBMODE = 0xa;                     // Device.  Tripwire.
     *OTGSC = 9;
-    *PORTSC1 = 0x01000000;              // Only full speed for now.
+    //*PORTSC1 = 0x01000000;              // Only full speed for now.
 
     QH[0].OUT.capabilities = 0x20408000;
     QH[0].OUT.current = (void *) 1;
@@ -469,26 +718,30 @@ void doit (void)
             *ENDPTCTRL0 = 0x00c000c0; // Bit 6 and 22 are undoc...
             *DEVICEADDR = 0;
             //while (*USBSTS & 0x40);
+            // FIXME - stop network if running.
             ser_w_string ("Reset processed...\r\n");
         }
 
-        unsigned setupstat = *ENDPTSETUPSTAT;
-        *ENDPTSETUPSTAT = setupstat;
-
-        // Only on control endpoints...
-        for (int i = 0; i < 1; ++i)
-            if (setupstat & (1 << i))
-                process_setup (i);
+        // Check for setup on 0.  FIXME - will other set-ups interrupt?
+        if (*ENDPTSETUPSTAT & 1) {
+            *ENDPTSETUPSTAT = 1;
+            process_setup (0);
+        }
 
         unsigned complete = *ENDPTCOMPLETE;
         *ENDPTCOMPLETE = complete;
 
-        for (int i = 0; i < 6; ++i) {
-            if (complete & (1 << i))
-                endpt_out_complete(1 << i, &QH[i].OUT);
-            if (complete & (0x10000 << i))
-                endpt_in_complete(0x10000 << i, &QH[i].IN);
-        }
+        if (complete & 4)
+            endpt_complete (4, &QH[2].OUT, endpt_tx_complete);
+        if (complete & 0x40000)
+            endpt_complete (0x40000, &QH[2].IN, endpt_rx_complete);
+        if (complete & 0x20000)
+            endpt_complete (0x20000, &QH[1].IN, endpt_mgmt_complete);
+
+        if (complete & 1)
+            endpt_complete(1, &QH[0].OUT, NULL);
+        if (complete & 0x10000)
+            endpt_complete(0x10000, &QH[0].IN, NULL);
     }
 }
 
