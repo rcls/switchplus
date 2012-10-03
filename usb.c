@@ -31,7 +31,6 @@ typedef struct dQH_t {
     unsigned dummy2;
     unsigned dummy3;
 } __attribute__ ((aligned (64))) dQH_t;
-STATIC_ASSERT(offsetof(dQH_t, first) == 48);
 
 // OUT is host to device.
 // IN is device to host.
@@ -41,8 +40,6 @@ typedef struct qh_pair_t {
 } qh_pair_t;
 
 static qh_pair_t QH[6] __attribute__ ((aligned (2048)));
-STATIC_ASSERT(sizeof(qh_pair_t) == 128);
-STATIC_ASSERT(sizeof(QH) == 6 * 128);
 
 #define NUM_DTDS 52
 static struct {
@@ -53,16 +50,15 @@ static struct {
 static dTD_t * dtd_free_list;
 
 #define DEVICE_DESCRIPTOR_SIZE 18
-unsigned char device_descriptor[] = {
+static const unsigned char device_descriptor[] = {
     DEVICE_DESCRIPTOR_SIZE,
     1,                                  // type:
-//0, 2,                               // bcdUSB.
-    0x10, 0x01,
+    0, 2,                               // bcdUSB.
     255,                                // class - vendor specific.
     1,                                  // subclass.
     1,                                  // protocol.
     64,                                 // Max packet size.
-    0x05, 0xf5,                         // Vendor-ID.
+    0x55, 0xf0,                         // Vendor-ID.
     'L', 'R',                           // Device-ID.
     0x34, 0x12,                         // Revision number.
     0,                                  // Manufacturer string index.
@@ -74,13 +70,13 @@ STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
 
 
 #define CONFIG_DESCRIPTOR_SIZE 32
-unsigned char config_descriptor[] = {
+static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
     2,                                  // type: config.
     CONFIG_DESCRIPTOR_SIZE & 0xff,      // size.
     CONFIG_DESCRIPTOR_SIZE >> 8,
-    2,                                  // num interfaces.
+    1,                                  // num interfaces.
     1,                                  // configuration number.
     0,                                  // string descriptor index.
     0x80,                               // attributes, not self powered.
@@ -89,7 +85,7 @@ unsigned char config_descriptor[] = {
     9,                                  // length.
     4,                                  // type: interface.
     0,                                  // interface number.
-    1,                                  // alternate setting.
+    0,                                  // alternate setting.
     2,                                  // number of endpoints.
     255,                                // interface class.
     0,                                  // interface sub-class.
@@ -105,13 +101,23 @@ unsigned char config_descriptor[] = {
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
-    81,                                 // IN 1.
+    0x81,                               // IN 1.
     0x2,                                // bulk
     0, 2,                               // packet size
     0
 };
 STATIC_ASSERT (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor));
 
+#if 0
+#define QUALIFIER_DESCRIPTOR_SIZE 10
+const unsigned char qualifier_descriptor[] = {
+    10,                                 // Length.
+    6,                                  // Type
+    0, 2,                               // usb version
+    0x255, 1, 1,
+    64, 0, 0
+}
+#endif
 
 
 static void ser_w_byte (unsigned byte)
@@ -196,7 +202,8 @@ void schedule_dtd (int ep, dTD_t * dtd)
 
         ser_w_byte ('J');
         // 6. Write ATDTW bit in USBCMD register to '0'.
-        *USBCMD &= ~(1 << 14);
+        // Seems unnecessary...
+        //*USBCMD &= ~(1 << 14);
 
         // 7. If status bit read in step 4 (ENDPSTAT reg) indicates endpoint
         // priming is DONE (corresponding ERBRx or ETBRx is one): DONE.
@@ -206,21 +213,15 @@ void schedule_dtd (int ep, dTD_t * dtd)
         ser_w_byte ('K');
         // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
         // Step 1.
-
-        // Clear out all but the last dtd...
-        dTD_t * d = qh->first;
-        while (d != qh->last) {
-            dTD_t * n = d->next;
-            ser_w_hex (n->length_and_status, 8,
-                       " retire length and status\r\n");
-            put_dtd (d);
-            d = n;
-        }
     }
 
     ser_w_byte ('L');
-    qh->first = dtd;
-    qh->last = dtd;
+    if (qh->first == NULL) {
+        qh->first = dtd;
+        qh->last = dtd;
+    }
+    else
+        qh->last->next = dtd;
 
     // 1. Write dQH next pointer AND dQH terminate bit to 0 as a single
     // DWord operation.
@@ -261,9 +262,6 @@ void respond_to_setup (unsigned ep, unsigned setup1,
     dtd->length_and_status = (length << 16) + 0x8080;
     dtd->buffer_page[0] = (unsigned) descriptor;
     dtd->buffer_page[1] = (0xfffff000 & (unsigned) descriptor) + 4096;
-    dtd->buffer_page[2] = (0xfffff000 & (unsigned) descriptor) + 8192;
-    dtd->buffer_page[3] = (0xfffff000 & (unsigned) descriptor) + 12288;
-    dtd->buffer_page[4] = (0xfffff000 & (unsigned) descriptor) + 16384;
 
     schedule_dtd (ep + 0x80, dtd);
 
@@ -279,31 +277,31 @@ void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // Bugger.
 
     dtd->length_and_status = 0x8080;
-    static unsigned dummy0;
-    dtd->buffer_page[0] = (unsigned) &dummy0;
+    //static unsigned dummy0;
+    dtd->buffer_page[0] = 0;
+    //dtd->buffer_page[0] = (unsigned) &dummy0;
     schedule_dtd (ep, dtd);
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         ser_w_string ("Oops, EPSS\r\n");
 
-    for (int i = 0 ; i != length; ++i)
-        ser_w_hex (((unsigned char *) descriptor)[i], 2, " ");
-    ser_w_string ("\r\n");
+    /* for (int i = 0 ; i != length; ++i) */
+    /*     ser_w_hex (((unsigned char *) descriptor)[i], 2, " "); */
+    /* ser_w_string ("\r\n"); */
 }
 
 
 // FIXME - we probably only want EP 0.
-void process_setup (int i)
+static void process_setup (int i)
 {
     ser_w_byte ('A');
 
-    unsigned zero = 0;
+    static unsigned zero = 0;
     qh_pair_t * qh = &QH[i];
 
     ser_w_byte ('B');
 
     *ENDPTCOMPLETE = 0x10001 << i;
-    *ENDPTSETUPSTAT = 1 << i;
     unsigned setup0;
     unsigned setup1;
     do {
@@ -343,9 +341,12 @@ void process_setup (int i)
             ser_w_byte ('E');
             respond_to_setup (i, setup1, config_descriptor,
                               CONFIG_DESCRIPTOR_SIZE);
+            break;
         case 3:                         // String.
         case 6:                         // Device qualifier.
         case 7:                         // Other speed config.
+        default:
+            *ENDPTCTRL0 = 0x810081;     // Stall....
             break;
         }
         break;
@@ -357,7 +358,8 @@ void process_setup (int i)
         respond_to_setup (i, setup1, NULL, 0);
         break;
     case 0x0900:                        // Set configuration.
-        break;                       // We only have one configuration.  Ignore.
+        respond_to_setup (i, setup1, NULL, 0);
+        break;
     case 0x0700:                        // Set descriptor.
         break;
     case 0x0300:                        // Set feature device.
@@ -374,28 +376,57 @@ void process_setup (int i)
 
     ser_w_hex (setup0, 8, " setup0\r\n");
     ser_w_hex (setup1, 8, " setup1\r\n\r\n");
-    if (0) {
-        ser_w_hex (qh->OUT.capabilities, 8, " OUT capabilities\r\n");
-        ser_w_hex ((unsigned) qh->OUT.current, 8, " OUT current\r\n");
-        ser_w_hex ((unsigned) qh->OUT.dTD.next, 8, " OUT next\r\n");
-        ser_w_hex (qh->OUT.dTD.length_and_status, 8, " OUT len/stat\r\n");
-        ser_w_hex ((unsigned) qh->OUT.dTD.buffer_page[0], 8, " OUT buf0\r\n");
-        ser_w_hex ((unsigned) qh->OUT.dTD.buffer_page[1], 8, " OUT buf1\r\n");
-
-        ser_w_hex (qh->IN.capabilities, 8, " IN  capabilities\r\n");
-        ser_w_hex ((unsigned) qh->IN.current, 8, " IN  current\r\n");
-        ser_w_hex ((unsigned) qh->IN.dTD.next, 8, " IN  next\r\n");
-        ser_w_hex (qh->IN.dTD.length_and_status, 8, " IN  len/stat\r\n");
-        ser_w_hex ((unsigned) qh->IN.dTD.buffer_page[0], 8, " IN  buf0\r\n");
-        ser_w_hex ((unsigned) qh->IN.dTD.buffer_page[1], 8, " IN  buf1\r\n");
-    }
-
 }
 
 
+static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
+{
+    dTD_t * next = d->next;
+    put_dtd (d);
+    if (next == NULL || next == (dTD_t*) 1) {
+        next = NULL;
+        qh->last = NULL;
+    }
+
+    qh->first = next;
+    return next;
+}
+
+
+static void endpt_in_complete (int ep, dQH_t * qh)
+{
+    // Clean-up the DTDs...
+    if (qh->first == NULL)
+        return;
+
+    // Just clear any success...
+    dTD_t * d = qh->first;
+    while (!(d->length_and_status & 0x80)) {
+        ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
+        d = retire_dtd (d, qh);
+        if (d == NULL)
+            return;
+    }
+
+    if (!(d->length_and_status & 0x7f))
+        return;                         // Still going.
+
+    // FIXME - what do we actually want to do on errors?
+    ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
+    if (retire_dtd (d, qh))
+        *ENDPTPRIME = ep;               // Reprime the endpoint.
+}
+
+
+static void endpt_out_complete (int ep, dQH_t * qh)
+{
+    // For now...
+    endpt_in_complete (ep, qh);
+}
+
 void doit (void)
 {
-    RESET_CTRL[0] = 1 << 17;
+//    RESET_CTRL[0] = 1 << 17;
 #if 0
     // Configure the clock to USB.
     // Generate 480MHz off IRC...
@@ -423,12 +454,7 @@ void doit (void)
         QH[i].IN.last = NULL;
     }
 
-    *USBINTR = 0;
-    *OTGSC = 9;
-
     *USBCMD = 2;                        // Reset.
-    /* for (int i = 0; i != 1000000; ++i) */
-    /*     asm volatile(""); */
     while (*USBCMD & 2);
 
     *USBINTR = 0;
@@ -438,21 +464,9 @@ void doit (void)
 
     QH[0].OUT.capabilities = 0x20408000;
     QH[0].OUT.current = (void *) 1;
-    QH[0].OUT.dTD.next = (void *) 1;
-    /* QH[0].OUT.current = NULL; */
-    /* QH[0].OUT.setup_low = xxx; */
-    /* QH[0].OUT.setup_high = xxx; */
-    QH[0].OUT.first = NULL;
-    QH[0].OUT.last = NULL;
 
     QH[0].IN.capabilities = 0x20408000;
     QH[0].IN.current = (void *) 1;
-    QH[0].IN.dTD.next = (void *) 1;
-    /* QH[0].IN.current = NULL; */
-    /* QH[0].IN.setup_low = xxx; */
-    /* QH[0].IN.setup_high = xxx; */
-    QH[0].OUT.first = NULL;
-    QH[0].OUT.last = NULL;
 
     // Set the endpoint list pointer.
     *ENDPOINTLISTADDR = (unsigned) &QH;
@@ -462,7 +476,6 @@ void doit (void)
 
     while (1) {
         if (*USBSTS & 0x40) {
-            //*USBMODE = 0xa;             // Device.  Tripwire.
             *ENDPTNAK = 0xffffffff;
             *ENDPTNAKEN = 1;
             *USBSTS = 0xffffffff;
@@ -474,19 +487,28 @@ void doit (void)
                 ser_w_string ("Bugger\r\n");
             *ENDPTCTRL0 = 0x00c000c0; // Bit 6 and 22 are undoc...
             *DEVICEADDR = 0;
-            while (*USBSTS & 0x40);
+            //while (*USBSTS & 0x40);
             ser_w_string ("Reset processed...\r\n");
             continue;
         }
 
         unsigned setupstat = *ENDPTSETUPSTAT;
+        *ENDPTSETUPSTAT = setupstat;
 
-        // FIXME - non control endpoints should just ignore it...
+        // Only on control endpoints...
         for (int i = 0; i < 1; ++i)
             if (setupstat & (1 << i))
                 process_setup (i);
 
+        unsigned complete = *ENDPTCOMPLETE;
+        *ENDPTCOMPLETE = complete;
 
+        for (int i = 0; i < 6; ++i) {
+            if (complete & (1 << i))
+                endpt_out_complete(1 << i, &QH[i].OUT);
+            if (complete & (0x10000 << i))
+                endpt_in_complete(0x10000 << i, &QH[i].IN);
+        }
     }
 }
 
