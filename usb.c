@@ -174,8 +174,6 @@ void schedule_dtd (int ep, dTD_t * dtd)
 
     dtd->next = (dTD_t *) 1;
     if (qh->last != NULL) {
-        ser_w_byte ('H');
-
         // 1. Add dTD to end of the linked list.
         qh->last->next = dtd;
         qh->last = dtd;
@@ -184,7 +182,6 @@ void schedule_dtd (int ep, dTD_t * dtd)
         if (*ENDPTPRIME & ep)
             return;
 
-        ser_w_byte ('I');
         unsigned eps;
         do {
             // 3. Set ATDTW bit in USBCMD register to '1'.
@@ -200,7 +197,6 @@ void schedule_dtd (int ep, dTD_t * dtd)
         }
         while (!(*USBCMD & (1 << 14)));
 
-        ser_w_byte ('J');
         // 6. Write ATDTW bit in USBCMD register to '0'.
         // Seems unnecessary...
         //*USBCMD &= ~(1 << 14);
@@ -210,12 +206,10 @@ void schedule_dtd (int ep, dTD_t * dtd)
         if (eps & ep)
             return;
 
-        ser_w_byte ('K');
         // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
         // Step 1.
     }
 
-    ser_w_byte ('L');
     if (qh->first == NULL) {
         qh->first = dtd;
         qh->last = dtd;
@@ -250,13 +244,9 @@ void respond_to_setup (unsigned ep, unsigned setup1,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    ser_w_byte ('F');
-
     dTD_t * dtd = get_dtd();
     if (dtd == NULL)
         return;                         // Bugger.
-
-    ser_w_byte ('G');
 
     // Set terminate & active bits.
     dtd->length_and_status = (length << 16) + 0x8080;
@@ -294,12 +284,8 @@ void respond_to_setup (unsigned ep, unsigned setup1,
 // FIXME - we probably only want EP 0.
 static void process_setup (int i)
 {
-    ser_w_byte ('A');
-
     static unsigned zero = 0;
     qh_pair_t * qh = &QH[i];
-
-    ser_w_byte ('B');
 
     *ENDPTCOMPLETE = 0x10001 << i;
     unsigned setup0;
@@ -316,8 +302,6 @@ static void process_setup (int i)
 
     // FIXME - flush old setups.
 
-    ser_w_byte ('C');
-
     switch (setup0 & 0xffff) {
     case 0x0080:                        // Get status.
         respond_to_setup (i, setup1, &zero, 2);
@@ -333,12 +317,10 @@ static void process_setup (int i)
     case 0x0680:                        // Get descriptor.
         switch (setup0 >> 24) {
         case 1:                         // Device.
-            ser_w_byte ('D');
             respond_to_setup (i, setup1, device_descriptor,
                               DEVICE_DESCRIPTOR_SIZE);
             break;
         case 2:                         // Configuration.
-            ser_w_byte ('E');
             respond_to_setup (i, setup1, config_descriptor,
                               CONFIG_DESCRIPTOR_SIZE);
             break;
@@ -480,7 +462,6 @@ void doit (void)
             *ENDPTNAKEN = 1;
             *USBSTS = 0xffffffff;
             *ENDPTSETUPSTAT = *ENDPTSETUPSTAT;
-            *ENDPTCOMPLETE = *ENDPTCOMPLETE;
             while (*ENDPTPRIME);
             *ENDPTFLUSH = 0xffffffff;
             if (!(*PORTSC1 & 0x100))
@@ -489,7 +470,6 @@ void doit (void)
             *DEVICEADDR = 0;
             //while (*USBSTS & 0x40);
             ser_w_string ("Reset processed...\r\n");
-            continue;
         }
 
         unsigned setupstat = *ENDPTSETUPSTAT;
