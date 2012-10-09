@@ -7,7 +7,7 @@
 
 #define JOIN2(a,b) a##b
 #define JOIN(a,b) JOIN2(a,b)
-#define STATIC_ASSERT(b) int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
+#define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
 
 typedef struct dTD_t {
     struct dTD_t * volatile next;
@@ -63,6 +63,10 @@ static unsigned tx_dma_retire;
 static unsigned tx_dma_insert;
 static unsigned rx_dma_retire;
 static unsigned rx_dma_insert;
+
+static bool debug;
+extern volatile unsigned char bss_start;
+extern volatile unsigned char bss_end;
 
 static dTD_t * dtd_free_list;
 
@@ -388,10 +392,6 @@ void respond_to_setup (unsigned ep, unsigned setup1,
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         ser_w_string ("Oops, EPSS\r\n");
-
-    /* for (int i = 0 ; i != length; ++i) */
-    /*     ser_w_hex (((unsigned char *) descriptor)[i], 2, " "); */
-    /* ser_w_string ("\r\n"); */
 }
 
 
@@ -675,8 +675,10 @@ static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 
     *EDMA_TRANS_POLL_DEMAND = 0;
 
-    ser_w_hex (buffer, 8, " ");
-    ser_w_hex (status, 8, " tx to MAC.\r\n");
+    if (debug) {
+        ser_w_hex (buffer, 8, " ");
+        ser_w_hex (status, 8, " tx to MAC.\r\n");
+    }
 }
 
 
@@ -699,8 +701,10 @@ static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 
     *EDMA_REC_POLL_DEMAND = 0;
 
-    ser_w_hex (buffer, 8, " ");
-    ser_w_hex (status, 8, " rx complete.\r\n");
+    if (debug) {
+        ser_w_hex (buffer, 8, " ");
+        ser_w_hex (status, 8, " rx complete.\r\n");
+    }
 }
 
 
@@ -712,8 +716,10 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     unsigned status = rx->status;
     void * buffer = rx->buffer1;
     schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff);
-    ser_w_hex ((unsigned) buffer, 8, " ");
-    ser_w_hex (status, 8, " rx to usb\r\n");
+    if (debug) {
+        ser_w_hex ((unsigned) buffer, 8, " ");
+        ser_w_hex (status, 8, " rx to usb\r\n");
+    }
 }
 
 
@@ -723,8 +729,10 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
     schedule_buffer (0x02, buffer, 0x7ff);
-    ser_w_hex ((unsigned) buffer, 8, " ");
-    ser_w_hex (tx->status, 8, " tx complete\r\n");
+    if (debug) {
+        ser_w_hex ((unsigned) buffer, 8, " ");
+        ser_w_hex (tx->status, 8, " tx complete\r\n");
+    }
 }
 
 
@@ -889,7 +897,11 @@ static void init_ethernet (void)
 
 void doit (void)
 {
+    for (volatile unsigned char * p = &bss_start; p != &bss_end; ++p)
+        *p++ = 0;
+
 //    RESET_CTRL[0] = 1 << 17;
+    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
 
     init_switch();
     init_ethernet();
@@ -1007,12 +1019,34 @@ void doit (void)
             && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
             retire_rx_dma (&rx_dma[rx_dma_retire++ & EDMA_MASK]);
 
-        if ((*USART3_LSR & 1) && (*USART3_RBR & 0xff) == 27) {
-            ser_w_string ("Reboot!\r\n");
-            RESET_CTRL[0] = 0xffffffff;
+        if (*USART3_LSR & 1) {
+            switch (*USART3_RBR & 0xff) {
+            case 'r':
+                ser_w_string ("Reboot!\r\n");
+                RESET_CTRL[0] = 0xffffffff;
+                break;
+            case 'd':
+                debug = !debug;
+                ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
+                break;
+            case 'u': {
+                ser_w_string ("Enter DFU\r\n");
+
+                unsigned fakeotp[64];
+                for (int i = 0; i != 64; ++i)
+                    fakeotp[i] = OTP[i];
+
+                fakeotp[12] = 6 << 25;
+
+                typedef unsigned F (void*);
+                ((F*) 0x1040158d) (fakeotp);
+                break;
+            }
+            }
         }
     }
 }
+
 
 void * start[64] __attribute__ ((section (".start")));
 void * start[64] = {

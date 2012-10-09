@@ -5,7 +5,11 @@ SECTIONS
      *(.text)
      *(.rodata*)
      *(.data*)
-     *(.bss*)
      . = NEXT(4);
+  }
+  .bss : {
+     bss_start = .;
+     *(.bss*);
+     bss_end = .;
   }
 }
