@@ -26,6 +26,11 @@ typedef v32 v32_32[32];
 #define USART3_OSR ((v32 *) 0x400c202c)
 #define USART3_HDEN ((v32 *) 0x400c2040)
 
+#define CGU 0x40050000
+#define PLL0USB_STAT ((v32 *) (CGU + 0x1c))
+#define PLL0USB_CTRL ((v32 *) (CGU + 0x20))
+#define PLL0USB_MDIV ((v32 *) (CGU + 0x24))
+#define PLL0USB_NP_DIV ((v32 *) (CGU + 0x28))
 
 #define SCU 0x40086000
 

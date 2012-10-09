@@ -48,6 +48,22 @@ static qh_pair_t QH[6] __attribute__ ((aligned (2048)));
 #define NUM_DTDS 52
 static dTD_t DTD[NUM_DTDS] __attribute__ ((aligned (32)));
 
+typedef struct EDMA_DESC_t {
+    unsigned status;
+    unsigned count;
+    void * buffer1;
+    void * buffer2;
+} EDMA_DESC_t;
+
+#define EDMA_COUNT 4
+#define EDMA_MASK 3
+static volatile EDMA_DESC_t tx_dma[EDMA_COUNT];
+static volatile EDMA_DESC_t rx_dma[EDMA_COUNT];
+static unsigned tx_dma_retire;
+static unsigned tx_dma_insert;
+static unsigned rx_dma_retire;
+static unsigned rx_dma_insert;
+
 static dTD_t * dtd_free_list;
 
 #define DEVICE_DESCRIPTOR_SIZE 18
@@ -211,7 +227,7 @@ const unsigned char qualifier_descriptor[] = {
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 #endif
 
-//static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (4096)));
+static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (4096)));
 static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (4096)));
 
 static void ser_w_byte (unsigned byte)
@@ -305,13 +321,10 @@ static void schedule_dtd (int ep, dTD_t * dtd)
         // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
         // Step 1.
     }
-
-    if (qh->first == NULL) {
+    else {
         qh->first = dtd;
         qh->last = dtd;
     }
-    else
-        qh->last->next = dtd;
 
     // 1. Write dQH next pointer AND dQH terminate bit to 0 as a single
     // DWord operation.
@@ -343,6 +356,7 @@ static bool schedule_buffer (int ep, const void * data, unsigned length)
     dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
     dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
     dtd->buffer_page[4] = (0xfffff000 & (unsigned) data) + 16384;
+    //dtd->dummy = data;
 
     schedule_dtd (ep, dtd);
     return true;
@@ -384,13 +398,13 @@ void respond_to_setup (unsigned ep, unsigned setup1,
 static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
 {
     dTD_t * next = d->next;
-    put_dtd (d);
-    if (next == NULL || next == (dTD_t*) 1) {
+    if (d == qh->last) {
         next = NULL;
         qh->last = NULL;
     }
-
     qh->first = next;
+
+    put_dtd (d);
     return next;
 }
 
@@ -402,10 +416,10 @@ static void endpt_complete (int ep, dQH_t * qh, retire_function_t * cb)
     if (qh->first == NULL)
         return;
 
-    // Just clear any success...
+    // Successes...
     dTD_t * d = qh->first;
     while (!(d->length_and_status & 0x80)) {
-        ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
+        //ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
         if (cb)
             cb (ep, qh, d);
         d = retire_dtd (d, qh);
@@ -456,10 +470,15 @@ static void start_network (void)
     QH[2].OUT.capabilities = 0x02000000;
     QH[2].OUT.next = (dTD_t*) 1;
 
-    *ENDPTCTRL2 = 0x00c800c8;
+//    *ENDPTCTRL2 = 0x00c800c8;
+    *ENDPTCTRL2 = 0x00880088;
 
-    for (int i = 0; i != 3; ++i)
-        schedule_buffer (2, (void *) tx_ring_buffer + 4096 * i, 0x0800);
+    // Start ethernet & it's dma.
+    *MAC_CONFIG = 0xc90c;
+    *EDMA_OP_MODE = 0x2002;
+
+    for (int i = 0; i != 4; ++i)
+        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0);
     // FIXME - setup ethernet.
 }
 
@@ -470,6 +489,10 @@ static void stop_network (void)
         return                          // Already stopped.
 
     ser_w_string ("Stopping network...\r\n");
+
+    // Stop ethernet & it's dma.
+    *EDMA_OP_MODE = 0;
+    *MAC_CONFIG = 0xc900;
 
     do {
         *ENDPTFLUSH = 0x40004;
@@ -521,11 +544,13 @@ static void process_setup (int i)
     while (*ENDPTSETUPSTAT & (1 << i))
         *ENDPTSETUPSTAT = 1 << i;
 
-    // FIXME - flush old setups.
+    const void * response_data = NULL;
+    unsigned response_length = 0xffffffff;
 
     switch (setup0 & 0xffff) {
     case 0x0080:                        // Get status.
-        respond_to_setup (i, setup1, &zero, 2);
+        response_data = &zero;
+        response_length = 2;
         break;
     // case 0x0100:                        // Clear feature device.
     //     break;
@@ -538,12 +563,12 @@ static void process_setup (int i)
     case 0x0680:                        // Get descriptor.
         switch (setup0 >> 24) {
         case 1:                         // Device.
-            respond_to_setup (i, setup1, device_descriptor,
-                              DEVICE_DESCRIPTOR_SIZE);
+            response_data = device_descriptor;
+            response_length = DEVICE_DESCRIPTOR_SIZE;
             break;
         case 2:                         // Configuration.
-            respond_to_setup (i, setup1, config_descriptor,
-                              CONFIG_DESCRIPTOR_SIZE);
+            response_data = config_descriptor;
+            response_length = CONFIG_DESCRIPTOR_SIZE;
             break;
         // case 6:                         // Device qualifier.
         //     respond_to_setup (i, setup1, qualifier_descriptor,
@@ -552,18 +577,14 @@ static void process_setup (int i)
         case 3: {                        // String.
             unsigned index = (setup0 >> 16) & 255;
             if (index < sizeof string_descriptors / 4) {
-                respond_to_setup (i, setup1,
-                                  string_descriptors[index],
-                                  *string_descriptors[index]);
-                break;
+                response_data = string_descriptors[index];
+                response_length = *string_descriptors[index];
             }
-            // FALL THROUGH.
+            break;
         }
         case 7:                         // Other speed config.
         default:
-            *ENDPTCTRL0 = 0x810081;     // Stall....
-            ser_w_string ("STALL on get descriptor.\r\n");
-            break;
+            ;
         }
         break;
     // case 0x0a81:                        // Get interface.
@@ -572,14 +593,14 @@ static void process_setup (int i)
         if (((setup0 >> 16) & 127) == 0)
             stop_mgmt();                // Stop everything if back to address 0.
         *DEVICEADDR = ((setup0 >> 16) << 25) | (1 << 24);
-        respond_to_setup (i, setup1, NULL, 0);
+        response_length = 0;
         break;
     case 0x0900:                        // Set configuration.
         // This leaves us in the default alternative, so always stop the
         // network.
         stop_network();
         start_mgmt();
-        respond_to_setup (i, setup1, NULL, 0);
+        response_length = 0;
         break;
     // case 0x0700:                        // Set descriptor.
     //     break;
@@ -596,7 +617,7 @@ static void process_setup (int i)
             else
                 stop_network();
         }
-        respond_to_setup (i, setup1, NULL, 0);
+        response_length = 0;
         break;
     // case 0x0c82:                        // Synch frame.
     //     break;
@@ -608,67 +629,300 @@ static void process_setup (int i)
     //     break;
     case 0x2143:                        // Set eth. packet filter.
         // Just fake it for now...
-        respond_to_setup (i, setup1, NULL, 0);
+        response_length = 0;
         break;
     // case 0x2144:                        // Get eth. statistic.
     //     break;
     default:
-        *ENDPTCTRL0 = 0x810081;         // Stall....
-        ser_w_string ("STALL on setup request.\r\n");
         break;
     }
 
+    if (response_length != 0xffffffff)
+        respond_to_setup (i, setup1, response_data, response_length);
+    else {
+        *ENDPTCTRL0 = 0x810081;         // Stall....
+        ser_w_string ("STALL on setup request.\r\n");
+    }
+    // FIXME - flush old setups.
     ser_w_hex (setup0, 8, " setup0\r\n");
     ser_w_hex (setup1, 8, " setup1\r\n\r\n");
 }
 
 
-
 static void endpt_mgmt_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    // Retire the buffer also...
+    // Retire the buffer also?
 }
 
 
 static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // Send the buffer off to the network...
-    // For now, flip the ethertype bits and bounce the packet back.
-    // FIXME - overflow on full packet....
     unsigned buffer = dtd->buffer_page[0];
-    unsigned char * p = (unsigned char *) (buffer & 0xfffff800);
-    p[12] ^= 255;
-    p[13] ^= 255;
-    schedule_buffer (0x82, p, buffer & 0x7ff);
-    ser_w_hex (buffer, 8, "tx complete.\r\n");
+    unsigned status = dtd->length_and_status;
+    // FIXME - detect errors and oversize packets.
+
+    volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
+
+    t->count = buffer & 0x7ff;
+    t->buffer1 = (void *) (buffer & 0xfffff800);
+    t->buffer2 = NULL;
+
+    if (tx_dma_insert & EDMA_MASK)
+        t->status = 0xf0000000;
+    else
+        t->status = 0xf0200000;
+
+    *EDMA_TRANS_POLL_DEMAND = 0;
+
+    ser_w_hex (buffer, 8, " ");
+    ser_w_hex (status, 8, " tx to MAC.\r\n");
 }
 
 
 static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // Re-queue the buffer for network data.
-    // For now, push it back onto the tx queue.
-    schedule_buffer (2, (unsigned char *) (dtd->buffer_page[0] & 0xfffff000),
-                     0x0800);
-    ser_w_string ("rx complete.\r\n");
+    unsigned buffer = dtd->buffer_page[0];
+    unsigned status = dtd->length_and_status;
+
+    volatile EDMA_DESC_t * r = &rx_dma[rx_dma_insert++ & EDMA_MASK];
+
+    if (rx_dma_insert & EDMA_MASK)
+        r->count = 0x7f0;
+    else
+        r->count = 0x87f0;
+    r->buffer1 = (void*) (buffer & 0xfffff800);
+    r->buffer2 = 0;
+
+    r->status = 0x80000000;
+
+    *EDMA_REC_POLL_DEMAND = 0;
+
+    ser_w_hex (buffer, 8, " ");
+    ser_w_hex (status, 8, " rx complete.\r\n");
+}
+
+
+static void retire_rx_dma (volatile EDMA_DESC_t * rx)
+{
+    // FIXME - handle errors.
+    // FIXME - handle overlength packets.
+    // Give the buffer to USB.... FIXME: handle shutdown races.
+    unsigned status = rx->status;
+    void * buffer = rx->buffer1;
+    schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff);
+    ser_w_hex ((unsigned) buffer, 8, " ");
+    ser_w_hex (status, 8, " rx to usb\r\n");
+}
+
+
+static void retire_tx_dma (volatile EDMA_DESC_t * tx)
+{
+    // FIXME - handle errors.
+    // Give the buffer to USB...
+    void * buffer = tx->buffer1;
+    schedule_buffer (0x02, buffer, 0x7ff);
+    ser_w_hex ((unsigned) buffer, 8, " ");
+    ser_w_hex (tx->status, 8, " tx complete\r\n");
+}
+
+
+// data is big endian, lsb align.
+static unsigned spi_io (unsigned data, int num_bytes)
+{
+    // Wait for idle.
+    while (*SSP0_SR & 16);
+    // Clear input FIFO.
+    while (*SSP0_SR & 4)
+        *SSP0_DR;
+
+    // Take the SSEL GPIO low.
+    GPIO_BYTE[7][16] = 0;
+
+    for (int i = 0; i < num_bytes; ++i)
+        *SSP0_DR = (data >> (num_bytes - i - 1) * 8) & 255;
+
+    // Wait for idle.
+    while (*SSP0_SR & 16);
+
+    // Take the SSEL GPIO high again.
+    GPIO_BYTE[7][16] = 1;
+
+    unsigned result = 0;
+    for (int i = 0; i < num_bytes; ++i) {
+        while (!(*SSP0_SR & 4));
+        result = result * 256 + (*SSP0_DR & 255);
+    }
+
+    return result;
+}
+
+static unsigned spi_reg_read (unsigned address)
+{
+    return spi_io (0x30000 + ((address & 255) * 256), 3) & 255;
+}
+
+static unsigned spi_reg_write (unsigned address, unsigned data)
+{
+    return spi_io (0x20000 + ((address & 255) * 256) + data, 3) & 255;
+}
+
+
+static void init_switch (void)
+{
+    // SMRXD0 - ENET_RXD0 - T12 - P1_15
+    // SMRXD1 - ENET_RXD1 - L3 - P0_0
+    SFSP[0][0] |= 24; // Disable pull-up, enable pull-down.
+    SFSP[1][15] |= 24;
+
+    // Switch reset is E16, GPIO7[9], PE_9.
+    GPIO_BYTE[7][9] = 0;
+    GPIO_DIR[7] |= 1 << 9;
+    SFSP[14][9] = 4;                    // GPIO is function 4....
+    // Out of reset...
+    GPIO_BYTE[7][9] = 1;
+
+    // Wait ~ 100us.
+    for (volatile int i = 0; i < 10000; ++i);
+
+    // Switch SPI is on SSP0.
+    // SPIS is SSP0_SSEL on E11, PF_1 - use as GPIO7[16], function 4.
+    // SPIC is SSP0_SCK on B14, P3_3, function 2.
+    // SPID is SSP0_MOSI on C11, P3_7, function 5.
+    // SPIQ is SSP0_MISO on B13, P3_6, function 5.
+
+    // Set SPIS output hi.
+    GPIO_BYTE[7][16] = 1;
+    GPIO_DIR[7] |= 1 << 16;
+    SFSP[15][1] = 4;                    // GPIO is function 4.
+
+    // Set the prescaler to divide by 2.
+    *SSP0_CPSR = 2;
+
+    // Is SSP0 unit clock running by default?  "All branch clocks are enabled
+    // by default".
+    // Keep clock HI while idle, CPOL=1,CPHA=1
+    // Output data on falling edge.  Read data on rising edge.
+    // Divide clock by 30.
+    *SSP0_CR0 = 0x00001dc7;
+
+    // Enable SSP0.
+    *SSP0_CR1 = 0x00000002;
+
+    // Set up the pins.
+    SFSP[3][3] = 2; // Clock pin, has high drive but we don't want that.
+    SFSP[3][7] = 5;
+    SFSP[3][6] = 0x45; // Function 5, enable input buffer.
+
+    ser_w_byte ('S');
+
+    /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
+    /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
+    spi_reg_write (1, 1);         // Start switch.
+    /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
+
+    ser_w_string ("Switch is running");
+}
+
+
+static void init_ethernet (void)
+{
+    SFSP[1][19] = 0xc0;       // TX_CLK (M11, P1_19, func 0) input; no deglitch.
+    SFSP[1][17] = 0x63;       // MDIO (M8, P1_17, func 3) input.
+    SFSP[1][15] = 0xc3;       // RXD0 (T12, P1_15, func 3) input; no deglitch.
+    SFSP[0][0] = 0xc2;        // RXD1 (L3, P0_0, func 2) input; no deglitch.
+    SFSP[12][8] = 0xc3;       // RX_DV (N4, PC_8, func 3) input; no deglitch.
+
+    SFSP[12][1] = 3;                    // MDC (E4, PC_1, func 3).
+    SFSP[1][18] = 3;                    // TXD0, N12, P1_18, func 3.
+    SFSP[1][20] = 3;                    // TXD1, M10, P1_20, func 3.
+    SFSP[0][1] = 6;                     // TX_EN, M2, P0_1, func 6.
+
+    // Set the PHY clocks.
+    *BASE_PHY_TX_CLK = 0x03000800;
+    *BASE_PHY_RX_CLK = 0x03000800;
+
+    *CREG6 = 4;                         // Set ethernet to RMII.
+
+    RESET_CTRL[0] = 1 << 22;            // Reset ethernet.
+    while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
+
+    *EDMA_BUS_MODE = 1;                 // Reset ethernet DMA.
+    while (*EDMA_BUS_MODE & 1);
+
+    *MAC_ADDR0_LOW = 0x4242;
+    *MAC_ADDR0_HIGH = 0x42424242;
+
+    // Set-up buffers and write descriptors....
+    // *EDMA_REC_DES_ADDR = (unsigned) rdes;
+    // *EDMA_TRANS_DES_ADDR = (unsigned) tdes;
+
+    // Set filtering options.  Promiscuous / recv all.
+    *MAC_FRAME_FILTER = 0x80000001;
+
+    *MAC_CONFIG = 0xc900;
+
+    // Set-up the dma descs.
+    for (int i = 0; i != EDMA_COUNT; ++i) {
+        tx_dma[i].status = 0;
+
+        rx_dma[i].status = 0x80000000;
+        rx_dma[i].count = 0x7f0;        // Status bits?
+        rx_dma[i].buffer1 = rx_ring_buffer + 2048 * i;
+        rx_dma[i].buffer2 = 0;
+    }
+
+    rx_dma[EDMA_MASK].count = 0x87f0; // End of ring.
+
+    tx_dma_insert = 0;
+    tx_dma_retire = 0;
+    rx_dma_insert = 4;
+    tx_dma_retire = 0;
+
+    *EDMA_TRANS_DES_ADDR = (unsigned) tx_dma;
+    *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
+    // Set dma recv/xmit bits.
+    //*EDMA_OP_MODE = 0x2002;
 }
 
 
 void doit (void)
 {
 //    RESET_CTRL[0] = 1 << 17;
-#if 0
-    *PLL0USB_CTRL = 0x0100081c;         // Off, direct in, direct out.
-    // Configure the clock to USB.
-    // Generate 480MHz off IRC...
-    // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    * (v32*) 0x40050020 = 0x01000818;   // Control.
-    * (v32*) 0x40050024 = 0x06167ffa;   // mdiv
-    * (v32*) 0x40050028 = 0x00302062;   // np_div.
-    *PLL0USB_CTRL = 0x0100081d;         // On, direct in, direct out.
 
-    while (!(PLL0USB_STAT & 1));
+    init_switch();
+    init_ethernet();
+
+#if 0
+    ser_w_string ("Freq. measure in\r\n");
+    // Now measure the clock rate.
+    *FREQ_MON = 0x03800000 + 240;
+    while (*FREQ_MON & 0x00800000);
+    ser_w_hex (*FREQ_MON, 8, " freq mon\r\n");
 #endif
+
+    ser_w_string ("Init pll\r\n");
+
+    // 50 MHz in from eth_tx_clk
+    // Configure the clock to USB.
+    // Generate 480MHz off 50MHz...
+    // ndec=5, mdec=32682, pdec=0
+    // selr=0, seli=28, selp=13
+    // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
+    *PLL0USB_CTRL = 0x03000819;
+    *PLL0USB_MDIV = (28 << 22) + (13 << 17) + 32682;
+    *PLL0USB_NP_DIV = 5 << 12;
+    *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
+    ser_w_string ("Lock wait\r\n");
+    while (!(*PLL0USB_STAT & 1));
+
+    ser_w_string ("Freq. measure\r\n");
+
+    // Now measure the clock rate.
+    *FREQ_MON = 0x07800000 + 240;
+    while (*FREQ_MON & 0x00800000);
+    ser_w_hex (*FREQ_MON, 8, " freq mon\r\n");
 
     dtd_free_list = NULL;
     for (int i = 0; i != NUM_DTDS; ++i) {
@@ -707,6 +961,8 @@ void doit (void)
 
     while (1) {
         if (*USBSTS & 0x40) {
+            stop_network();
+            stop_mgmt();
             *ENDPTNAK = 0xffffffff;
             *ENDPTNAKEN = 1;
             *USBSTS = 0xffffffff;
@@ -715,7 +971,7 @@ void doit (void)
             *ENDPTFLUSH = 0xffffffff;
             if (!(*PORTSC1 & 0x100))
                 ser_w_string ("Bugger\r\n");
-            *ENDPTCTRL0 = 0x00c000c0; // Bit 6 and 22 are undoc...
+            *ENDPTCTRL0 = 0x00c000c0;
             *DEVICEADDR = 0;
             //while (*USBSTS & 0x40);
             // FIXME - stop network if running.
@@ -742,6 +998,19 @@ void doit (void)
             endpt_complete(1, &QH[0].OUT, NULL);
         if (complete & 0x10000)
             endpt_complete(0x10000, &QH[0].IN, NULL);
+
+        if (tx_dma_retire != tx_dma_insert
+            && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
+            retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
+
+        if (rx_dma_retire != rx_dma_insert
+            && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
+            retire_rx_dma (&rx_dma[rx_dma_retire++ & EDMA_MASK]);
+
+        if ((*USART3_LSR & 1) && (*USART3_RBR & 0xff) == 27) {
+            ser_w_string ("Reboot!\r\n");
+            RESET_CTRL[0] = 0xffffffff;
+        }
     }
 }
 
