@@ -210,15 +210,15 @@ static const unsigned char * const string_descriptors[] = {
 
 
 static const unsigned char network_connected[] = {
-    0xa1, 0, 1, 0, 0, 0, 0, 0
+    0xa1, 0, 0, 1, 0, 0, 0, 0
 };
 // static const unsigned char network_disconnected[] = {
 //     0xa1, 0, 0, 0, 0, 0, 0, 0
 // };
 
 static const unsigned char speed_notification100[] = {
-    0xa1, 0x2a, 0, 0, 0, 0, 0, 8,
-    0, 00, 0xe1, 0x5e, 0x5f, 00, 0xe1, 0x5e, 0x5f,
+    0xa1, 0x2a, 0, 0, 0, 1, 0, 8,
+    0, 0xe1, 0xf5, 0x05, 0, 0xe1, 0xf5, 0x05,
 };
 
 
@@ -264,6 +264,10 @@ static dTD_t * get_dtd (void)
     dTD_t * r = dtd_free_list;
     if (r == NULL) {
         ser_w_string ("Out of DTDs!!!\r\n");
+        ser_w_hex (tx_dma_retire, 8, " ");
+        ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n");
+        ser_w_hex (rx_dma_retire, 8, " ");
+        ser_w_hex (rx_dma_insert, 8, " rx retire, insert\r\n");
         while (1);
     }
     dtd_free_list = r->next;
@@ -451,7 +455,7 @@ static void start_mgmt (void)
     ser_w_string ("Starting mgmt...\r\n");
 
     // FIXME - 81 length?
-    QH[1].IN.capabilities = 0x20040000;
+    QH[1].IN.capabilities = 0x20400000;
     QH[1].IN.next = (dTD_t*) 1;
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
@@ -561,7 +565,6 @@ static void stop_mgmt (void)
 
 static void process_setup (int i)
 {
-    static unsigned zero = 0;
     qh_pair_t * qh = &QH[i];
 
     *ENDPTCOMPLETE = 0x10001 << i;
@@ -583,7 +586,7 @@ static void process_setup (int i)
 
     switch (setup0 & 0xffff) {
     case 0x0080:                        // Get status.
-        response_data = &zero;
+        response_data = "\0";
         response_length = 2;
         break;
     // case 0x0100:                        // Clear feature device.
@@ -890,7 +893,7 @@ static void init_ethernet (void)
     tx_dma_insert = 0;
     tx_dma_retire = 0;
     rx_dma_insert = 4;
-    tx_dma_retire = 0;
+    rx_dma_retire = 0;
 
     *EDMA_TRANS_DES_ADDR = (unsigned) tx_dma;
     *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
