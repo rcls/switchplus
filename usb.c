@@ -236,10 +236,8 @@ static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (4096)));
 
 static void ser_w_byte (unsigned byte)
 {
-#if 1
     while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
     *USART3_THR = byte;
-#endif
 }
 
 static void ser_w_string (const char * s)
@@ -479,7 +477,9 @@ static void start_network (void)
 
     for (int i = 0; i != 4; ++i)
         schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0);
-    // FIXME - setup ethernet.
+
+    schedule_buffer (0x81, network_connected, sizeof network_connected);
+    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100);
 }
 
 
@@ -895,13 +895,35 @@ static void init_ethernet (void)
 }
 
 
+static void start_serial (void)
+{
+    // Bring up USART3.
+    SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.
+    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
+
+    // Set the USART3 clock to be the 12MHz IRC.
+    *BASE_UART3_CLK = 0x01000800;
+
+    *USART3_LCR = 0x83;                 // Enable divisor access.
+
+    // From the user-guide: Based on these findings, the suggested USART setup
+    // would be: DLM = 0, DLL = 4, DIVADDVAL = 5, and MULVAL = 8.
+    *USART3_DLM = 0;
+    *USART3_DLL = 4;
+    *USART3_FDR = 0x85;
+
+    *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
+    *USART3_FCR = 1;                    // Enable fifos.
+}
+
+
 void doit (void)
 {
     for (volatile unsigned char * p = &bss_start; p != &bss_end; ++p)
         *p++ = 0;
 
 //    RESET_CTRL[0] = 1 << 17;
-    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
+    start_serial();
 
     init_switch();
     init_ethernet();

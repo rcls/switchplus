@@ -77,13 +77,13 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding -Wno-e
 %.bin.elf: %.o
 	$(LD) -T sram-link.ld -o $@ $+
 
-%.bin: %.bin.elf
-	$(OBJCOPY) -O binary $< $@
-
 %.zero.elf: %.o
 	$(LD) -T zero.ld -o $@ $+
 
-%.zero: %.zero.elf
+%.flash0.elf: %.o
+	$(LD) -T flash0.ld -o $@ $+
+
+%: %.elf
 	$(OBJCOPY) -O binary $< $@
 
 %.boot: %
@@ -93,6 +93,8 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding -Wno-e
 	cp $< $@.tmp
 	/home/ralph/dfu-util/src/dfu-suffix -v 0x1fc9 -p 0x000c -a $@.tmp
 	mv $@.tmp $@
+
+flash.zero:
 
 %.flasher: % flash.zero
 	utils/flasher flash.zero $< > $@.tmp
