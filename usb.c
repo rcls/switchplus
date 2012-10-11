@@ -55,6 +55,9 @@ typedef struct EDMA_DESC_t {
     void * buffer2;
 } EDMA_DESC_t;
 
+
+typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
+
 #define EDMA_COUNT 4
 #define EDMA_MASK 3
 static volatile EDMA_DESC_t tx_dma[EDMA_COUNT];
@@ -345,7 +348,8 @@ static void schedule_dtd (int ep, dTD_t * dtd)
 }
 
 
-static bool schedule_buffer (int ep, const void * data, unsigned length)
+static bool schedule_buffer (int ep, const void * data, unsigned length,
+                             dtd_completion_t * cb)
 {
     dTD_t * dtd = get_dtd();
     if (dtd == NULL)
@@ -358,15 +362,15 @@ static bool schedule_buffer (int ep, const void * data, unsigned length)
     dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
     dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
     dtd->buffer_page[4] = (0xfffff000 & (unsigned) data) + 16384;
-    //dtd->dummy = data;
+    dtd->dummy = (unsigned) cb;
 
     schedule_dtd (ep, dtd);
     return true;
 }
 
 
-void respond_to_setup (unsigned ep, unsigned setup1,
-                       const void * descriptor, unsigned length)
+static void respond_to_setup (unsigned ep, unsigned setup1,
+                              const void * descriptor, unsigned length)
 {
     if ((setup1 >> 16) < length)
         length = setup1 >> 16;
@@ -375,7 +379,7 @@ void respond_to_setup (unsigned ep, unsigned setup1,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    if (!schedule_buffer (ep + 0x80, descriptor, length))
+    if (!schedule_buffer (ep + 0x80, descriptor, length, NULL))
         return;                         // Bugger.
 
     if (*ENDPTSETUPSTAT & (1 << ep))
@@ -385,7 +389,7 @@ void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // No data so no ack...
 
     // Now the status dtd...
-    if (!schedule_buffer (ep, NULL, 0))
+    if (!schedule_buffer (ep, NULL, 0, NULL))
         return;
 
     if (*ENDPTSETUPSTAT & (1 << ep))
@@ -406,9 +410,7 @@ static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
     return next;
 }
 
-typedef void retire_function_t (int ep, dQH_t * qh, dTD_t * dtd);
-
-static void endpt_complete (int ep, dQH_t * qh, retire_function_t * cb)
+static void endpt_complete (int ep, dQH_t * qh)
 {
     // Clean-up the DTDs...
     if (qh->first == NULL)
@@ -418,8 +420,8 @@ static void endpt_complete (int ep, dQH_t * qh, retire_function_t * cb)
     dTD_t * d = qh->first;
     while (!(d->length_and_status & 0x80)) {
         //ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
-        if (cb)
-            cb (ep, qh, d);
+        if (d->dummy)
+            ((dtd_completion_t *) d->dummy) (ep, qh, d);
         d = retire_dtd (d, qh);
         if (d == NULL)
             return;
@@ -430,8 +432,8 @@ static void endpt_complete (int ep, dQH_t * qh, retire_function_t * cb)
 
     // FIXME - what do we actually want to do on errors?
     ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
-    if (cb)
-        cb (ep, qh, d);
+    if (d->dummy)
+        ((dtd_completion_t *) d->dummy) (ep, qh, d);
     if (retire_dtd (d, qh))
         *ENDPTPRIME = ep;               // Reprime the endpoint.
 }
@@ -451,8 +453,37 @@ static void start_mgmt (void)
     *ENDPTCTRL1 = 0xcc0000;
 
     // Default mgmt packets.
-    schedule_buffer (0x81, network_connected, sizeof network_connected);
-    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100);
+    schedule_buffer (0x81, network_connected, sizeof network_connected,
+                     NULL);
+    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
+                     NULL);
+}
+
+
+static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
+{
+    // Send the buffer off to the network...
+    unsigned buffer = dtd->buffer_page[0];
+    unsigned status = dtd->length_and_status;
+    // FIXME - detect errors and oversize packets.
+
+    volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
+
+    t->count = buffer & 0x7ff;
+    t->buffer1 = (void *) (buffer & 0xfffff800);
+    t->buffer2 = NULL;
+
+    if (tx_dma_insert & EDMA_MASK)
+        t->status = 0xf0000000;
+    else
+        t->status = 0xf0200000;
+
+    *EDMA_TRANS_POLL_DEMAND = 0;
+
+    if (debug) {
+        ser_w_hex (buffer, 8, " ");
+        ser_w_hex (status, 8, " tx to MAC.\r\n");
+    }
 }
 
 
@@ -476,10 +507,13 @@ static void start_network (void)
     *EDMA_OP_MODE = 0x2002;
 
     for (int i = 0; i != 4; ++i)
-        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0);
+        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0,
+                         endpt_tx_complete);
 
-    schedule_buffer (0x81, network_connected, sizeof network_connected);
-    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100);
+    schedule_buffer (0x81, network_connected, sizeof network_connected,
+                     NULL);
+    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
+                     NULL);
 }
 
 
@@ -501,8 +535,8 @@ static void stop_network (void)
     while (*ENDPTSTAT & 0x40004);
     *ENDPTCTRL2 = 0;
     // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0, &QH[2].OUT, NULL);
-    endpt_complete (0, &QH[2].IN, NULL);
+    endpt_complete (0, &QH[2].OUT);
+    endpt_complete (0, &QH[2].IN);
     // FIXME - stop ethernet.
 }
 
@@ -521,7 +555,7 @@ static void stop_mgmt (void)
     }
     while (*ENDPTSTAT & 0x20000);
     // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0, &QH[1].IN, NULL);
+    endpt_complete (0, &QH[1].IN);
 }
 
 
@@ -649,39 +683,6 @@ static void process_setup (int i)
 }
 
 
-static void endpt_mgmt_complete (int ep, dQH_t * qh, dTD_t * dtd)
-{
-    // Retire the buffer also?
-}
-
-
-static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
-{
-    // Send the buffer off to the network...
-    unsigned buffer = dtd->buffer_page[0];
-    unsigned status = dtd->length_and_status;
-    // FIXME - detect errors and oversize packets.
-
-    volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
-
-    t->count = buffer & 0x7ff;
-    t->buffer1 = (void *) (buffer & 0xfffff800);
-    t->buffer2 = NULL;
-
-    if (tx_dma_insert & EDMA_MASK)
-        t->status = 0xf0000000;
-    else
-        t->status = 0xf0200000;
-
-    *EDMA_TRANS_POLL_DEMAND = 0;
-
-    if (debug) {
-        ser_w_hex (buffer, 8, " ");
-        ser_w_hex (status, 8, " tx to MAC.\r\n");
-    }
-}
-
-
 static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // Re-queue the buffer for network data.
@@ -715,7 +716,8 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     // Give the buffer to USB.... FIXME: handle shutdown races.
     unsigned status = rx->status;
     void * buffer = rx->buffer1;
-    schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff);
+    schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
+                     endpt_rx_complete);
     if (debug) {
         ser_w_hex ((unsigned) buffer, 8, " ");
         ser_w_hex (status, 8, " rx to usb\r\n");
@@ -728,7 +730,7 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // FIXME - handle errors.
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
-    schedule_buffer (0x02, buffer, 0x7ff);
+    schedule_buffer (0x02, buffer, 0x7ff, endpt_tx_complete);
     if (debug) {
         ser_w_hex ((unsigned) buffer, 8, " ");
         ser_w_hex (tx->status, 8, " tx complete\r\n");
@@ -1022,16 +1024,16 @@ void doit (void)
         *ENDPTCOMPLETE = complete;
 
         if (complete & 4)
-            endpt_complete (4, &QH[2].OUT, endpt_tx_complete);
+            endpt_complete (4, &QH[2].OUT);
         if (complete & 0x40000)
-            endpt_complete (0x40000, &QH[2].IN, endpt_rx_complete);
+            endpt_complete (0x40000, &QH[2].IN);
         if (complete & 0x20000)
-            endpt_complete (0x20000, &QH[1].IN, endpt_mgmt_complete);
+            endpt_complete (0x20000, &QH[1].IN);
 
         if (complete & 1)
-            endpt_complete(1, &QH[0].OUT, NULL);
+            endpt_complete(1, &QH[0].OUT);
         if (complete & 0x10000)
-            endpt_complete(0x10000, &QH[0].IN, NULL);
+            endpt_complete(0x10000, &QH[0].IN);
 
         if (tx_dma_retire != tx_dma_insert
             && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
