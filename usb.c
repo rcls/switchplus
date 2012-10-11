@@ -918,13 +918,9 @@ static void start_serial (void)
 
     *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
     *USART3_FCR = 1;                    // Enable fifos.
+    *USART3_IER = 1;                    // Enable receive interrupts.
 }
 
-
-static void dma_interrupt (void)
-{
-    ser_w_string ("dma interrupt...\r\n");
-}
 
 static void usb_interrupt (void)
 {
@@ -990,9 +986,35 @@ static void eth_interrupt (void)
         retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
 }
 
+static volatile bool enter_dfu;
+
+static void usart3_interrupt (void)
+{
+    ser_w_string ("usart interrupt\r\n");
+    while (*USART3_LSR & 1) {
+        switch (*USART3_RBR & 0xff) {
+        case 'r':
+            ser_w_string ("Reboot!\r\n");
+            RESET_CTRL[0] = 0xffffffff;
+            break;
+        case 'd':
+            debug = !debug;
+            ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
+            break;
+        case 'u':
+            enter_dfu = 1;
+            break;
+        }
+    }
+}
+
 
 void doit (void)
 {
+    // Disable all interrupts for now...
+    NVIC_ICER[0] = 0xffffffff;
+    NVIC_ICER[1] = 0xffffffff;
+
     for (volatile unsigned char * p = &bss_start; p != &bss_end; ++p)
         *p++ = 0;
 
@@ -1001,15 +1023,6 @@ void doit (void)
 
     init_switch();
     init_ethernet();
-
-    ser_w_string ("Interrupts r up\r\n");
-#if 0
-    ser_w_string ("Freq. measure in\r\n");
-    // Now measure the clock rate.
-    *FREQ_MON = 0x03800000 + 240;
-    while (*FREQ_MON & 0x00800000);
-    ser_w_hex (*FREQ_MON, 8, " freq mon\r\n");
-#endif
 
     ser_w_string ("Init pll\r\n");
 
@@ -1028,20 +1041,18 @@ void doit (void)
 
     ser_w_string ("Freq. measure\r\n");
 
+#if 0
     // Now measure the clock rate.
     *FREQ_MON = 0x07800000 + 240;
     while (*FREQ_MON & 0x00800000);
     ser_w_hex (*FREQ_MON, 8, " freq mon\r\n");
+#endif
 
     dtd_free_list = NULL;
-    for (int i = 0; i != NUM_DTDS; ++i) {
-        //ser_w_hex ((unsigned) &DTD[i], 8, " is a DTD\r\n");
+    for (int i = 0; i != NUM_DTDS; ++i)
         put_dtd (&DTD[i]);
-    }
 
     for (int i = 0; i != 6; ++i) {
-        //ser_w_hex ((unsigned) &QH[i].OUT, 8, " OUT\r\n");
-        //ser_w_hex ((unsigned) &QH[i].IN, 8, " IN\r\n\r\n");
         QH[i].OUT.first = NULL;
         QH[i].OUT.last = NULL;
         QH[i].IN.first = NULL;
@@ -1051,7 +1062,6 @@ void doit (void)
     *USBCMD = 2;                        // Reset.
     while (*USBCMD & 2);
 
-    //*USBINTR = 0;
     *USBMODE = 0xa;                     // Device.  Tripwire.
     *OTGSC = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
@@ -1068,43 +1078,34 @@ void doit (void)
 
     *USBCMD = 1;                        // Run.
 
-    // Enable the usb and ethernet interrupts.
-    NVIC_ISER[0] = 0x0124;
+    // Enable the ethernet, usb and serial interrupts.
+    NVIC_ISER[0] = 0x08000120;
     *USBINTR = 0x00000001;
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
     asm volatile ("cpsie if\n");
 
-    while (1) {
+    enter_dfu = 0;
+    do
+        asm volatile ("wfi\n");
+    while (!enter_dfu);
 
-        if (*USART3_LSR & 1) {
-            switch (*USART3_RBR & 0xff) {
-            case 'r':
-                ser_w_string ("Reboot!\r\n");
-                RESET_CTRL[0] = 0xffffffff;
-                break;
-            case 'd':
-                debug = !debug;
-                ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
-                break;
-            case 'u': {
-                asm volatile ("cpsid if\n");
-                NVIC_ICER[0] = 0xffffffff;
-                ser_w_string ("Enter DFU\r\n");
+    //asm volatile ("cpsid if\n");
+    NVIC_ICER[0] = 0xffffffff;
 
-                unsigned fakeotp[64];
-                for (int i = 0; i != 64; ++i)
-                    fakeotp[i] = OTP[i];
+    ser_w_string ("Enter DFU\r\n");
 
-                fakeotp[12] = 6 << 25;
+    unsigned fakeotp[64];
+    for (int i = 0; i != 64; ++i)
+        fakeotp[i] = OTP[i];
 
-                typedef unsigned F (void*);
-                ((F*) 0x1040158d) (fakeotp);
-                break;
-            }
-            }
-        }
-    }
+    fakeotp[12] = 6 << 25;
+
+    typedef unsigned F (void*);
+    ((F*) 0x1040158d) (fakeotp);
+
+    ser_w_string ("Bugger.\r\n");
+    while (1);
 }
 
 
@@ -1113,7 +1114,7 @@ void * start[64] = {
     [0] = (void*) 0x10089ff0,
     [1] = doit,
 
-    [18] = dma_interrupt,
     [21] = eth_interrupt,
     [24] = usb_interrupt,
+    [43] = usart3_interrupt,
 };
