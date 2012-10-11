@@ -68,8 +68,8 @@ static unsigned rx_dma_retire;
 static unsigned rx_dma_insert;
 
 static bool debug;
-extern volatile unsigned char bss_start;
-extern volatile unsigned char bss_end;
+extern unsigned char bss_start;
+extern unsigned char bss_end;
 
 static dTD_t * dtd_free_list;
 
@@ -253,7 +253,7 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 {
     for (int i = nibbles; i != 0; ) {
         --i;
-        ser_w_byte("0123456789abcdef"[(value >> (i * 4)) & 15]);
+        ser_w_byte ("0123456789abcdef"[(value >> (i * 4)) & 15]);
     }
     ser_w_string (term);
 }
@@ -262,10 +262,11 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 static dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
-    if (r != NULL)
-        dtd_free_list = r->next;
-    else
+    if (r == NULL) {
         ser_w_string ("Out of DTDs!!!\r\n");
+        while (1);
+    }
+    dtd_free_list = r->next;
     return r;
 }
 
@@ -370,7 +371,8 @@ static bool schedule_buffer (int ep, const void * data, unsigned length,
 
 
 static void respond_to_setup (unsigned ep, unsigned setup1,
-                              const void * descriptor, unsigned length)
+                              const void * descriptor, unsigned length,
+                              dtd_completion_t * callback)
 {
     if ((setup1 >> 16) < length)
         length = setup1 >> 16;
@@ -379,7 +381,8 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    if (!schedule_buffer (ep + 0x80, descriptor, length, NULL))
+    if (!schedule_buffer (ep + 0x80, descriptor, length,
+                          length == 0 ? callback : NULL))
         return;                         // Bugger.
 
     if (*ENDPTSETUPSTAT & (1 << ep))
@@ -389,7 +392,7 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // No data so no ack...
 
     // Now the status dtd...
-    if (!schedule_buffer (ep, NULL, 0, NULL))
+    if (!schedule_buffer (ep, NULL, 0, callback))
         return;
 
     if (*ENDPTSETUPSTAT & (1 << ep))
@@ -409,6 +412,7 @@ static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
     put_dtd (d);
     return next;
 }
+
 
 static void endpt_complete (int ep, dQH_t * qh)
 {
@@ -451,12 +455,6 @@ static void start_mgmt (void)
     QH[1].IN.next = (dTD_t*) 1;
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
-
-    // Default mgmt packets.
-    schedule_buffer (0x81, network_connected, sizeof network_connected,
-                     NULL);
-    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
-                     NULL);
 }
 
 
@@ -487,6 +485,14 @@ static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 }
 
 
+static void notify_network_up (int ep, dQH_t * qh, dTD_t * dtd)
+{
+    schedule_buffer (0x81, network_connected, sizeof network_connected, NULL);
+    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
+                     NULL);
+}
+
+
 static void start_network (void)
 {
     if (*ENDPTCTRL2 & 0x80)
@@ -499,7 +505,6 @@ static void start_network (void)
     QH[2].OUT.capabilities = 0x02000000;
     QH[2].OUT.next = (dTD_t*) 1;
 
-//    *ENDPTCTRL2 = 0x00c800c8;
     *ENDPTCTRL2 = 0x00880088;
 
     // Start ethernet & it's dma.
@@ -509,11 +514,6 @@ static void start_network (void)
     for (int i = 0; i != 4; ++i)
         schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0,
                          endpt_tx_complete);
-
-    schedule_buffer (0x81, network_connected, sizeof network_connected,
-                     NULL);
-    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
-                     NULL);
 }
 
 
@@ -559,7 +559,6 @@ static void stop_mgmt (void)
 }
 
 
-// FIXME - we probably only want EP 0.
 static void process_setup (int i)
 {
     static unsigned zero = 0;
@@ -580,6 +579,7 @@ static void process_setup (int i)
 
     const void * response_data = NULL;
     unsigned response_length = 0xffffffff;
+    dtd_completion_t * callback = NULL;
 
     switch (setup0 & 0xffff) {
     case 0x0080:                        // Get status.
@@ -635,6 +635,7 @@ static void process_setup (int i)
         stop_network();
         start_mgmt();
         response_length = 0;
+        callback = notify_network_up;
         break;
     // case 0x0700:                        // Set descriptor.
     //     break;
@@ -646,8 +647,10 @@ static void process_setup (int i)
     //     break;
     case 0x0b01:                        // Set interface.
         if ((setup1 & 0xffff) == 1) {
-            if (setup0 & 0xffff0000)
+            if (setup0 & 0xffff0000) {
                 start_network();
+                callback = notify_network_up;
+            }
             else
                 stop_network();
         }
@@ -672,14 +675,15 @@ static void process_setup (int i)
     }
 
     if (response_length != 0xffffffff)
-        respond_to_setup (i, setup1, response_data, response_length);
+        respond_to_setup (i, setup1,
+                          response_data, response_length, callback);
     else {
         *ENDPTCTRL0 = 0x810081;         // Stall....
         ser_w_string ("STALL on setup request.\r\n");
     }
     // FIXME - flush old setups.
-    ser_w_hex (setup0, 8, " setup0\r\n");
-    ser_w_hex (setup1, 8, " setup1\r\n\r\n");
+    ser_w_hex (setup0, 8, " ");
+    ser_w_hex (setup1, 8, " setup\r\n");
 }
 
 
@@ -825,14 +829,12 @@ static void init_switch (void)
     SFSP[3][7] = 5;
     SFSP[3][6] = 0x45; // Function 5, enable input buffer.
 
-    ser_w_byte ('S');
-
     /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
     /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
     spi_reg_write (1, 1);         // Start switch.
     /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
 
-    ser_w_string ("Switch is running");
+    ser_w_string ("Switch is running\r\n");
 }
 
 
@@ -919,6 +921,76 @@ static void start_serial (void)
 }
 
 
+static void dma_interrupt (void)
+{
+    ser_w_string ("dma interrupt...\r\n");
+}
+
+static void usb_interrupt (void)
+{
+    if (debug)
+        ser_w_string ("usb interrupt...\r\n");
+
+    unsigned status = *USBSTS;
+    *USBSTS = status;                   // Clear interrupts.
+
+    unsigned complete = *ENDPTCOMPLETE;
+    *ENDPTCOMPLETE = complete;
+
+    if (complete & 4)
+        endpt_complete (4, &QH[2].OUT);
+    if (complete & 0x40000)
+        endpt_complete (0x40000, &QH[2].IN);
+    if (complete & 0x20000)
+        endpt_complete (0x20000, &QH[1].IN);
+
+    if (complete & 1)
+        endpt_complete (1, &QH[0].OUT);
+    if (complete & 0x10000)
+        endpt_complete (0x10000, &QH[0].IN);
+
+    // Check for setup on 0.  FIXME - will other set-ups interrupt?
+    unsigned setup = *ENDPTSETUPSTAT;
+    *ENDPTSETUPSTAT = setup;
+    if (setup & 1)
+        process_setup (0);
+
+    if (status & 0x40) {
+        stop_network();
+        stop_mgmt();
+        *ENDPTNAK = 0xffffffff;
+        *ENDPTNAKEN = 1;
+
+        *ENDPTSETUPSTAT = *ENDPTSETUPSTAT;
+        while (*ENDPTPRIME);
+        *ENDPTFLUSH = 0xffffffff;
+        if (!(*PORTSC1 & 0x100))
+            ser_w_string ("Bugger\r\n");
+        *ENDPTCTRL0 = 0x00c000c0;
+        *DEVICEADDR = 0;
+        //while (*USBSTS & 0x40);
+        // FIXME - stop network if running.
+        ser_w_string ("Reset processed...\r\n");
+    }
+}
+
+
+static void eth_interrupt (void)
+{
+    if (debug)
+        ser_w_string ("eth interrupt...\r\n");
+    *EDMA_STAT = 0x1ffff;               // Clear interrupts.
+
+    while (rx_dma_retire != rx_dma_insert
+        && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
+        retire_rx_dma (&rx_dma[rx_dma_retire++ & EDMA_MASK]);
+
+    while (tx_dma_retire != tx_dma_insert
+        && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
+        retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
+}
+
+
 void doit (void)
 {
     for (volatile unsigned char * p = &bss_start; p != &bss_end; ++p)
@@ -930,6 +1002,7 @@ void doit (void)
     init_switch();
     init_ethernet();
 
+    ser_w_string ("Interrupts r up\r\n");
 #if 0
     ser_w_string ("Freq. measure in\r\n");
     // Now measure the clock rate.
@@ -962,13 +1035,13 @@ void doit (void)
 
     dtd_free_list = NULL;
     for (int i = 0; i != NUM_DTDS; ++i) {
-        ser_w_hex ((unsigned) &DTD[i], 8, " is a DTD\r\n");
+        //ser_w_hex ((unsigned) &DTD[i], 8, " is a DTD\r\n");
         put_dtd (&DTD[i]);
     }
 
     for (int i = 0; i != 6; ++i) {
-        ser_w_hex ((unsigned) &QH[i].OUT, 8, " OUT\r\n");
-        ser_w_hex ((unsigned) &QH[i].IN, 8, " IN\r\n\r\n");
+        //ser_w_hex ((unsigned) &QH[i].OUT, 8, " OUT\r\n");
+        //ser_w_hex ((unsigned) &QH[i].IN, 8, " IN\r\n\r\n");
         QH[i].OUT.first = NULL;
         QH[i].OUT.last = NULL;
         QH[i].IN.first = NULL;
@@ -978,7 +1051,7 @@ void doit (void)
     *USBCMD = 2;                        // Reset.
     while (*USBCMD & 2);
 
-    *USBINTR = 0;
+    //*USBINTR = 0;
     *USBMODE = 0xa;                     // Device.  Tripwire.
     *OTGSC = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
@@ -995,53 +1068,14 @@ void doit (void)
 
     *USBCMD = 1;                        // Run.
 
+    // Enable the usb and ethernet interrupts.
+    NVIC_ISER[0] = 0x0124;
+    *USBINTR = 0x00000001;
+    *EDMA_STAT = 0x1ffff;
+    *EDMA_INT_EN = 0x0001ffff;
+    asm volatile ("cpsie if\n");
+
     while (1) {
-        if (*USBSTS & 0x40) {
-            stop_network();
-            stop_mgmt();
-            *ENDPTNAK = 0xffffffff;
-            *ENDPTNAKEN = 1;
-            *USBSTS = 0xffffffff;
-            *ENDPTSETUPSTAT = *ENDPTSETUPSTAT;
-            while (*ENDPTPRIME);
-            *ENDPTFLUSH = 0xffffffff;
-            if (!(*PORTSC1 & 0x100))
-                ser_w_string ("Bugger\r\n");
-            *ENDPTCTRL0 = 0x00c000c0;
-            *DEVICEADDR = 0;
-            //while (*USBSTS & 0x40);
-            // FIXME - stop network if running.
-            ser_w_string ("Reset processed...\r\n");
-        }
-
-        // Check for setup on 0.  FIXME - will other set-ups interrupt?
-        if (*ENDPTSETUPSTAT & 1) {
-            *ENDPTSETUPSTAT = 1;
-            process_setup (0);
-        }
-
-        unsigned complete = *ENDPTCOMPLETE;
-        *ENDPTCOMPLETE = complete;
-
-        if (complete & 4)
-            endpt_complete (4, &QH[2].OUT);
-        if (complete & 0x40000)
-            endpt_complete (0x40000, &QH[2].IN);
-        if (complete & 0x20000)
-            endpt_complete (0x20000, &QH[1].IN);
-
-        if (complete & 1)
-            endpt_complete(1, &QH[0].OUT);
-        if (complete & 0x10000)
-            endpt_complete(0x10000, &QH[0].IN);
-
-        if (tx_dma_retire != tx_dma_insert
-            && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
-            retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
-
-        if (rx_dma_retire != rx_dma_insert
-            && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
-            retire_rx_dma (&rx_dma[rx_dma_retire++ & EDMA_MASK]);
 
         if (*USART3_LSR & 1) {
             switch (*USART3_RBR & 0xff) {
@@ -1054,6 +1088,8 @@ void doit (void)
                 ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
                 break;
             case 'u': {
+                asm volatile ("cpsid if\n");
+                NVIC_ICER[0] = 0xffffffff;
                 ser_w_string ("Enter DFU\r\n");
 
                 unsigned fakeotp[64];
@@ -1074,6 +1110,10 @@ void doit (void)
 
 void * start[64] __attribute__ ((section (".start")));
 void * start[64] = {
-    (void*) 0x10089ff0,
-    doit
+    [0] = (void*) 0x10089ff0,
+    [1] = doit,
+
+    [18] = dma_interrupt,
+    [21] = eth_interrupt,
+    [24] = usb_interrupt,
 };

@@ -66,7 +66,10 @@ $W/%b-s.png: %.pcb
 CC=arm-linux-gnu-gcc
 LD=arm-linux-gnu-ld
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding -Wno-error=unused-function
+CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding \
+	-Wno-error=unused-function -MMD -MP -MF.$@.d
+
+-include .*.d
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<

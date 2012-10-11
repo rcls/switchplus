@@ -137,4 +137,13 @@ typedef v32 v32_32[32];
 #define ENDPTCTRL4 ((v32*) (USB0 + 0x1d0))
 #define ENDPTCTRL5 ((v32*) (USB0 + 0x1d4))
 
+#define NVIC ((v32*) 0xE000E000)
+#define NVIC_ISER (NVIC + 64)
+#define NVIC_ICER (NVIC + 96)
+#define NVIC_ISPR (NVIC + 128)
+#define NVIC_ICPR (NVIC + 160)
+#define NVIC_IABR (NVIC + 192)
+#define NVIC_IPR (NVIC + 256)
+#define NVIC_STIR (NVIC + 960)
+
 #endif
