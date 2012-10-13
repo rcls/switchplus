@@ -11,12 +11,10 @@ void * start[64] = {
     doit,
 };
 
-typedef unsigned IAP_t (unsigned *, unsigned *);
-
 static void printc (char c)
 {
-        while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
-        *USART3_THR = c;
+    while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
+    *USART3_THR = c;
 }
 
 static void print (const char * s)
@@ -146,5 +144,7 @@ void doit (void)
     if (command (60, bank, 96000, 0, 0) != 0)
         die ("Cannot make boot\r\n");
 
-    die ("Done\r\n");
+    print ("Done\r\n");
+    while (1)
+        RESET_CTRL[0] = 0xffffffff;
 }

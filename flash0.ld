@@ -13,8 +13,7 @@ SECTIONS
 
   .bss 0x10000000 : {
      bss_start = .;
-     *(.bss*)
+     *(SORT_BY_ALIGNMENT(.bss*))
      bss_end = .;
   }
-
 }
