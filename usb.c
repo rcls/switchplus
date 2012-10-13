@@ -80,24 +80,66 @@ extern unsigned char bss_end;
 
 static dTD_t * dtd_free_list;
 
+enum string_descs_t {
+    sd_lang,
+    sd_ralph,
+    sd_switch,
+    sd_0001,
+    sd_424242424242
+};
+
+// String0 - lang. descs.
+static const unsigned char string_lang[] = {
+    4, 3, 9, 4
+};
+static const unsigned char string_ralph[] = {
+    12, 3, 'R', 0, 'a', 0, 'l', 0, 'p', 0, 'h', 0
+};
+static const unsigned char string_switch[] = {
+    14, 3, 'S', 0, 'w', 0, 'i', 0, 't', 0, 'c', 0, 'h', 0
+};
+static const unsigned char string_0001[] = {
+    10, 3, '0', 0, '0', 0, '0', 0, '1', 0
+};
+static const unsigned char string_424242424242[] = {
+    26, 3,
+    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0,
+    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0
+};
+static const unsigned char * const string_descriptors[] = {
+    string_lang,
+    [sd_ralph] = string_ralph,
+    [sd_switch] = string_switch,
+    [sd_0001] = string_0001,
+    [sd_424242424242] = string_424242424242,
+};
+
+
 #define DEVICE_DESCRIPTOR_SIZE 18
 static const unsigned char device_descriptor[] = {
     DEVICE_DESCRIPTOR_SIZE,
     1,                                  // type:
     0, 2,                               // bcdUSB.
-    2,                                  // class - vendor specific.
+    2,                                  // class - CDC.
     6,                                  // subclass.
     0,                                  // protocol.
     64,                                 // Max packet size.
     0x55, 0xf0,                         // Vendor-ID.
     'L', 'R',                           // Device-ID.
     0x34, 0x12,                         // Revision number.
-    1,                                  // Manufacturer string index.
-    2,                                  // Product string index.
-    3,                                  // Serial number string index.
+    sd_ralph,                           // Manufacturer string index.
+    sd_switch,                          // Product string index.
+    sd_0001,                            // Serial number string index.
     1                                   // Number of configurations.
     };
 STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
+
+enum usb_interfaces_t {
+    usb_intf_eth_comm,
+    usb_intf_eth_data,
+    usb_intf_dfu,
+    usb_num_intf
+};
 
 
 #define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7)
@@ -107,7 +149,7 @@ static const unsigned char config_descriptor[] = {
     2,                                  // type: config.
     CONFIG_DESCRIPTOR_SIZE & 0xff,      // size.
     CONFIG_DESCRIPTOR_SIZE >> 8,
-    3,                                  // num interfaces.
+    usb_num_intf,                       // num interfaces.
     1,                                  // configuration number.
     0,                                  // string descriptor index.
     0x80,                               // attributes, not self powered.
@@ -115,7 +157,7 @@ static const unsigned char config_descriptor[] = {
     // Interface (comm).
     9,                                  // length.
     4,                                  // type: interface.
-    0,                                  // interface number.
+    usb_intf_eth_comm,                  // interface number.
     0,                                  // alternate setting.
     1,                                  // number of endpoints.
     2,                                  // interface class.
@@ -123,25 +165,25 @@ static const unsigned char config_descriptor[] = {
     0,                                  // protocol.
     0,                                  // interface string index.
     // CDC header...
-    5,
-    0x24,
-    0,
-    0x10, 1,
+    5,                                  // length
+    0x24,                               // CS_INTERFACE
+    0,                                  // subtype = header
+    0x10, 1,                            // Version number 1.10
     // Ethernet functional descriptor.
     13,
     0x24,                               // cs_interface,
     15,                                 // ethernet
-    4,                                  // Mac address string.
+    sd_424242424242,                    // Mac address string.
     0, 0, 0, 0,                         // Statistics bitmap.
     0, 7,                               // Max segment size.
     0, 0,                               // Multicast filters.
     0,                                  // Number of power filters.
     // Union...
-    5,
-    0x24,
-    6,
-    0,                                  // Interface 0 is control.
-    1,                                  // Interface 1 is sub-ordinate.
+    5,                                  // Length
+    0x24,                               // CS_INTERFACE
+    6,                                  // Union
+    usb_intf_eth_comm,                  // Interface 0 is control.
+    usb_intf_eth_data,                  // Interface 1 is sub-ordinate.
     // Endpoint.
     7,
     5,
@@ -149,17 +191,10 @@ static const unsigned char config_descriptor[] = {
     3,                                  // Interrupt
     64, 0,                              // 64 bytes
     11,                                 // binterval
-    // Endpoint.
-    // 7,
-    // 5,
-    // 0x81,                               // IN 1
-    // 3,                                  // Interrupt
-    // 64, 0,                              // 64 bytes
-    // 11,                                 // binterval
     // Interface (data).
     9,                                  // length.
     4,                                  // type: interface.
-    1,                                  // interface number.
+    usb_intf_eth_data,                  // interface number.
     0,                                  // alternate setting.
     0,                                  // number of endpoints.
     10,                                 // interface class (data).
@@ -169,7 +204,7 @@ static const unsigned char config_descriptor[] = {
     // Interface (data).
     9,                                  // length.
     4,                                  // type: interface.
-    1,                                  // interface number.
+    usb_intf_eth_data,                  // interface number.
     1,                                  // alternate setting.
     2,                                  // number of endpoints.
     10,                                 // interface class (data).
@@ -193,7 +228,7 @@ static const unsigned char config_descriptor[] = {
     // Interface (DFU).
     9,                                  // Length.
     4,                                  // Type = Interface.
-    2,                                  // Interface number.
+    usb_intf_dfu,                       // Interface number.
     0,                                  // Alternate.
     0,                                  // Num. endpoints.
     0xfe, 1, 0,                         // Application specific; DFU.
@@ -206,28 +241,6 @@ static const unsigned char config_descriptor[] = {
     0, 16,                              // Transfer size.
 };
 STATIC_ASSERT (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor));
-
-// String0 - lang. descs.
-static const unsigned char string0[] = {
-    4, 3, 9, 4
-};
-static const unsigned char string1[] = {
-    12, 3, 'R', 0, 'a', 0, 'l', 0, 'p', 0, 'h', 0
-};
-static const unsigned char string2[] = {
-    14, 3, 'S', 0, 'w', 0, 'i', 0, 't', 0, 'c', 0, 'h', 0
-};
-static const unsigned char string3[] = {
-    10, 3, '0', 0, '0', 0, '0', 0, '1', 0
-};
-static const unsigned char string4[] = {
-    26, 3,
-    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0,
-    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0
-};
-static const unsigned char * const string_descriptors[] = {
-    string0, string1, string2, string3, string4
-};
 
 
 static const unsigned char network_connected[] = {
@@ -743,7 +756,7 @@ static void process_setup (int i)
     case 0x0b01:                        // Set interface.
         switch (setup1 & 0xffff) {
         case 1:                         // Interface 1 (data)
-            if ((setup1 & 0xffff) == 1) {
+            if ((setup1 & 0xffff) == usb_intf_eth_data) {
                 if (setup0 & 0xffff0000) {
                     start_network();
                     callback = notify_network_up;
@@ -753,9 +766,8 @@ static void process_setup (int i)
             }
             response_length = 0;
             break;
-        case 0:                         // Interface 0 (comms) - ignore.
-        case 2:                         // Interface 2 (DFU).
-        default:
+        case usb_intf_eth_comm:         // Interface 0 (comms) - ignore.
+        case usb_intf_dfu:                         // Interface 2 (DFU).
             response_length = 0;
             break;
         }
