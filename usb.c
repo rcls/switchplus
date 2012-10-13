@@ -234,8 +234,8 @@ const unsigned char qualifier_descriptor[] = {
     QUALIFIER_DESCRIPTOR_SIZE,          // Length.
     6,                                  // Type
     0, 2,                               // usb version
-    255, 1, 1,
-    64, 1, 0
+    255, 1, 1,                          // class / subclass / protocol
+    64, 1, 0                            // packet size / num. configs / zero
 };
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
@@ -867,7 +867,8 @@ static void init_switch (void)
     GPIO_BYTE[7][9] = 1;
 
     // Wait ~ 100us.
-    for (volatile int i = 0; i < 10000; ++i);
+    for (int i = 0; i < 10000; ++i)
+        asm volatile ("");
 
     // Switch SPI is on SSP0.
     // SPIS is SSP0_SSEL on E11, PF_1 - use as GPIO7[16], function 4.
@@ -956,10 +957,7 @@ static void init_ethernet (void)
 
     rx_dma[EDMA_MASK].count = 0x8000 + BUF_SIZE; // End of ring.
 
-    tx_dma_insert = 0;
-    tx_dma_retire = 0;
-    rx_dma_insert = 4;
-    rx_dma_retire = 0;
+    rx_dma_insert = EDMA_COUNT;
 
     *EDMA_TRANS_DES_ADDR = (unsigned) tx_dma;
     *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
@@ -1020,6 +1018,7 @@ static void usb_interrupt (void)
     if (setup & 1)
         process_setup (0);
 
+    // Reset.
     if (status & 0x40) {
         stop_network();
         stop_mgmt();
@@ -1159,12 +1158,10 @@ void doit (void)
     *EDMA_INT_EN = 0x0001ffff;
     asm volatile ("cpsie if\n");
 
-    enter_dfu = 0;
     do
-        asm volatile ("wfi\n");
+        asm volatile ("wfi\n" ::: "memory");
     while (!enter_dfu);
 
-    //asm volatile ("cpsid if\n");
     NVIC_ICER[0] = 0xffffffff;
 
     ser_w_string ("Enter DFU\r\n");
