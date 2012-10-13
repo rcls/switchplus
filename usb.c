@@ -100,14 +100,14 @@ static const unsigned char device_descriptor[] = {
 STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
 
 
-#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7)
+#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7)
 static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
     2,                                  // type: config.
     CONFIG_DESCRIPTOR_SIZE & 0xff,      // size.
     CONFIG_DESCRIPTOR_SIZE >> 8,
-    2,                                  // num interfaces.
+    3,                                  // num interfaces.
     1,                                  // configuration number.
     0,                                  // string descriptor index.
     0x80,                               // attributes, not self powered.
@@ -189,7 +189,21 @@ static const unsigned char config_descriptor[] = {
     0x82,                               // IN 2.
     0x2,                                // bulk
     0, 2,                               // packet size
-    0
+    0,
+    // Interface (DFU).
+    9,                                  // Length.
+    4,                                  // Type = Interface.
+    2,                                  // Interface number.
+    0,                                  // Alternate.
+    0,                                  // Num. endpoints.
+    0xfe, 1, 0,                         // Application specific; DFU.
+    0,                                  // Name...
+    // Function (DFU)
+    7,                                  // Length.
+    0x21,                               // Type.
+    9,                                  // Will detach.  Download only.
+    0, 255,                             // Detach timeout.
+    0, 16,                              // Transfer size.
 };
 STATIC_ASSERT (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor));
 
@@ -242,6 +256,8 @@ STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
 static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (2048)));
 static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (2048)));
+
+static volatile bool enter_dfu;
 
 static void ser_w_byte (unsigned byte)
 {
@@ -651,10 +667,20 @@ static void process_setup (int i)
     dtd_completion_t * callback = NULL;
 
     switch (setup0 & 0xffff) {
+    case 0x0021:                        // DFU detach.
+        response_length = 0;
+        enter_dfu = true;
+        break;
     case 0x0080:                        // Get status.
         response_data = "\0";
         response_length = 2;
         break;
+    case 0x03a1: {                      // DFU status.
+        static const unsigned char status[] = { 0, 100, 0, 0, 0, 0 };
+        response_data = status;
+        response_length = 6;
+        break;
+    }
     // case 0x0100:                        // Clear feature device.
     //     break;
     // case 0x0101:                        // Clear feature interface.
@@ -715,16 +741,26 @@ static void process_setup (int i)
     // case 0x0302:                        // Set feature endpoint.
     //     break;
     case 0x0b01:                        // Set interface.
-        if ((setup1 & 0xffff) == 1) {
-            if (setup0 & 0xffff0000) {
-                start_network();
-                callback = notify_network_up;
+        switch (setup1 & 0xffff) {
+        case 1:                         // Interface 1 (data)
+            if ((setup1 & 0xffff) == 1) {
+                if (setup0 & 0xffff0000) {
+                    start_network();
+                    callback = notify_network_up;
+                }
+                else
+                    stop_network();
             }
-            else
-                stop_network();
+            response_length = 0;
+            break;
+        case 0:                         // Interface 0 (comms) - ignore.
+        case 2:                         // Interface 2 (DFU).
+        default:
+            response_length = 0;
+            break;
         }
-        response_length = 0;
         break;
+
     // case 0x0c82:                        // Synch frame.
     //     break;
     // case 0x2140:                        // Set ethernet multicast.
@@ -1053,8 +1089,6 @@ static void eth_interrupt (void)
         && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
         retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
 }
-
-static volatile bool enter_dfu;
 
 static void usart3_interrupt (void)
 {
