@@ -226,7 +226,6 @@ static const unsigned char speed_notification100[] = {
 };
 
 
-#if 0
 #define QUALIFIER_DESCRIPTOR_SIZE 10
 const unsigned char qualifier_descriptor[] = {
     QUALIFIER_DESCRIPTOR_SIZE,          // Length.
@@ -236,7 +235,7 @@ const unsigned char qualifier_descriptor[] = {
     64, 1, 0
 };
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
-#endif
+
 
 static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (2048)));
 static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (2048)));
@@ -671,10 +670,10 @@ static void process_setup (int i)
             response_data = config_descriptor;
             response_length = CONFIG_DESCRIPTOR_SIZE;
             break;
-        // case 6:                         // Device qualifier.
-        //     respond_to_setup (i, setup1, qualifier_descriptor,
-        //                       QUALIFIER_DESCRIPTOR_SIZE);
-        //     break;
+        case 6:                         // Device qualifier.
+            response_data = qualifier_descriptor;
+            response_length = QUALIFIER_DESCRIPTOR_SIZE;
+            break;
         case 3: {                        // String.
             unsigned index = (setup0 >> 16) & 255;
             if (index < sizeof string_descriptors / 4) {
