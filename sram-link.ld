@@ -9,7 +9,7 @@ SECTIONS
   }
   .bss : {
      bss_start = .;
-     *(.bss*);
+     *(SORT_BY_ALIGNMENT(.bss*));
      bss_end = .;
   }
 }

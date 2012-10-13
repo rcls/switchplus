@@ -67,7 +67,7 @@ CC=arm-linux-gnu-gcc
 LD=arm-linux-gnu-ld
 OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding \
-	-Wno-error=unused-function -MMD -MP -MF.$@.d
+	-fdata-sections -Wno-error=unused-function -MMD -MP -MF.$@.d
 
 -include .*.d
 

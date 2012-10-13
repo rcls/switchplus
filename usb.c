@@ -43,10 +43,14 @@ typedef struct qh_pair_t {
     dQH_t IN;
 } qh_pair_t;
 
-static qh_pair_t QH[6] __attribute__ ((aligned (2048)));
+static struct qh_and_dtd_t {
+    qh_pair_t QH[6];
+#define NUM_DTDS 40
+    dTD_t DTD[NUM_DTDS];
+} qh_and_dtd;
+#define QH qh_and_dtd.QH
+#define DTD qh_and_dtd.DTD
 
-#define NUM_DTDS 52
-static dTD_t DTD[NUM_DTDS] __attribute__ ((aligned (32)));
 
 typedef struct EDMA_DESC_t {
     unsigned status;
@@ -234,8 +238,8 @@ const unsigned char qualifier_descriptor[] = {
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 #endif
 
-static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (4096)));
-static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (4096)));
+static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (2048)));
+static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (2048)));
 
 static void ser_w_byte (unsigned byte)
 {
