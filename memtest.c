@@ -67,10 +67,10 @@ void meminit (void)
     }
 
     // The datasheet says all clocks and allow input.
-    SFSCLK[0] = 0x000000e0;             // N5, function 0
-    SFSCLK[1] = 0x000000e0;             // T10, function 0
-    SFSCLK[2] = 0x000000e5;             // D14 EMC_CLK23, CLK2 func 5
-    SFSCLK[3] = 0x000000e0;             // P12, function 0 (?)
+    SFSCLK[0] = 0xe0;                   // N5, function 0
+    SFSCLK[1] = 0xe0;                   // T10, function 0
+    SFSCLK[2] = 0xe5;                   // D14 EMC_CLK23, CLK2 func 5
+    SFSCLK[3] = 0xe0;                   // P12, function 0 (?)
 
     // The -7e device is CL3 at 143MHz, CL2 at 133MHz.
 
@@ -79,19 +79,20 @@ void meminit (void)
 
     // EMCDELAYCLK?
 
-    // All these are 1 more than needed...
-    *DYNAMICRP = 2;                     // Precharge period, tRP = 15ns.
-    *DYNAMICRAS = 4;                    // Active to precharge, tRAS = 37ns.
-    *DYNAMICSREX = 7;                   // tSREX or tXSR=67ns
-    *DYNAMICAPR = 4;                    // tAPR. ???  Using tDAL.
-    *DYNAMICDAL = 4;                    // tDAL=4clocks or tAPW.
-    *DYNAMICWR = 2;                     // Write recovery, tWR=14ns.
-    *DYNAMICRC = 6;                     // Active to active, tRC=60ns.
-    *DYNAMICRFC = 7;                    // tRFC, auto refresh period = 66ns.
-    *DYNAMICXSR = 7;                    // Self-refresh exit time, tXSR=67ns.
+#define NS2CLK(x) ((x) * 96 / 1000)
+    // Settings for 96MHz.
+    *DYNAMICRP = NS2CLK(15);            // Precharge period, tRP = 15ns.
+    *DYNAMICRAS = NS2CLK(37);           // Active to precharge, tRAS = 37ns.
+    *DYNAMICSREX = NS2CLK(67);          // tSREX or tXSR=67ns
+    *DYNAMICAPR = 3;                    // tAPR. ???  Using tDAL.
+    *DYNAMICDAL = 3;                    // tDAL=4clocks or tAPW.
+    *DYNAMICWR = NS2CLK(14);            // Write recovery, tWR=14ns.
+    *DYNAMICRC = NS2CLK(60);            // Active to active, tRC=60ns.
+    *DYNAMICRFC = NS2CLK(66);           // tRFC, auto refresh period = 66ns.
+    *DYNAMICXSR = NS2CLK(67);           // Self-refresh exit time, tXSR=67ns.
     // The datasheet says tRRD = 14tCK but I think they mean 14ns.
-    *DYNAMICRRD = 2;                    // Bank-to-bank time, tRRD = 14tCK!!!.
-    *DYNAMICMRD = 2;                    // Load mode to active, tMRD = 2clock.
+    *DYNAMICRRD = NS2CLK(14);           // Bank-to-bank time, tRRD = 14tCK!!!.
+    *DYNAMICMRD = 1;                    // Load mode to active, tMRD = 2clock.
 
     *DYNAMICCONFIG2 = 0x0680;           // Row, bank, column, 16M x 16.
 
