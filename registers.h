@@ -37,6 +37,7 @@ typedef v32 v32_32[32];
 #define SCU 0x40086000
 
 #define SFSP ((v32_32 *) SCU)
+#define SFSCLK ((v32 *) (SCU + 0xc00))
 
 #define OTP ((const unsigned *) 0x40045000)
 
@@ -147,5 +148,39 @@ typedef v32 v32_32[32];
 #define NVIC_IABR (NVIC + 192)
 #define NVIC_IPR (NVIC + 256)
 #define NVIC_STIR (NVIC + 960)
+
+#define EMC ((v32*) 0x40005000)
+
+#define EMCCONTROL (EMC)
+#define EMCSTATUS (EMC + 1)
+#define EMCCONFIG (EMC + 2)
+
+#define DYNAMICCONTROL (EMC + 8)
+#define DYNAMICREFRESH (EMC + 9)
+#define DYNAMICREADCONFIG (EMC + 10)
+
+#define DYNAMICRP   (EMC + 12)
+#define DYNAMICRAS  (EMC + 13)
+#define DYNAMICSREX (EMC + 14)
+#define DYNAMICAPR  (EMC + 15)
+#define DYNAMICDAL  (EMC + 16)
+#define DYNAMICWR   (EMC + 17)
+#define DYNAMICRC   (EMC + 18)
+#define DYNAMICRFC  (EMC + 19)
+#define DYNAMICXSR  (EMC + 20)
+#define DYNAMICRRD  (EMC + 21)
+#define DYNAMICMRD  (EMC + 22)
+
+#define DYNAMICCONFIG0 (EMC + 64)
+#define DYNAMICRASCAS0 (EMC + 65)
+
+#define DYNAMICCONFIG1 (EMC + 72)
+#define DYNAMICRASCAS1 (EMC + 73)
+
+#define DYNAMICCONFIG2 (EMC + 80)
+#define DYNAMICRASCAS2 (EMC + 81)
+
+#define DYNAMICCONFIG3 (EMC + 88)
+#define DYNAMICRASCAS3 (EMC + 89)
 
 #endif
