@@ -259,6 +259,66 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 }
 
 
+#define CCU1_VALID_0 0
+#define CCU1_VALID_1 0x3f
+#define CCU1_VALID_2 0x1f
+#define CCU1_VALID_3 1
+#define CCU1_VALID_4 (0x1c0000 + 0x3e3ff)
+#define CCU1_VALID_5 0xff
+#define CCU1_VALID_6 0xff
+#define CCU1_VALID_7 0xf
+
+static const unsigned ccu1_disable_mask[] = {
+    0,
+    CCU1_VALID_1 & ~0x1,
+    CCU1_VALID_2 & ~0x1,
+    CCU1_VALID_3 & ~0x0,
+    // M4 BUS, GPIO, Ethernet, USB0, DMA(?), M4 Core, Flash A, Flash B,
+    CCU1_VALID_4 & ~0x30335,
+    // SSP0, SCU, CREG
+    CCU1_VALID_5 & ~0xc8,
+    // USART3
+    CCU1_VALID_6 & ~0x4,
+    // Periph... (?)
+    CCU1_VALID_7 & ~0x0,
+};
+
+// USB1, SPI, VADC, APLL, USART2, UART1, USART0, SSP1, SDIO.
+#define CCU_BASE_DISABLE 0x017a0e00
+
+static void disable_clock(bool justone)
+{
+    for (unsigned i = 0; i < 8; ++i) {
+        volatile unsigned * base = (volatile unsigned *) (0x40051000 + i * 256);
+        unsigned mask = ccu1_disable_mask[i];
+        do {
+            if ((mask & 1) && (*base & 1)) {
+                *base = 0;
+                if (justone) {
+                    ser_w_hex ((unsigned) base, 8, " disabled clock...\r\n");
+                    return;
+                }
+            }
+            mask >>= 1;
+            base += 2;
+        }
+        while (mask);
+    }
+
+    volatile unsigned * base = (volatile unsigned *) 0x40051000;
+    for (unsigned mask = CCU_BASE_DISABLE; mask;
+         mask >>= 1, base += 64)
+        if ((mask & 1) && (*base & 1)) {
+            *base = 0;
+            if (justone) {
+                ser_w_hex ((unsigned) base, 8, " disable clock...\r\n");
+                return;
+            }
+        }
+    ser_w_string ("Disabled clocks\r\n");
+}
+
+
 static dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
@@ -1018,8 +1078,12 @@ void doit (void)
     NVIC_ICER[0] = 0xffffffff;
     NVIC_ICER[1] = 0xffffffff;
 
-    for (volatile unsigned char * p = &bss_start; p != &bss_end; ++p)
-        *p++ = 0;
+    __memory_barrier();
+
+    for (unsigned char * p = &bss_start; p != &bss_end; ++p)
+        *p = 0;
+
+    __memory_barrier();
 
 //    RESET_CTRL[0] = 1 << 17;
     start_serial();
@@ -1042,7 +1106,8 @@ void doit (void)
     ser_w_string ("Lock wait\r\n");
     while (!(*PLL0USB_STAT & 1));
 
-    ser_w_string ("Freq. measure\r\n");
+    disable_clock (false);
+    ser_w_string ("Clocks disabled.\r\n");
 
 #if 0
     // Now measure the clock rate.

@@ -1,6 +1,8 @@
 #ifndef REGISTERS_H_
 #define REGISTERS_H_
 
+#define __memory_barrier() asm volatile ("" : : : "memory")
+
 typedef volatile unsigned char v8;
 typedef volatile unsigned v32;
 typedef v8 v8_32[32];
