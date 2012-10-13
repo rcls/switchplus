@@ -62,6 +62,9 @@ typedef struct EDMA_DESC_t {
 
 typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
 
+// This is slightly less than 2k so we can always mask off the size...
+#define BUF_SIZE 0x7f0
+
 #define EDMA_COUNT 4
 #define EDMA_MASK 3
 static volatile EDMA_DESC_t tx_dma[EDMA_COUNT];
@@ -579,7 +582,7 @@ static void start_network (void)
     *EDMA_OP_MODE = 0x2002;
 
     for (int i = 0; i != 4; ++i)
-        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, 0x07f0,
+        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, BUF_SIZE,
                          endpt_tx_complete);
 }
 
@@ -762,9 +765,9 @@ static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
     volatile EDMA_DESC_t * r = &rx_dma[rx_dma_insert++ & EDMA_MASK];
 
     if (rx_dma_insert & EDMA_MASK)
-        r->count = 0x7f0;
+        r->count = BUF_SIZE;
     else
-        r->count = 0x87f0;
+        r->count = 0x8000 + BUF_SIZE;
     r->buffer1 = (void*) (buffer & 0xfffff800);
     r->buffer2 = 0;
 
@@ -946,12 +949,12 @@ static void init_ethernet (void)
         tx_dma[i].status = 0;
 
         rx_dma[i].status = 0x80000000;
-        rx_dma[i].count = 0x7f0;        // Status bits?
+        rx_dma[i].count = BUF_SIZE;     // Status bits?
         rx_dma[i].buffer1 = rx_ring_buffer + 2048 * i;
         rx_dma[i].buffer2 = 0;
     }
 
-    rx_dma[EDMA_MASK].count = 0x87f0; // End of ring.
+    rx_dma[EDMA_MASK].count = 0x8000 + BUF_SIZE; // End of ring.
 
     tx_dma_insert = 0;
     tx_dma_retire = 0;
