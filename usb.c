@@ -85,7 +85,12 @@ enum string_descs_t {
     sd_ralph,
     sd_switch,
     sd_0001,
-    sd_424242424242
+    sd_424242424242,
+    sd_eth_mgmt,
+    sd_eth_idle,
+    sd_eth_showtime,
+    sd_monkey,
+    sd_dfu,
 };
 
 // String0 - lang. descs.
@@ -106,12 +111,35 @@ static const unsigned char string_424242424242[] = {
     '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0,
     '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0
 };
+static const unsigned char string_eth_mgmt[] = {
+    40, 3, 'E',0, 't',0, 'h',0, 'e',0, 'r',0, 'n',0, 'e',0, 't',0, ' ',0,
+    'M',0, 'a',0, 'n',0, 'a',0, 'g',0, 'e',0, 'm',0, 'e',0, 'n',0, 't',0,
+};
+static const unsigned char string_eth_idle[] = {
+    28, 3, 'E', 0, 't', 0, 'h', 0, 'e', 0, 'r', 0, 'n', 0, 'e', 0, 't', 0,
+    ' ', 0, 'I', 0, 'd', 0, 'l', 0, 'e', 0,
+};
+static const unsigned char string_eth_showtime[] = {
+    36, 3, 'E', 0, 't', 0, 'h', 0, 'e', 0, 'r', 0, 'n', 0, 'e', 0, 't', 0,
+    ' ', 0, 'S', 0, 'h', 0, 'o', 0, 'w', 0, 't', 0, 'i', 0, 'm', 0, 'e', 0,
+};
+static const unsigned char string_monkey[] = {
+    14, 3, 'M', 0, 'o', 0, 'n', 0, 'k', 0, 'e', 0, 'y', 0
+};
+static const unsigned char string_dfu[] = {
+    8, 3, 'D', 0, 'F', 0, 'U', 0
+};
 static const unsigned char * const string_descriptors[] = {
     string_lang,
     [sd_ralph] = string_ralph,
     [sd_switch] = string_switch,
     [sd_0001] = string_0001,
     [sd_424242424242] = string_424242424242,
+    [sd_eth_mgmt] = string_eth_mgmt,
+    [sd_eth_idle] = string_eth_idle,
+    [sd_eth_showtime] = string_eth_showtime,
+    [sd_monkey] = string_monkey,
+    [sd_dfu] = string_dfu,
 };
 
 
@@ -163,7 +191,7 @@ static const unsigned char config_descriptor[] = {
     2,                                  // interface class.
     6,                                  // interface sub-class.
     0,                                  // protocol.
-    0,                                  // interface string index.
+    sd_eth_mgmt,                        // interface string index.
     // CDC header...
     5,                                  // length
     0x24,                               // CS_INTERFACE
@@ -200,7 +228,7 @@ static const unsigned char config_descriptor[] = {
     10,                                 // interface class (data).
     6,                                  // interface sub-class.
     0,                                  // protocol.
-    0,                                  // interface string index.
+    sd_eth_idle,                        // interface string index.
     // Interface (data).
     9,                                  // length.
     4,                                  // type: interface.
@@ -210,7 +238,7 @@ static const unsigned char config_descriptor[] = {
     10,                                 // interface class (data).
     6,                                  // interface sub-class.
     0,                                  // protocol.
-    0,                                  // interface string index.
+    sd_eth_showtime,                    // interface string index.
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
@@ -232,7 +260,7 @@ static const unsigned char config_descriptor[] = {
     0,                                  // Alternate.
     0,                                  // Num. endpoints.
     0xfe, 1, 0,                         // Application specific; DFU.
-    0,                                  // Name...
+    sd_dfu,                             // Name...
     // Function (DFU)
     7,                                  // Length.
     0x21,                               // Type.
