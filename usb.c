@@ -1389,9 +1389,17 @@ void doit (void)
         asm volatile ("wfi\n" ::: "memory");
     while (!enter_dfu);
 
+    asm volatile ("cpsid i\n");
+    ser_w_string ("Enter DFU\r\n");
+    asm volatile ("cpsie i\n");
+    if (log_monkey)
+        for (int i = 0; i != 1000000; ++i)
+            asm volatile ("");
+
     NVIC_ICER[0] = 0xffffffff;
 
-    ser_w_string ("Enter DFU\r\n");
+    *USBCMD = 2;                       // Reset USB.
+    while (*USBCMD & 2);
 
     unsigned fakeotp[64];
     for (int i = 0; i != 64; ++i)
