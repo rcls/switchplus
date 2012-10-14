@@ -1359,7 +1359,7 @@ void doit (void)
 
     // Enable the ethernet, usb and serial interrupts.
     NVIC_ISER[0] = 0x08000120;
-    *USBINTR = 0x00000001;
+    *USBINTR = 0x00000041;              // Port change, reset, data.
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
     asm volatile ("cpsie if\n");
