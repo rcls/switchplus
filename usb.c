@@ -12,15 +12,20 @@
 #define JOIN(a,b) JOIN2(a,b)
 #define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
 
-typedef struct dTD_t {
+typedef struct dTD_t dTD_t;
+typedef struct dQH_t dQH_t;
+
+typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
+
+struct dTD_t {
     struct dTD_t * volatile next;
     volatile unsigned length_and_status;
     unsigned volatile buffer_page[5];
 
-    unsigned dummy;                     // Hopefully we can use this.
-} __attribute__ ((aligned (32))) dTD_t;
+    dtd_completion_t * completion;      // For our use...
+};
 
-typedef struct dQH_t {
+struct dQH_t {
     // 48 byte queue head.
     volatile unsigned capabilities;
     dTD_t * volatile current;
@@ -37,7 +42,7 @@ typedef struct dQH_t {
     dTD_t * last;
     unsigned dummy2;
     unsigned dummy3;
-} __attribute__ ((aligned (64))) dQH_t;
+};
 
 // OUT is host to device.
 // IN is device to host.
@@ -46,9 +51,9 @@ typedef struct qh_pair_t {
     dQH_t IN;
 } qh_pair_t;
 
+#define NUM_DTDS 40
 static struct qh_and_dtd_t {
     qh_pair_t QH[6];
-#define NUM_DTDS 40
     dTD_t DTD[NUM_DTDS];
 } qh_and_dtd __attribute__ ((aligned (2048)));
 #define QH qh_and_dtd.QH
@@ -62,8 +67,6 @@ typedef struct EDMA_DESC_t {
     void * buffer2;
 } EDMA_DESC_t;
 
-
-typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
 
 // Buffer space for each packet transfer.
 #define BUF_SIZE 2048
@@ -545,7 +548,7 @@ static bool schedule_buffer (int ep, const void * data, unsigned length,
     dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
     // We don't do anything this big; just save original address.
     dtd->buffer_page[4] = (unsigned) data;
-    dtd->dummy = (unsigned) cb;
+    dtd->completion = cb;
 
     schedule_dtd (ep, dtd);
     return true;
@@ -606,8 +609,8 @@ static void endpt_complete (int ep, dQH_t * qh)
     dTD_t * d = qh->first;
     while (!(d->length_and_status & 0x80)) {
         //ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
-        if (d->dummy)
-            ((dtd_completion_t *) d->dummy) (ep, qh, d);
+        if (d->completion)
+            d->completion (ep, qh, d);
         d = retire_dtd (d, qh);
         if (d == NULL)
             return;
@@ -618,8 +621,8 @@ static void endpt_complete (int ep, dQH_t * qh)
 
     // FIXME - what do we actually want to do on errors?
     ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
-    if (d->dummy)
-        ((dtd_completion_t *) d->dummy) (ep, qh, d);
+    if (d->completion)
+        d->completion (ep, qh, d);
     if (retire_dtd (d, qh))
         *ENDPTPRIME = ep;               // Reprime the endpoint.
 }
@@ -656,7 +659,7 @@ static void monkey_kick (void)
     if (length < 0)
         length += 4096;
     dtd->length_and_status = length * 65536 + 0x8080;
-    dtd->dummy = (unsigned) monkey_in_complete;
+    dtd->completion = monkey_in_complete;
     schedule_dtd (0x83, dtd);
     monkey_pos.outstanding = true;
 }
