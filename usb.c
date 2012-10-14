@@ -275,7 +275,7 @@ static const unsigned char config_descriptor[] = {
     5,                                  // Type: endpoint.
     3,                                  // OUT 3.
     0x2,                                // bulk
-    64, 0,                              // packet size
+    0, 2,                               // packet size
     0,
     // Endpoint
     7,                                  // Length.
@@ -336,11 +336,12 @@ static struct {
 } monkey_pos;
 
 static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
-static unsigned char monkey_recv[64];
+static unsigned char monkey_recv[512];
 
 static volatile bool enter_dfu;
 
 static void monkey_kick (void);
+static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
 
 static void ser_w_byte (unsigned byte)
 {
@@ -628,12 +629,37 @@ static void endpt_complete (int ep, dQH_t * qh)
 }
 
 
-static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
+static void serial_byte (unsigned byte)
+{
+    switch (byte & 0xff) {
+    case 'r':
+        ser_w_string ("Reboot!\r\n");
+        RESET_CTRL[0] = 0xffffffff;
+        break;
+    case 'd':
+        debug = !debug;
+        ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
+        break;
+    case 'u':
+        enter_dfu = 1;
+        break;
+    }
+
+    ser_w_byte (byte);
+    if (byte == '\r')
+        ser_w_byte ('\n');
+    if (log_monkey)
+        monkey_kick();
+}
+
 
 static void monkey_out_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    // Just swallow data for now...
-    schedule_buffer (3, monkey_recv, 64, monkey_out_complete);
+    unsigned char * end = (unsigned char *) dtd->buffer_page[0];
+    for (unsigned char * p = monkey_recv; p != end; ++p)
+        serial_byte (*p);
+
+    schedule_buffer (3, monkey_recv, sizeof monkey_recv, monkey_out_complete);
 }
 
 
@@ -670,6 +696,8 @@ static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
     // FIXME - distinguish between errors and sending a full page?
     monkey_pos.outstanding = false;
     monkey_pos.send = (unsigned char *) dtd->buffer_page[0];
+    if (monkey_pos.insert == monkey_buffer + sizeof monkey_buffer)
+        monkey_pos.insert = monkey_buffer;
     if (monkey_pos.send == monkey_pos.insert) {
         // We're idle.  Reset the pointers.
         monkey_pos.send = monkey_buffer;
@@ -705,7 +733,7 @@ static void start_mgmt (void)
     if (log_monkey)
         monkey_kick();
 
-    schedule_buffer (3, monkey_recv, 64, monkey_out_complete);
+    schedule_buffer (3, monkey_recv, sizeof monkey_recv, monkey_out_complete);
 }
 
 
@@ -771,7 +799,7 @@ static void start_network (void)
 static void stop_network (void)
 {
     if (!(*ENDPTCTRL2 & 0x80))
-        return                          // Already stopped.
+        return;                         // Already stopped.
 
     ser_w_string ("Stopping network...\r\n");
 
@@ -1258,24 +1286,14 @@ static void eth_interrupt (void)
         retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
 }
 
+
 static void usart3_interrupt (void)
 {
-    ser_w_string ("usart interrupt\r\n");
-    while (*USART3_LSR & 1) {
-        switch (*USART3_RBR & 0xff) {
-        case 'r':
-            ser_w_string ("Reboot!\r\n");
-            RESET_CTRL[0] = 0xffffffff;
-            break;
-        case 'd':
-            debug = !debug;
-            ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
-            break;
-        case 'u':
-            enter_dfu = 1;
-            break;
-        }
-    }
+    if (debug)
+        ser_w_string ("usart interrupt\r\n");
+
+    while (*USART3_LSR & 1)
+        serial_byte (*USART3_RBR & 0xff);
 }
 
 
