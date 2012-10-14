@@ -1376,7 +1376,8 @@ void doit (void)
     for (int i = 0; i != 64; ++i)
         fakeotp[i] = OTP[i];
 
-    fakeotp[12] = 6 << 25;
+    fakeotp[12] = (6 << 25) + (1 << 23); // Boot mode; use custom usb ids.
+    fakeotp[13] = 0x524cf055;           // Product id / vendor id.
 
     typedef unsigned F (void*);
     ((F*) 0x1040158d) (fakeotp);
