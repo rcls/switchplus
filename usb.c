@@ -320,8 +320,8 @@ const unsigned char qualifier_descriptor[] = {
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
 
-static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (2048)));
-static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (2048)));
+#define rx_ring_buffer ((unsigned char *) 0x20000000)
+#define tx_ring_buffer ((unsigned char *) 0x20004000)
 
 static unsigned char monkey_bounce[1024] __attribute__ ((aligned (512)));
 
