@@ -47,7 +47,7 @@ static struct qh_and_dtd_t {
     qh_pair_t QH[6];
 #define NUM_DTDS 40
     dTD_t DTD[NUM_DTDS];
-} qh_and_dtd;
+} qh_and_dtd __attribute__ ((aligned (2048)));
 #define QH qh_and_dtd.QH
 #define DTD qh_and_dtd.DTD
 
