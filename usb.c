@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define log_serial true
+#define log_monkey true
+
 #define JOIN2(a,b) a##b
 #define JOIN(a,b) JOIN2(a,b)
 #define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
@@ -146,9 +149,9 @@ static const unsigned char * const string_descriptors[] = {
 #define DEVICE_DESCRIPTOR_SIZE 18
 static const unsigned char device_descriptor[] = {
     DEVICE_DESCRIPTOR_SIZE,
-    1,                                  // type:
+    1,                                  // type: device
     0, 2,                               // bcdUSB.
-    0,                                  // class - CDC.
+    0,                                  // class - compound.
     0,                                  // subclass.
     0,                                  // protocol.
     64,                                 // Max packet size.
@@ -267,14 +270,14 @@ static const unsigned char config_descriptor[] = {
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
-    3,                                  // OUT 2.
+    3,                                  // OUT 3.
     0x2,                                // bulk
-    0, 2,                               // packet size
+    64, 0,                              // packet size
     0,
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
-    0x83,                               // IN 2.
+    0x83,                               // IN 3.
     0x2,                                // bulk
     0, 2,                               // packet size
     0,
@@ -319,24 +322,58 @@ const unsigned char qualifier_descriptor[] = {
 };
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
-
 #define rx_ring_buffer ((unsigned char *) 0x20000000)
 #define tx_ring_buffer ((unsigned char *) 0x20004000)
 
-static unsigned char monkey_bounce[1024] __attribute__ ((aligned (512)));
+static struct {
+    unsigned char * insert;
+    unsigned char * limit;
+    unsigned char * send;
+    bool outstanding;
+} monkey_pos;
+
+static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
+static unsigned char monkey_recv[64];
 
 static volatile bool enter_dfu;
 
+static void monkey_kick (void);
+
 static void ser_w_byte (unsigned byte)
 {
-    while (!(*USART3_LSR & 32));         // Wait for THR to be empty.
-    *USART3_THR = byte;
+    if (log_serial) {
+        while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
+        *USART3_THR = byte;
+    }
+    if (!log_monkey)
+        return;
+
+    if (monkey_pos.insert != monkey_pos.limit) {
+        *monkey_pos.insert++ = byte;
+        return;
+    }
+
+    // If we're not at the end of buffer, that means we're full & have to drop.
+    // If we haven't sent anything, that also means we're full.
+    if (monkey_pos.limit != monkey_buffer + sizeof monkey_buffer
+        || monkey_pos.send == monkey_buffer)
+        return;
+
+    // Go back to the beginning.
+    monkey_pos.insert = monkey_buffer;
+    monkey_pos.limit = monkey_pos.send;
+
+    if (monkey_pos.insert != monkey_pos.limit)
+        *monkey_pos.insert++ = byte;
 }
+
 
 static void ser_w_string (const char * s)
 {
     for (; *s; s++)
         ser_w_byte (*s);
+    if (log_monkey)
+        monkey_kick();
 }
 
 static void ser_w_hex (unsigned value, int nibbles, const char * term)
@@ -592,16 +629,53 @@ static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
 
 static void monkey_out_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    unsigned buffer = dtd->buffer_page[0];
-    schedule_buffer (0x83, (unsigned char *) (buffer & ~511), buffer & 511,
-                     monkey_in_complete);
+    // Just swallow data for now...
+    schedule_buffer (3, monkey_recv, 64, monkey_out_complete);
 }
+
+
+static void monkey_kick (void)
+{
+    // If the dTD is in-flight, or there is no data, or the monkey end-point is
+    // not in use, then nothing to do.
+    if (!log_monkey || monkey_pos.outstanding
+        || monkey_pos.send == monkey_pos.insert || !(*ENDPTCTRL3 & 0x800000))
+        return;
+
+    // We keep our very own dTD for the monkey.  This ensures we can log e.g.,
+    // even on out-of-dtds.  FIXME - we don't have this right.
+    //static dTD_t dtd __attribute__ ((aligned (32)));
+
+    dTD_t * dtd = get_dtd();
+    if (!dtd)
+        return;                         // FIXME - we need better.
+
+    dtd->buffer_page[0] = (unsigned) monkey_pos.send;
+    dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
+    int length = monkey_pos.insert - monkey_pos.send;
+    if (length < 0)
+        length += 4096;
+    dtd->length_and_status = length * 65536 + 0x8080;
+    dtd->dummy = (unsigned) monkey_in_complete;
+    schedule_dtd (0x83, dtd);
+    monkey_pos.outstanding = true;
+}
+
 
 static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
-    unsigned buffer = dtd->buffer_page[0];
-    schedule_buffer (3, (unsigned char *) (buffer & ~511), 511,
-                     monkey_out_complete);
+    // FIXME - distinguish between errors and sending a full page?
+    monkey_pos.outstanding = false;
+    monkey_pos.send = (unsigned char *) dtd->buffer_page[0];
+    if (monkey_pos.send == monkey_pos.insert) {
+        // We're idle.  Reset the pointers.
+        monkey_pos.send = monkey_buffer;
+        monkey_pos.insert = monkey_buffer;
+        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
+    }
+    else {
+        monkey_kick();
+    }
 }
 
 
@@ -618,15 +692,17 @@ static void start_mgmt (void)
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
 
-    // No 0-size-frame, 512 byte packets.
+    // No 0-size-frame, 64 bytes to us, 512 byte packets to host.
     QH[3].IN.capabilities = 0x22000000;
     QH[3].IN.next = (dTD_t *) 1;
-    QH[3].OUT.capabilities = 0x22000000;
+    QH[3].OUT.capabilities = 0x20400000;
     QH[3].OUT.next = (dTD_t *) 1;
     *ENDPTCTRL3 = 0x008c008c;
 
-    schedule_buffer (3, monkey_bounce, 511, monkey_out_complete);
-    schedule_buffer (3, monkey_bounce + 512, 511, monkey_out_complete);
+    if (log_monkey)
+        monkey_kick();
+
+    schedule_buffer (3, monkey_recv, 64, monkey_out_complete);
 }
 
 
@@ -1111,7 +1187,7 @@ static void start_serial (void)
 
 static void usb_interrupt (void)
 {
-    if (debug)
+    if (!log_monkey && debug)
         ser_w_string ("usb interrupt...\r\n");
 
     unsigned status = *USBSTS;
@@ -1212,6 +1288,13 @@ void doit (void)
         *p = 0;
 
     __memory_barrier();
+
+    // Set-up the monkey.
+    if (log_monkey) {
+        monkey_pos.send = monkey_buffer;
+        monkey_pos.insert = monkey_buffer;
+        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
+    }
 
 //    RESET_CTRL[0] = 1 << 17;
     start_serial();
