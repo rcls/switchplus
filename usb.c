@@ -1,4 +1,4 @@
-// Lets try bring ub a usb device...
+// Lets try to bring up a usb device...
 
 #include "registers.h"
 
@@ -62,8 +62,8 @@ typedef struct EDMA_DESC_t {
 
 typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
 
-// This is slightly less than 2k so we can always mask off the size...
-#define BUF_SIZE 0x7f0
+// Buffer space for each packet transfer.
+#define BUF_SIZE 2048
 
 #define EDMA_COUNT 4
 #define EDMA_MASK 3
@@ -171,7 +171,7 @@ enum usb_interfaces_t {
 };
 
 
-#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + + 9 + 7 + 7 + 9 + 7)
+#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7 + 7 + 9 + 7)
 static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
@@ -506,7 +506,8 @@ static bool schedule_buffer (int ep, const void * data, unsigned length,
     dtd->buffer_page[1] = (0xfffff000 & (unsigned) data) + 4096;
     dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
     dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
-    dtd->buffer_page[4] = (0xfffff000 & (unsigned) data) + 16384;
+    // We don't do anything this big; just save original address.
+    dtd->buffer_page[4] = (unsigned) data;
     dtd->dummy = (unsigned) cb;
 
     schedule_dtd (ep, dtd);
@@ -632,14 +633,14 @@ static void start_mgmt (void)
 static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // Send the buffer off to the network...
-    unsigned buffer = dtd->buffer_page[0];
+    unsigned buffer = dtd->buffer_page[4];
     unsigned status = dtd->length_and_status;
     // FIXME - detect errors and oversize packets.
 
     volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
 
-    t->count = buffer & 0x7ff;
-    t->buffer1 = (void *) (buffer & 0xfffff800);
+    t->count = BUF_SIZE - (status >> 16);
+    t->buffer1 = (void *) buffer;
     t->buffer2 = NULL;
 
     if (tx_dma_insert & EDMA_MASK)
@@ -650,7 +651,7 @@ static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
     *EDMA_TRANS_POLL_DEMAND = 0;
 
     if (debug) {
-        ser_w_hex (buffer, 8, " ");
+        ser_w_hex (dtd->buffer_page[0], 8, " ");
         ser_w_hex (status, 8, " tx to MAC.\r\n");
     }
 }
@@ -879,8 +880,7 @@ static void process_setup (int i)
 static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // Re-queue the buffer for network data.
-    unsigned buffer = dtd->buffer_page[0];
-    unsigned status = dtd->length_and_status;
+    unsigned buffer = dtd->buffer_page[4];
 
     volatile EDMA_DESC_t * r = &rx_dma[rx_dma_insert++ & EDMA_MASK];
 
@@ -888,7 +888,7 @@ static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
         r->count = BUF_SIZE;
     else
         r->count = 0x8000 + BUF_SIZE;
-    r->buffer1 = (void*) (buffer & 0xfffff800);
+    r->buffer1 = (void*) buffer;
     r->buffer2 = 0;
 
     r->status = 0x80000000;
@@ -896,8 +896,8 @@ static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
     *EDMA_REC_POLL_DEMAND = 0;
 
     if (debug) {
-        ser_w_hex (buffer, 8, " ");
-        ser_w_hex (status, 8, " rx complete.\r\n");
+        ser_w_hex (dtd->buffer_page[0], 8, " ");
+        ser_w_hex (dtd->length_and_status, 8, " rx complete.\r\n");
     }
 }
 
@@ -923,7 +923,7 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // FIXME - handle errors.
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
-    schedule_buffer (0x02, buffer, 0x7ff, endpt_tx_complete);
+    schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
     if (debug) {
         ser_w_hex ((unsigned) buffer, 8, " ");
         ser_w_hex (tx->status, 8, " tx complete\r\n");
