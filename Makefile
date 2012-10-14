@@ -83,8 +83,8 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding \
 %.zero.elf: %.o
 	$(LD) -T zero.ld -o $@ $+
 
-%.flash0.elf: %.o
-	$(LD) -T flash0.ld -o $@ $+
+%.flashA.elf: %.o
+	$(LD) -T flashA.ld -o $@ $+
 
 %: %.elf
 	$(OBJCOPY) -O binary $< $@
