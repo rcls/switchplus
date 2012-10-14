@@ -148,8 +148,8 @@ static const unsigned char device_descriptor[] = {
     DEVICE_DESCRIPTOR_SIZE,
     1,                                  // type:
     0, 2,                               // bcdUSB.
-    2,                                  // class - CDC.
-    6,                                  // subclass.
+    0,                                  // class - CDC.
+    0,                                  // subclass.
     0,                                  // protocol.
     64,                                 // Max packet size.
     0x55, 0xf0,                         // Vendor-ID.
@@ -165,12 +165,13 @@ STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
 enum usb_interfaces_t {
     usb_intf_eth_comm,
     usb_intf_eth_data,
+    usb_intf_monkey,
     usb_intf_dfu,
     usb_num_intf
 };
 
 
-#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7)
+#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + + 9 + 7 + 7 + 9 + 7)
 static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
@@ -253,6 +254,30 @@ static const unsigned char config_descriptor[] = {
     0x2,                                // bulk
     0, 2,                               // packet size
     0,
+    // Interface (monkey).
+    9,                                  // length.
+    4,                                  // type: interface.
+    usb_intf_monkey,                    // interface number.
+    0,                                  // alternate setting.
+    2,                                  // number of endpoints.
+    0xff,                               // interface class (vendor specific).
+    'S',                                // interface sub-class.
+    'S',                                // protocol.
+    sd_monkey,                          // interface string index.
+    // Endpoint
+    7,                                  // Length.
+    5,                                  // Type: endpoint.
+    3,                                  // OUT 2.
+    0x2,                                // bulk
+    0, 2,                               // packet size
+    0,
+    // Endpoint
+    7,                                  // Length.
+    5,                                  // Type: endpoint.
+    0x83,                               // IN 2.
+    0x2,                                // bulk
+    0, 2,                               // packet size
+    0,
     // Interface (DFU).
     9,                                  // Length.
     4,                                  // Type = Interface.
@@ -297,6 +322,8 @@ STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
 static unsigned char rx_ring_buffer[8192] __attribute__ ((aligned (2048)));
 static unsigned char tx_ring_buffer[8192] __attribute__ ((aligned (2048)));
+
+static unsigned char monkey_bounce[1024] __attribute__ ((aligned (512)));
 
 static volatile bool enter_dfu;
 
@@ -560,6 +587,23 @@ static void endpt_complete (int ep, dQH_t * qh)
 }
 
 
+static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
+
+static void monkey_out_complete (int ep, dQH_t * qh, dTD_t * dtd)
+{
+    unsigned buffer = dtd->buffer_page[0];
+    schedule_buffer (0x83, (unsigned char *) (buffer & ~511), buffer & 511,
+                     monkey_in_complete);
+}
+
+static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
+{
+    unsigned buffer = dtd->buffer_page[0];
+    schedule_buffer (3, (unsigned char *) (buffer & ~511), 511,
+                     monkey_out_complete);
+}
+
+
 static void start_mgmt (void)
 {
     if (*ENDPTCTRL1 & 0x800000)
@@ -572,6 +616,16 @@ static void start_mgmt (void)
     QH[1].IN.next = (dTD_t*) 1;
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
+
+    // No 0-size-frame, 512 byte packets.
+    QH[3].IN.capabilities = 0x22000000;
+    QH[3].IN.next = (dTD_t *) 1;
+    QH[3].OUT.capabilities = 0x22000000;
+    QH[3].OUT.next = (dTD_t *) 1;
+    *ENDPTCTRL3 = 0x008c008c;
+
+    schedule_buffer (3, monkey_bounce, 511, monkey_out_complete);
+    schedule_buffer (3, monkey_bounce + 512, 511, monkey_out_complete);
 }
 
 
@@ -1077,6 +1131,11 @@ static void usb_interrupt (void)
         endpt_complete (1, &QH[0].OUT);
     if (complete & 0x10000)
         endpt_complete (0x10000, &QH[0].IN);
+
+    if (complete & 8)
+        endpt_complete (8, &QH[3].OUT);
+    if (complete & 0x80000)
+        endpt_complete (0x80000, &QH[3].IN);
 
     // Check for setup on 0.  FIXME - will other set-ups interrupt?
     unsigned setup = *ENDPTSETUPSTAT;
