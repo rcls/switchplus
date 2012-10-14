@@ -321,19 +321,15 @@ static const unsigned ccu1_disable_mask[] = {
 // USB1, SPI, VADC, APLL, USART2, UART1, USART0, SSP1, SDIO.
 #define CCU_BASE_DISABLE 0x017a0e00
 
-static void disable_clock(bool justone)
+static void disable_clocks(void)
 {
     for (unsigned i = 0; i < 8; ++i) {
         volatile unsigned * base = (volatile unsigned *) (0x40051000 + i * 256);
         unsigned mask = ccu1_disable_mask[i];
         do {
-            if ((mask & 1) && (*base & 1)) {
+            if ((mask & 1) && (*base & 1))
                 *base = 0;
-                if (justone) {
-                    ser_w_hex ((unsigned) base, 8, " disabled clock...\r\n");
-                    return;
-                }
-            }
+
             mask >>= 1;
             base += 2;
         }
@@ -343,14 +339,8 @@ static void disable_clock(bool justone)
     volatile unsigned * base = (volatile unsigned *) 0x40051000;
     for (unsigned mask = CCU_BASE_DISABLE; mask;
          mask >>= 1, base += 64)
-        if ((mask & 1) && (*base & 1)) {
+        if ((mask & 1) && (*base & 1))
             *base = 0;
-            if (justone) {
-                ser_w_hex ((unsigned) base, 8, " disable clock...\r\n");
-                return;
-            }
-        }
-    ser_w_string ("Disabled clocks\r\n");
 }
 
 
@@ -1157,7 +1147,7 @@ void doit (void)
     ser_w_string ("Lock wait\r\n");
     while (!(*PLL0USB_STAT & 1));
 
-    disable_clock (false);
+    disable_clocks();
     ser_w_string ("Clocks disabled.\r\n");
 
 #if 0
