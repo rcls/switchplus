@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define log_serial true
+static bool log_serial;
 #define log_monkey true
 
 #define JOIN2(a,b) a##b
@@ -639,10 +639,20 @@ static void serial_byte (unsigned byte)
     case 'd':
         debug = !debug;
         ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
-        break;
+        return;
     case 'u':
         enter_dfu = 1;
         break;
+    case 's':
+        if (log_serial) {
+            ser_w_string ("Serial log off\r\n");
+            log_serial = false;
+        }
+        else {
+            log_serial = true;
+            ser_w_string ("Serial log on\r\n");
+        }
+        return;
     }
 
     ser_w_byte (byte);
