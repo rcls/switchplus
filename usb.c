@@ -1252,20 +1252,20 @@ static void usb_interrupt (void)
 
     // Reset.
     if (status & 0x40) {
+        while (*ENDPTPRIME);
+        *ENDPTFLUSH = 0xffffffff;
+
+        if (!(*PORTSC1 & 0x100))
+            ser_w_string ("BuggeR\r\n");
+
         stop_network();
         stop_mgmt();
+
         *ENDPTNAK = 0xffffffff;
         *ENDPTNAKEN = 1;
 
-        *ENDPTSETUPSTAT = *ENDPTSETUPSTAT;
-        while (*ENDPTPRIME);
-        *ENDPTFLUSH = 0xffffffff;
-        if (!(*PORTSC1 & 0x100))
-            ser_w_string ("Bugger\r\n");
         *ENDPTCTRL0 = 0x00c000c0;
         *DEVICEADDR = 0;
-        //while (*USBSTS & 0x40);
-        // FIXME - stop network if running.
         ser_w_string ("Reset processed...\r\n");
     }
 }
