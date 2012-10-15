@@ -1,7 +1,7 @@
 
 #include "monkey.h"
 #include "registers.h"
-#include "usbdriver.h"
+#include "usb.h"
 
 static struct {
     unsigned char * insert;
