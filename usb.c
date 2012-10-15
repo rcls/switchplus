@@ -1,8 +1,9 @@
 // Lets try to bring up a usb device...
 
-#include "registers.h"
-#include "usbdriver.h"
 #include "monkey.h"
+#include "registers.h"
+#include "switch.h"
+#include "usbdriver.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -710,47 +711,6 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
 }
 
 
-// data is big endian, lsb align.
-static unsigned spi_io (unsigned data, int num_bytes)
-{
-    // Wait for idle.
-    while (*SSP0_SR & 16);
-    // Clear input FIFO.
-    while (*SSP0_SR & 4)
-        *SSP0_DR;
-
-    // Take the SSEL GPIO low.
-    GPIO_BYTE[7][16] = 0;
-
-    for (int i = 0; i < num_bytes; ++i)
-        *SSP0_DR = (data >> (num_bytes - i - 1) * 8) & 255;
-
-    // Wait for idle.
-    while (*SSP0_SR & 16);
-
-    // Take the SSEL GPIO high again.
-    GPIO_BYTE[7][16] = 1;
-
-    unsigned result = 0;
-    for (int i = 0; i < num_bytes; ++i) {
-        while (!(*SSP0_SR & 4));
-        result = result * 256 + (*SSP0_DR & 255);
-    }
-
-    return result;
-}
-
-static unsigned spi_reg_read (unsigned address)
-{
-    return spi_io (0x30000 + ((address & 255) * 256), 3) & 255;
-}
-
-static unsigned spi_reg_write (unsigned address, unsigned data)
-{
-    return spi_io (0x20000 + ((address & 255) * 256) + data, 3) & 255;
-}
-
-
 static void init_switch (void)
 {
     // SMRXD0 - ENET_RXD0 - T12 - P1_15
@@ -865,28 +825,6 @@ static void init_ethernet (void)
 }
 
 
-static void start_serial (void)
-{
-    // Bring up USART3.
-    SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.
-    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
-
-    // Set the USART3 clock to be the 12MHz IRC.
-    *BASE_UART3_CLK = 0x01000800;
-
-    *USART3_LCR = 0x83;                 // Enable divisor access.
-
-    // From the user-guide: Based on these findings, the suggested USART setup
-    // would be: DLM = 0, DLL = 4, DIVADDVAL = 5, and MULVAL = 8.
-    *USART3_DLM = 0;
-    *USART3_DLL = 4;
-    *USART3_FDR = 0x85;
-
-    *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
-    *USART3_FCR = 1;                    // Enable fifos.
-    *USART3_IER = 1;                    // Enable receive interrupts.
-}
-
 
 static void usb_interrupt (void)
 {
@@ -987,9 +925,6 @@ void doit (void)
 
     // Set-up the monkey.
     init_monkey();
-
-//    RESET_CTRL[0] = 1 << 17;
-    start_serial();
 
     init_switch();
     init_ethernet();

@@ -72,14 +72,13 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding \
 
 -include .*.d
 
-usb.bin.elf usb.flashA.elf: monkey.o usbdriver.o
+usb.bin.elf usb.flashA.elf: monkey.o usbdriver.o switch.o
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 %: %.c
 
-#	$(LD) --Ttext=0x10000000 -r -o $@ $+
 %.bin.elf: %.o
 	$(LD) -T sram-link.ld -o $@ $+
 
