@@ -1,72 +1,15 @@
 // Lets try to bring up a usb device...
 
 #include "registers.h"
+#include "usbdriver.h"
+#include "monkey.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 
-static bool log_serial;
-#define log_monkey true
-
 #define JOIN2(a,b) a##b
 #define JOIN(a,b) JOIN2(a,b)
 #define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
-
-typedef struct dTD_t dTD_t;
-typedef struct dQH_t dQH_t;
-
-typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
-
-struct dTD_t {
-    struct dTD_t * volatile next;
-    volatile unsigned length_and_status;
-    unsigned volatile buffer_page[5];
-
-    dtd_completion_t * completion;      // For our use...
-};
-
-struct dQH_t {
-    // 48 byte queue head.
-    volatile unsigned capabilities;
-    dTD_t * volatile current;
-
-    dTD_t * volatile next;
-    volatile unsigned length_and_status;
-    unsigned volatile buffer_page[5];
-
-    volatile unsigned reserved;
-    volatile unsigned setup0;
-    volatile unsigned setup1;
-    // 16 bytes remaining for our use...
-    dTD_t * first;
-    dTD_t * last;
-    unsigned dummy2;
-    unsigned dummy3;
-};
-
-// OUT is host to device.
-// IN is device to host.
-typedef struct qh_pair_t {
-    dQH_t OUT;
-    dQH_t IN;
-} qh_pair_t;
-
-#define NUM_DTDS 40
-static struct qh_and_dtd_t {
-    qh_pair_t QH[6];
-    dTD_t DTD[NUM_DTDS];
-} qh_and_dtd __attribute__ ((aligned (2048)));
-#define QH qh_and_dtd.QH
-#define DTD qh_and_dtd.DTD
-
-
-typedef struct EDMA_DESC_t {
-    unsigned status;
-    unsigned count;
-    void * buffer1;
-    void * buffer2;
-} EDMA_DESC_t;
-
 
 // Buffer space for each packet transfer.
 #define BUF_SIZE 2048
@@ -83,8 +26,6 @@ static unsigned rx_dma_insert;
 static bool debug;
 extern unsigned char bss_start;
 extern unsigned char bss_end;
-
-static dTD_t * dtd_free_list;
 
 enum string_descs_t {
     sd_lang,
@@ -328,66 +269,9 @@ STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 #define rx_ring_buffer ((unsigned char *) 0x20000000)
 #define tx_ring_buffer ((unsigned char *) 0x20004000)
 
-static struct {
-    unsigned char * insert;
-    unsigned char * limit;
-    unsigned char * send;
-    bool outstanding;
-} monkey_pos;
-
-static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
 static unsigned char monkey_recv[512];
 
 static volatile bool enter_dfu;
-
-static void monkey_kick (void);
-static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
-
-static void ser_w_byte (unsigned byte)
-{
-    if (log_serial) {
-        while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
-        *USART3_THR = byte;
-    }
-    if (!log_monkey)
-        return;
-
-    if (monkey_pos.insert != monkey_pos.limit) {
-        *monkey_pos.insert++ = byte;
-        return;
-    }
-
-    // If we're not at the end of buffer, that means we're full & have to drop.
-    // If we haven't sent anything, that also means we're full.
-    if (monkey_pos.limit != monkey_buffer + sizeof monkey_buffer
-        || monkey_pos.send == monkey_buffer)
-        return;
-
-    // Go back to the beginning.
-    monkey_pos.insert = monkey_buffer;
-    monkey_pos.limit = monkey_pos.send;
-
-    if (monkey_pos.insert != monkey_pos.limit)
-        *monkey_pos.insert++ = byte;
-}
-
-
-static void ser_w_string (const char * s)
-{
-    for (; *s; s++)
-        ser_w_byte (*s);
-    if (log_monkey)
-        monkey_kick();
-}
-
-static void ser_w_hex (unsigned value, int nibbles, const char * term)
-{
-    for (int i = nibbles; i != 0; ) {
-        --i;
-        ser_w_byte ("0123456789abcdef"[(value >> (i * 4)) & 15]);
-    }
-    ser_w_string (term);
-}
 
 
 #define CCU1_VALID_0 0
@@ -440,122 +324,6 @@ static void disable_clocks(void)
 }
 
 
-static dTD_t * get_dtd (void)
-{
-    dTD_t * r = dtd_free_list;
-    if (r == NULL) {
-        ser_w_string ("Out of DTDs!!!\r\n");
-        ser_w_hex (tx_dma_retire, 8, " ");
-        ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n");
-        ser_w_hex (rx_dma_retire, 8, " ");
-        ser_w_hex (rx_dma_insert, 8, " rx retire, insert\r\n");
-        while (1);
-    }
-    dtd_free_list = r->next;
-    return r;
-}
-
-
-static void put_dtd (dTD_t * dtd)
-{
-    dtd->next = dtd_free_list;
-    dtd_free_list = dtd;
-}
-
-
-static void schedule_dtd (int ep, dTD_t * dtd)
-{
-    dQH_t * qh;
-    if (ep >= 0x80) {                   // IN.
-        qh = &QH[ep - 0x80].IN;
-        ep = 0x10000 << (ep - 0x80);
-    }
-    else {                              // OUT.
-        qh = &QH[ep].OUT;
-        ep = 1 << ep;
-    }
-
-    dtd->next = (dTD_t *) 1;
-    if (qh->last != NULL) {
-        // 1. Add dTD to end of the linked list.
-        qh->last->next = dtd;
-        qh->last = dtd;
-
-        // 2. Read correct prime bit in ENDPTPRIME - if '1' DONE.
-        if (*ENDPTPRIME & ep)
-            return;
-
-        unsigned eps;
-        do {
-            // 3. Set ATDTW bit in USBCMD register to '1'.
-            *USBCMD |= 1 << 14;
-
-            // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
-            // for later).
-            eps = *ENDPTSTAT;
-
-            // 5. Read ATDTW bit in USBCMD register.
-            // - If '0' go to step 3.
-            // - If '1' continue to step 6.
-        }
-        while (!(*USBCMD & (1 << 14)));
-
-        // 6. Write ATDTW bit in USBCMD register to '0'.
-        // Seems unnecessary...
-        //*USBCMD &= ~(1 << 14);
-
-        // 7. If status bit read in step 4 (ENDPSTAT reg) indicates endpoint
-        // priming is DONE (corresponding ERBRx or ETBRx is one): DONE.
-        if (eps & ep)
-            return;
-
-        // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
-        // Step 1.
-    }
-    else {
-        qh->first = dtd;
-        qh->last = dtd;
-    }
-
-    // 1. Write dQH next pointer AND dQH terminate bit to 0 as a single
-    // DWord operation.
-    qh->next = dtd;
-
-    // 2. Clear active and halt bits in dQH (in case set from a previous
-    // error).
-    qh->length_and_status &= ~0xc0;
-
-    // 3. Prime endpoint by writing '1' to correct bit position in
-    // ENDPTPRIME.
-    *ENDPTPRIME = ep;
-    while (*ENDPTPRIME & ep);
-    if (!(*ENDPTSTAT & ep))
-        ser_w_string ("Oops, EPST\r\n");
-}
-
-
-static bool schedule_buffer (int ep, const void * data, unsigned length,
-                             dtd_completion_t * cb)
-{
-    dTD_t * dtd = get_dtd();
-    if (dtd == NULL)
-        return false;                   // Bugger.
-
-    // Set terminate & active bits.
-    dtd->length_and_status = (length << 16) + 0x8080;
-    dtd->buffer_page[0] = (unsigned) data;
-    dtd->buffer_page[1] = (0xfffff000 & (unsigned) data) + 4096;
-    dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
-    dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
-    // We don't do anything this big; just save original address.
-    dtd->buffer_page[4] = (unsigned) data;
-    dtd->completion = cb;
-
-    schedule_dtd (ep, dtd);
-    return true;
-}
-
-
 static void respond_to_setup (unsigned ep, unsigned setup1,
                               const void * descriptor, unsigned length,
                               dtd_completion_t * callback)
@@ -585,48 +353,6 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
         ser_w_string ("Oops, EPSS\r\n");
 }
 
-
-static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
-{
-    dTD_t * next = d->next;
-    if (d == qh->last) {
-        next = NULL;
-        qh->last = NULL;
-    }
-    qh->first = next;
-
-    put_dtd (d);
-    return next;
-}
-
-
-static void endpt_complete (int ep, dQH_t * qh)
-{
-    // Clean-up the DTDs...
-    if (qh->first == NULL)
-        return;
-
-    // Successes...
-    dTD_t * d = qh->first;
-    while (!(d->length_and_status & 0x80)) {
-        //ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
-        if (d->completion)
-            d->completion (ep, qh, d);
-        d = retire_dtd (d, qh);
-        if (d == NULL)
-            return;
-    }
-
-    if (!(d->length_and_status & 0x7f))
-        return;                         // Still going.
-
-    // FIXME - what do we actually want to do on errors?
-    ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
-    if (d->completion)
-        d->completion (ep, qh, d);
-    if (retire_dtd (d, qh))
-        *ENDPTPRIME = ep;               // Reprime the endpoint.
-}
 
 
 static void serial_byte (unsigned byte)
@@ -673,53 +399,6 @@ static void monkey_out_complete (int ep, dQH_t * qh, dTD_t * dtd)
 }
 
 
-static void monkey_kick (void)
-{
-    // If the dTD is in-flight, or there is no data, or the monkey end-point is
-    // not in use, then nothing to do.
-    if (!log_monkey || monkey_pos.outstanding
-        || monkey_pos.send == monkey_pos.insert || !(*ENDPTCTRL3 & 0x800000))
-        return;
-
-    // We keep our very own dTD for the monkey.  This ensures we can log e.g.,
-    // even on out-of-dtds.  FIXME - we don't have this right.
-    //static dTD_t dtd __attribute__ ((aligned (32)));
-
-    dTD_t * dtd = get_dtd();
-    if (!dtd)
-        return;                         // FIXME - we need better.
-
-    dtd->buffer_page[0] = (unsigned) monkey_pos.send;
-    dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
-    int length = monkey_pos.insert - monkey_pos.send;
-    if (length < 0)
-        length += 4096;
-    dtd->length_and_status = length * 65536 + 0x8080;
-    dtd->completion = monkey_in_complete;
-    schedule_dtd (0x83, dtd);
-    monkey_pos.outstanding = true;
-}
-
-
-static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
-{
-    // FIXME - distinguish between errors and sending a full page?
-    monkey_pos.outstanding = false;
-    monkey_pos.send = (unsigned char *) dtd->buffer_page[0];
-    if (monkey_pos.insert == monkey_buffer + sizeof monkey_buffer)
-        monkey_pos.insert = monkey_buffer;
-    if (monkey_pos.send == monkey_pos.insert) {
-        // We're idle.  Reset the pointers.
-        monkey_pos.send = monkey_buffer;
-        monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
-    }
-    else {
-        monkey_kick();
-    }
-}
-
-
 static void start_mgmt (void)
 {
     if (*ENDPTCTRL1 & 0x800000)
@@ -727,17 +406,13 @@ static void start_mgmt (void)
 
     ser_w_string ("Starting mgmt...\r\n");
 
-    // FIXME - 81 length?
-    QH[1].IN.capabilities = 0x20400000;
-    QH[1].IN.next = (dTD_t*) 1;
+    qh_init (0x81, 0x20400000);
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
 
-    // No 0-size-frame, 64 bytes to us, 512 byte packets to host.
-    QH[3].IN.capabilities = 0x22000000;
-    QH[3].IN.next = (dTD_t *) 1;
-    QH[3].OUT.capabilities = 0x20400000;
-    QH[3].OUT.next = (dTD_t *) 1;
+    // No 0-size-frame.
+    qh_init (0x03, 0x22000000);
+    qh_init (0x83, 0x22000000);
     *ENDPTCTRL3 = 0x008c008c;
 
     if (log_monkey)
@@ -789,10 +464,8 @@ static void start_network (void)
 
     ser_w_string ("Starting network...\r\n");
 
-    QH[2].IN.capabilities = 0x02000000;
-    QH[2].IN.next = (dTD_t*) 1;
-    QH[2].OUT.capabilities = 0x02000000;
-    QH[2].OUT.next = (dTD_t*) 1;
+    qh_init (0x02, 0x02000000);
+    qh_init (0x82, 0x02000000);
 
     *ENDPTCTRL2 = 0x00880088;
 
@@ -824,8 +497,8 @@ static void stop_network (void)
     while (*ENDPTSTAT & 0x40004);
     *ENDPTCTRL2 = 0;
     // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0, &QH[2].OUT);
-    endpt_complete (0, &QH[2].IN);
+    endpt_complete (0x02, false);
+    endpt_complete (0x82, false);
     // FIXME - stop ethernet.
 }
 
@@ -844,26 +517,15 @@ static void stop_mgmt (void)
     }
     while (*ENDPTSTAT & 0x20000);
     // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0, &QH[1].IN);
+    endpt_complete (0x81, false);
 }
 
 
 static void process_setup (int i)
 {
-    qh_pair_t * qh = &QH[i];
-
-    *ENDPTCOMPLETE = 0x10001 << i;
-    unsigned setup0;
-    unsigned setup1;
-    do {
-        *USBCMD |= 1 << 13;             // Set tripwire.
-        setup0 = qh->OUT.setup0;
-        setup1 = qh->OUT.setup1;
-    }
-    while (!(*USBCMD & (1 << 13)));
-    *USBCMD &= ~(1 << 13);
-    while (*ENDPTSETUPSTAT & (1 << i))
-        *ENDPTSETUPSTAT = 1 << i;
+    unsigned long long setup = get_0_setup();
+    unsigned setup0 = setup;
+    unsigned setup1 = setup >> 32;
 
     const void * response_data = NULL;
     unsigned response_length = 0xffffffff;
@@ -1228,31 +890,32 @@ static void start_serial (void)
 
 static void usb_interrupt (void)
 {
-    if (!log_monkey && debug)
-        ser_w_string ("usb interrupt...\r\n");
-
     unsigned status = *USBSTS;
     *USBSTS = status;                   // Clear interrupts.
 
     unsigned complete = *ENDPTCOMPLETE;
     *ENDPTCOMPLETE = complete;
 
+    // Don't spam the monkey log.
+    if (debug && (!log_monkey || (complete != 0x80000)))
+        ser_w_string ("usb interrupt...\r\n");
+
     if (complete & 4)
-        endpt_complete (4, &QH[2].OUT);
+        endpt_complete (2, true);
     if (complete & 0x40000)
-        endpt_complete (0x40000, &QH[2].IN);
+        endpt_complete (0x82, true);
     if (complete & 0x20000)
-        endpt_complete (0x20000, &QH[1].IN);
+        endpt_complete (0x81, true);
 
     if (complete & 1)
-        endpt_complete (1, &QH[0].OUT);
+        endpt_complete (0, true);
     if (complete & 0x10000)
-        endpt_complete (0x10000, &QH[0].IN);
+        endpt_complete (0x80, true);
 
     if (complete & 8)
-        endpt_complete (8, &QH[3].OUT);
+        endpt_complete (0x03, true);
     if (complete & 0x80000)
-        endpt_complete (0x80000, &QH[3].IN);
+        endpt_complete (0x83, true);
 
     // Check for setup on 0.  FIXME - will other set-ups interrupt?
     unsigned setup = *ENDPTSETUPSTAT;
@@ -1320,12 +983,10 @@ void doit (void)
 
     __memory_barrier();
 
+    log_serial = true;
+
     // Set-up the monkey.
-    if (log_monkey) {
-        monkey_pos.send = monkey_buffer;
-        monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
-    }
+    init_monkey();
 
 //    RESET_CTRL[0] = 1 << 17;
     start_serial();
@@ -1358,35 +1019,7 @@ void doit (void)
     ser_w_hex (*FREQ_MON, 8, " freq mon\r\n");
 #endif
 
-    dtd_free_list = NULL;
-    for (int i = 0; i != NUM_DTDS; ++i)
-        put_dtd (&DTD[i]);
-
-    for (int i = 0; i != 6; ++i) {
-        QH[i].OUT.first = NULL;
-        QH[i].OUT.last = NULL;
-        QH[i].IN.first = NULL;
-        QH[i].IN.last = NULL;
-    }
-
-    *USBCMD = 2;                        // Reset.
-    while (*USBCMD & 2);
-
-    *USBMODE = 0xa;                     // Device.  Tripwire.
-    *OTGSC = 9;
-    //*PORTSC1 = 0x01000000;              // Only full speed for now.
-
-    QH[0].OUT.capabilities = 0x20408000;
-    QH[0].OUT.current = (void *) 1;
-
-    QH[0].IN.capabilities = 0x20408000;
-    QH[0].IN.current = (void *) 1;
-
-    // Set the endpoint list pointer.
-    *ENDPOINTLISTADDR = (unsigned) &QH;
-    *DEVICEADDR = 0;
-
-    *USBCMD = 1;                        // Run.
+    usb_init();
 
     // Enable the ethernet, usb and serial interrupts.
     NVIC_ISER[0] = 0x08000120;

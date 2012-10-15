@@ -8,6 +8,45 @@ typedef volatile unsigned v32;
 typedef v8 v8_32[32];
 typedef v32 v32_32[32];
 
+typedef struct dTD_t dTD_t;
+typedef struct dQH_t dQH_t;
+
+typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
+
+struct dTD_t {
+    struct dTD_t * volatile next;
+    volatile unsigned length_and_status;
+    unsigned volatile buffer_page[5];
+
+    dtd_completion_t * completion;      // For our use...
+};
+
+struct dQH_t {
+    // 48 byte queue head.
+    volatile unsigned capabilities;
+    dTD_t * volatile current;
+
+    dTD_t * volatile next;
+    volatile unsigned length_and_status;
+    unsigned volatile buffer_page[5];
+
+    volatile unsigned reserved;
+    volatile unsigned setup0;
+    volatile unsigned setup1;
+    // 16 bytes remaining for our use...
+    dTD_t * first;
+    dTD_t * last;
+    unsigned dummy2;
+    unsigned dummy3;
+};
+
+typedef struct EDMA_DESC_t {
+    unsigned status;
+    unsigned count;
+    void * buffer1;
+    void * buffer2;
+} EDMA_DESC_t;
+
 #define GPIO 0x400F4000
 
 #define GPIO_BYTE ((v8_32 *) GPIO)
