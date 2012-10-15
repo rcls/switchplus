@@ -31,6 +31,9 @@ static void put_dtd (dTD_t * dtd)
 
 void usb_init (void)
 {
+    // Enable USB0 PHY power.
+    *CREG0 &= ~32;
+
     *USBCMD = 2;                        // Reset.
     while (*USBCMD & 2);
 

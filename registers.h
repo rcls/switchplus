@@ -102,6 +102,8 @@ typedef struct EDMA_DESC_t {
 #define RESET_CTRL ((v32 *) 0x40053100)
 #define RESET_ACTIVE_STATUS ((v32 *) 0x40053150)
 
+#define CREG0 ((v32 *) 0x40043004)
+#define M4MEMMAP ((v32 *) 0x40043100)
 #define CREG6 ((v32 *) 0x4004312c)
 
 #define ENET 0x40010000
