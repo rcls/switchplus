@@ -107,7 +107,7 @@ static const unsigned char device_descriptor[] = {
     sd_switch,                          // Product string index.
     sd_0001,                            // Serial number string index.
     1                                   // Number of configurations.
-    };
+};
 STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
 
 enum usb_interfaces_t {
@@ -711,62 +711,6 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
 }
 
 
-static void init_switch (void)
-{
-    // SMRXD0 - ENET_RXD0 - T12 - P1_15
-    // SMRXD1 - ENET_RXD1 - L3 - P0_0
-    SFSP[0][0] |= 24; // Disable pull-up, enable pull-down.
-    SFSP[1][15] |= 24;
-
-    // Switch reset is E16, GPIO7[9], PE_9.
-    GPIO_BYTE[7][9] = 0;
-    GPIO_DIR[7] |= 1 << 9;
-    SFSP[14][9] = 4;                    // GPIO is function 4....
-    // Out of reset...
-    GPIO_BYTE[7][9] = 1;
-
-    // Wait ~ 100us.
-    for (int i = 0; i < 10000; ++i)
-        asm volatile ("");
-
-    // Switch SPI is on SSP0.
-    // SPIS is SSP0_SSEL on E11, PF_1 - use as GPIO7[16], function 4.
-    // SPIC is SSP0_SCK on B14, P3_3, function 2.
-    // SPID is SSP0_MOSI on C11, P3_7, function 5.
-    // SPIQ is SSP0_MISO on B13, P3_6, function 5.
-
-    // Set SPIS output hi.
-    GPIO_BYTE[7][16] = 1;
-    GPIO_DIR[7] |= 1 << 16;
-    SFSP[15][1] = 4;                    // GPIO is function 4.
-
-    // Set the prescaler to divide by 2.
-    *SSP0_CPSR = 2;
-
-    // Is SSP0 unit clock running by default?  "All branch clocks are enabled
-    // by default".
-    // Keep clock HI while idle, CPOL=1,CPHA=1
-    // Output data on falling edge.  Read data on rising edge.
-    // Divide clock by 30.
-    *SSP0_CR0 = 0x00001dc7;
-
-    // Enable SSP0.
-    *SSP0_CR1 = 0x00000002;
-
-    // Set up the pins.
-    SFSP[3][3] = 2; // Clock pin, has high drive but we don't want that.
-    SFSP[3][7] = 5;
-    SFSP[3][6] = 0x45; // Function 5, enable input buffer.
-
-    /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
-    /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
-    spi_reg_write (1, 1);         // Start switch.
-    /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
-
-    ser_w_string ("Switch is running\r\n");
-}
-
-
 static void init_ethernet (void)
 {
     SFSP[1][19] = 0xc0;       // TX_CLK (M11, P1_19, func 0) input; no deglitch.
@@ -921,7 +865,7 @@ void doit (void)
 
     __memory_barrier();
 
-    log_serial = true;
+    //log_serial = true;
 
     // Set-up the monkey.
     init_monkey();

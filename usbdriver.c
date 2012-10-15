@@ -63,7 +63,8 @@ dTD_t * get_dtd (void)
         /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n"); */
         /* ser_w_hex (rx_dma_retire, 8, " "); */
         /* ser_w_hex (rx_dma_insert, 8, " rx retire, insert\r\n"); */
-        while (1);
+        while (1)
+            asm volatile ("wfi\n");
     }
     dtd_free_list = r->next;
     return r;

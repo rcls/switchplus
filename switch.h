@@ -1,6 +1,8 @@
 #ifndef SWITCH_H_
 #define SWITCH_H
 
+void init_switch (void);
+
 // Send 1..4 bytes.  Data is big endian, lsb aligned.
 unsigned spi_io (unsigned data, int num_bytes);
 
