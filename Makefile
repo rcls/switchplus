@@ -66,13 +66,14 @@ $W/%b-s.png: %.pcb
 CC=arm-linux-gnu-gcc
 LD=arm-linux-gnu-ld
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb -ffreestanding \
+CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb \
+	-ffreestanding -fno-common \
 	-ffunction-sections -fdata-sections -Wno-error=unused-function \
 	-MMD -MP -MF.$@.d
 
 -include .*.d
 
-main.bin.elf usb.flashA.elf: monkey.o usb.o switch.o
+main.bin.elf main.flashA.elf: monkey.o usb.o switch.o
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<

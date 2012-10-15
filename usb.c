@@ -31,12 +31,12 @@ static void put_dtd (dTD_t * dtd)
 
 void usb_init (void)
 {
+    *USBCMD = 2;                        // Reset.
+    while (*USBCMD & 2);
+
     dtd_free_list = NULL;
     for (int i = 0; i != NUM_DTDS; ++i)
         put_dtd (&DTD[i]);
-
-    *USBCMD = 2;                        // Reset.
-    while (*USBCMD & 2);
 
     *USBMODE = 0xa;                     // Device.  Tripwire.
     *OTGSC = 9;
@@ -50,6 +50,10 @@ void usb_init (void)
     *DEVICEADDR = 0;
 
     *USBCMD = 1;                        // Run.
+
+    // Pin H5, GPIO4[1] is a LED for indicating fatal errors.
+    GPIO_DIR[4] |= 2;
+    GPIO_BYTE[4][1] = 0;
 }
 
 
@@ -63,6 +67,7 @@ dTD_t * get_dtd (void)
         /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n"); */
         /* ser_w_hex (rx_dma_retire, 8, " "); */
         /* ser_w_hex (rx_dma_insert, 8, " rx retire, insert\r\n"); */
+        GPIO_BYTE[4][1] = 0;
         while (1)
             asm volatile ("wfi\n");
     }

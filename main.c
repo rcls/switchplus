@@ -865,8 +865,6 @@ void doit (void)
 
     __memory_barrier();
 
-    //log_serial = true;
-
     // Set-up the monkey.
     init_monkey();
 
