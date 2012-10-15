@@ -11,8 +11,8 @@ void init_monkey (void);
 
 void monkey_kick (void);
 
-void ser_w_byte (unsigned byte);
-void ser_w_string (const char * s);
-void ser_w_hex (unsigned value, int nibbles, const char * term);
+void putchar (int byte);
+void puts (const char * s);
+void printf (const char * __restrict__ format, ...);
 
 #endif

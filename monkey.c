@@ -3,6 +3,8 @@
 #include "registers.h"
 #include "usb.h"
 
+#include <stdarg.h>
+
 static struct {
     unsigned char * insert;
     unsigned char * limit;
@@ -45,7 +47,7 @@ void init_monkey (void)
 }
 
 
-void ser_w_byte (unsigned byte)
+void putchar (int byte)
 {
     if (log_serial) {
         while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
@@ -74,22 +76,12 @@ void ser_w_byte (unsigned byte)
 }
 
 
-void ser_w_string (const char * s)
+void puts (const char * s)
 {
     for (; *s; s++)
-        ser_w_byte (*s);
+        putchar (*s);
     if (log_monkey)
         monkey_kick();
-}
-
-
-void ser_w_hex (unsigned value, int nibbles, const char * term)
-{
-    for (int i = nibbles; i != 0; ) {
-        --i;
-        ser_w_byte ("0123456789abcdef"[(value >> (i * 4)) & 15]);
-    }
-    ser_w_string (term);
 }
 
 
@@ -134,4 +126,125 @@ static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
     else {
         monkey_kick();
     }
+}
+
+
+static void format_string (const char * s, unsigned width, unsigned char fill)
+{
+    for (const char * e = s; *e; ++e)
+        if (width == 0)
+            break;
+    for (; width != 0; --width)
+        putchar (fill);
+    for (; *s; ++s)
+        putchar (*s);
+}
+
+
+static void format_number (unsigned long value,
+                           unsigned base,
+                           unsigned lower,
+                           bool sgn,
+                           unsigned width,
+                           unsigned char fill)
+{
+    unsigned char c[23];
+    unsigned char * p = c;
+    if (sgn && (long) value < 0)
+        value = -value;
+    else
+        sgn = false;
+
+    do {
+        unsigned digit = value % base;
+        if (digit >= 10)
+            digit += 'A' - '0' - 10 + lower;
+        *p++ = digit + '0';
+        value /= base;
+    }
+    while (value);
+
+    if (!sgn)
+        ;
+    else if (fill == ' ')
+        *p++ = '-';
+    else {
+        putchar ('-');
+        if (width > 0)
+            --width;
+    }
+
+    while (width > p - c) {
+        putchar (fill);
+        --width;
+    }
+
+    while (p != c)
+        putchar (*--p);
+}
+
+
+void printf (const char * restrict f, ...)
+{
+    va_list args;
+    va_start (args, f);
+    const unsigned char * s;
+
+    for (s = (const unsigned char *) f; *s; ++s) {
+        switch (*s) {
+        case '%': {
+            ++s;
+            unsigned char fill = ' ';
+            if (*s == '0')
+                fill = '0';
+
+            unsigned width = 0;
+            for (; *s >= '0' && *s <= '9'; ++s)
+                width = width * 10 + *s - '0';
+            unsigned base = 0;
+            unsigned lower = 0;
+            bool sgn = false;
+            unsigned lng = 0;
+            for (; *s == 'l'; ++s)
+                ++lng;
+            switch (*s) {
+            case 'x':
+                lower = 0x20;
+            case 'X':
+                base = 16;
+                break;
+            case 'i':
+            case 'd':
+                sgn = true;
+            case 'u':
+                base = 10;
+                break;
+            case 'o':
+                base = 8;
+                break;
+            case 's':
+                format_string (va_arg (args, const char *), width, fill);
+                break;
+            }
+            if (base != 0) {
+                unsigned long value;
+                if (lng)
+                    value = va_arg (args, unsigned long);
+                else if (sgn)
+                    value = va_arg (args, int);
+                else
+                    value = va_arg (args, unsigned);
+                format_number (value, base, lower, sgn, width, fill);
+            }
+            break;
+        }
+
+        case '\n':
+            putchar ('\r');
+        default:
+            putchar (*s);
+        }
+    }
+
+    va_end (args);
 }

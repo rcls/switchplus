@@ -341,7 +341,7 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // Bugger.
 
     if (*ENDPTSETUPSTAT & (1 << ep))
-        ser_w_string ("Oops, EPSS\r\n");
+        puts ("Oops, EPSS\r\n");
 
     if (length == 0)
         return;                         // No data so no ack...
@@ -351,7 +351,7 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
         return;
 
     if (*ENDPTSETUPSTAT & (1 << ep))
-        ser_w_string ("Oops, EPSS\r\n");
+        puts ("Oops, EPSS\r\n");
 }
 
 
@@ -360,31 +360,31 @@ static void serial_byte (unsigned byte)
 {
     switch (byte & 0xff) {
     case 'r':
-        ser_w_string ("Reboot!\r\n");
+        puts ("Reboot!\r\n");
         RESET_CTRL[0] = 0xffffffff;
         break;
     case 'd':
         debug = !debug;
-        ser_w_string (debug ? "Debug on\r\n" : "Debug off\r\n");
+        puts (debug ? "Debug on\r\n" : "Debug off\r\n");
         return;
     case 'u':
         enter_dfu = 1;
         break;
     case 's':
         if (log_serial) {
-            ser_w_string ("Serial log off\r\n");
+            puts ("Serial log off\r\n");
             log_serial = false;
         }
         else {
             log_serial = true;
-            ser_w_string ("Serial log on\r\n");
+            puts ("Serial log on\r\n");
         }
         return;
     }
 
-    ser_w_byte (byte);
+    putchar (byte);
     if (byte == '\r')
-        ser_w_byte ('\n');
+        putchar ('\n');
     if (log_monkey)
         monkey_kick();
 }
@@ -405,7 +405,7 @@ static void start_mgmt (void)
     if (*ENDPTCTRL1 & 0x800000)
         return;                         // Already running.
 
-    ser_w_string ("Starting mgmt...\r\n");
+    puts ("Starting mgmt...\r\n");
 
     qh_init (0x81, 0x20400000);
     // FIXME - default mgmt packets?
@@ -443,10 +443,8 @@ static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 
     *EDMA_TRANS_POLL_DEMAND = 0;
 
-    if (debug) {
-        ser_w_hex (dtd->buffer_page[0], 8, " ");
-        ser_w_hex (status, 8, " tx to MAC.\r\n");
-    }
+    if (debug)
+        printf ("TX to MAC..: %08x %08x\r\n", dtd->buffer_page[0], status);
 }
 
 
@@ -463,7 +461,7 @@ static void start_network (void)
     if (*ENDPTCTRL2 & 0x80)
         return;                         // Already running.
 
-    ser_w_string ("Starting network...\r\n");
+    puts ("Starting network...\r\n");
 
     qh_init (0x02, 0x02000000);
     qh_init (0x82, 0x02000000);
@@ -485,7 +483,7 @@ static void stop_network (void)
     if (!(*ENDPTCTRL2 & 0x80))
         return;                         // Already stopped.
 
-    ser_w_string ("Stopping network...\r\n");
+    puts ("Stopping network...\r\n");
 
     // Stop ethernet & it's dma.
     *EDMA_OP_MODE = 0;
@@ -649,11 +647,10 @@ static void process_setup (int i)
                           response_data, response_length, callback);
     else {
         *ENDPTCTRL0 = 0x810081;         // Stall....
-        ser_w_string ("STALL on setup request.\r\n");
+        puts ("STALL on setup request.\r\n");
     }
     // FIXME - flush old setups.
-    ser_w_hex (setup0, 8, " ");
-    ser_w_hex (setup1, 8, " setup\r\n");
+    printf ("Setup: %08x %08x\r\n", setup0, setup1);
 }
 
 
@@ -675,10 +672,9 @@ static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 
     *EDMA_REC_POLL_DEMAND = 0;
 
-    if (debug) {
-        ser_w_hex (dtd->buffer_page[0], 8, " ");
-        ser_w_hex (dtd->length_and_status, 8, " rx complete.\r\n");
-    }
+    if (debug)
+        printf ("RX complete: %08x %08x\r\n",
+                dtd->buffer_page[0], dtd->length_and_status);
 }
 
 
@@ -691,10 +687,8 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     void * buffer = rx->buffer1;
     schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
                      endpt_rx_complete);
-    if (debug) {
-        ser_w_hex ((unsigned) buffer, 8, " ");
-        ser_w_hex (status, 8, " rx to usb\r\n");
-    }
+    if (debug)
+        printf ("RX to usb..: %08x %08x\r\n", buffer, status);
 }
 
 
@@ -704,10 +698,8 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
     schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
-    if (debug) {
-        ser_w_hex ((unsigned) buffer, 8, " ");
-        ser_w_hex (tx->status, 8, " tx complete\r\n");
-    }
+    if (debug)
+        printf ("TX Complete: %08x %08x\r\n", buffer, tx->status);
 }
 
 
@@ -780,7 +772,7 @@ static void usb_interrupt (void)
 
     // Don't spam the monkey log.
     if (debug && (!log_monkey || (complete != 0x80000)))
-        ser_w_string ("usb interrupt...\r\n");
+        puts ("usb interrupt...\r\n");
 
     if (complete & 4)
         endpt_complete (2, true);
@@ -811,7 +803,7 @@ static void usb_interrupt (void)
         *ENDPTFLUSH = 0xffffffff;
 
         if (!(*PORTSC1 & 0x100))
-            ser_w_string ("BuggeR\r\n");
+            puts ("BuggeR\r\n");
 
         stop_network();
         stop_mgmt();
@@ -821,7 +813,7 @@ static void usb_interrupt (void)
 
         *ENDPTCTRL0 = 0x00c000c0;
         *DEVICEADDR = 0;
-        ser_w_string ("Reset processed...\r\n");
+        puts ("Reset processed...\r\n");
     }
 }
 
@@ -829,7 +821,7 @@ static void usb_interrupt (void)
 static void eth_interrupt (void)
 {
     if (debug)
-        ser_w_string ("eth interrupt...\r\n");
+        puts ("eth interrupt...\r\n");
     *EDMA_STAT = 0x1ffff;               // Clear interrupts.
 
     while (rx_dma_retire != rx_dma_insert
@@ -845,7 +837,7 @@ static void eth_interrupt (void)
 static void usart3_interrupt (void)
 {
     if (debug)
-        ser_w_string ("usart interrupt\r\n");
+        puts ("usart interrupt\r\n");
 
     while (*USART3_LSR & 1)
         serial_byte (*USART3_RBR & 0xff);
@@ -871,7 +863,7 @@ void doit (void)
     init_switch();
     init_ethernet();
 
-    ser_w_string ("Init pll\r\n");
+    puts ("Init pll\r\n");
 
     // 50 MHz in from eth_tx_clk
     // Configure the clock to USB.
@@ -883,11 +875,11 @@ void doit (void)
     *PLL0USB_MDIV = (28 << 22) + (13 << 17) + 32682;
     *PLL0USB_NP_DIV = 5 << 12;
     *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
-    ser_w_string ("Lock wait\r\n");
+    puts ("Lock wait\r\n");
     while (!(*PLL0USB_STAT & 1));
 
     disable_clocks();
-    ser_w_string ("Clocks disabled.\r\n");
+    puts ("Clocks disabled.\r\n");
 
 #if 0
     // Now measure the clock rate.
@@ -910,7 +902,7 @@ void doit (void)
     while (!enter_dfu);
 
     asm volatile ("cpsid i\n");
-    ser_w_string ("Enter DFU\r\n");
+    puts ("Enter DFU\r\n");
     asm volatile ("cpsie i\n");
     if (log_monkey)
         for (int i = 0; i != 1000000; ++i)
@@ -931,7 +923,7 @@ void doit (void)
     typedef unsigned F (void*);
     ((F*) 0x1040158d) (fakeotp);
 
-    ser_w_string ("Bugger.\r\n");
+    puts ("Bugger.\r\n");
     while (1);
 }
 

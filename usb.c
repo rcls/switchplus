@@ -62,7 +62,7 @@ dTD_t * get_dtd (void)
     dTD_t * r = dtd_free_list;
     if (r == NULL) {
         log_serial = true;
-        ser_w_string ("Out of DTDs!!!\r\n");
+        puts ("Out of DTDs!!!\r\n");
         /* ser_w_hex (tx_dma_retire, 8, " "); */
         /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n"); */
         /* ser_w_hex (rx_dma_retire, 8, " "); */
@@ -143,7 +143,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
     *ENDPTPRIME = ep;
     while (*ENDPTPRIME & ep);
     if (!(*ENDPTSTAT & ep))
-        ser_w_string ("Oops, EPST\r\n");
+        puts ("Oops, EPST\r\n");
 }
 
 
@@ -215,7 +215,7 @@ void endpt_complete (unsigned ep, bool reprime)
         return;                         // Still going.
 
     // FIXME - what do we actually want to do on errors?
-    ser_w_hex (d->length_and_status, 8, " ERROR length and status\r\n");
+    printf ("ERROR length and status: %08x\r\n", d->length_and_status);
     if (d->completion)
         d->completion (ep, qh, d);
     if (retire_dtd (d, qh) && reprime)
