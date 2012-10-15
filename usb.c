@@ -65,11 +65,11 @@ dTD_t * get_dtd (void)
     dTD_t * r = dtd_free_list;
     if (r == NULL) {
         log_serial = true;
-        puts ("Out of DTDs!!!\r\n");
+        puts ("Out of DTDs!!!\n");
         /* ser_w_hex (tx_dma_retire, 8, " "); */
-        /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\r\n"); */
+        /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\n"); */
         /* ser_w_hex (rx_dma_retire, 8, " "); */
-        /* ser_w_hex (rx_dma_insert, 8, " rx retire, insert\r\n"); */
+        /* ser_w_hex (rx_dma_insert, 8, " rx retire, insert\n"); */
         GPIO_BYTE[4][1] = 0;
         while (1)
             asm volatile ("wfi\n");
@@ -146,7 +146,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
     *ENDPTPRIME = ep;
     while (*ENDPTPRIME & ep);
     if (!(*ENDPTSTAT & ep))
-        puts ("Oops, EPST\r\n");
+        puts ("Oops, EPST\n");
 }
 
 
@@ -206,7 +206,7 @@ void endpt_complete (unsigned ep, bool reprime)
     // Successes...
     dTD_t * d = qh->first;
     while (!(d->length_and_status & 0x80)) {
-        //ser_w_hex (d->length_and_status, 8, " ok length and status\r\n");
+        //ser_w_hex (d->length_and_status, 8, " ok length and status\n");
         if (d->completion)
             d->completion (ep, qh, d);
         d = retire_dtd (d, qh);
@@ -218,7 +218,7 @@ void endpt_complete (unsigned ep, bool reprime)
         return;                         // Still going.
 
     // FIXME - what do we actually want to do on errors?
-    printf ("ERROR length and status: %08x\r\n", d->length_and_status);
+    printf ("ERROR length and status: %08x\n", d->length_and_status);
     if (d->completion)
         d->completion (ep, qh, d);
     if (retire_dtd (d, qh) && reprime)

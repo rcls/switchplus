@@ -47,7 +47,7 @@ void init_monkey (void)
 }
 
 
-void putchar (int byte)
+static void write_byte (int byte)
 {
     if (log_serial) {
         while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
@@ -73,6 +73,14 @@ void putchar (int byte)
 
     if (monkey_pos.insert != monkey_pos.limit)
         *monkey_pos.insert++ = byte;
+}
+
+
+void putchar (int byte)
+{
+    if (byte == '\n')
+        write_byte ('\r');
+    write_byte (byte);
 }
 
 
@@ -141,12 +149,9 @@ static void format_string (const char * s, unsigned width, unsigned char fill)
 }
 
 
-static void format_number (unsigned long value,
-                           unsigned base,
-                           unsigned lower,
-                           bool sgn,
-                           unsigned width,
-                           unsigned char fill)
+static void format_number (
+    unsigned long value, unsigned base, unsigned lower,
+    bool sgn, unsigned width, unsigned char fill)
 {
     unsigned char c[23];
     unsigned char * p = c;

@@ -95,5 +95,5 @@ void init_switch (void)
     spi_reg_write (1, 1);         // Start switch.
     /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
 
-    puts ("Switch is running\r\n");
+    puts ("Switch is running\n");
 }
