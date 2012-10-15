@@ -355,7 +355,6 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
 }
 
 
-
 static void serial_byte (unsigned byte)
 {
     switch (byte & 0xff) {

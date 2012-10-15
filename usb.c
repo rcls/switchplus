@@ -3,11 +3,9 @@
 
 #include <stddef.h>
 
-// OUT is host to device.
-// IN is device to host.
 typedef struct qh_pair_t {
-    dQH_t OUT;
-    dQH_t IN;
+    dQH_t OUT;                          // OUT is host to device.
+    dQH_t IN;                           // IN is device to host.
 } qh_pair_t;
 
 #define NUM_DTDS 40
@@ -15,11 +13,19 @@ static struct qh_and_dtd_t {
     qh_pair_t QH[6];
     dTD_t DTD[NUM_DTDS];
 } qh_and_dtd __attribute__ ((aligned (2048)));
-#define QH qh_and_dtd.QH
-#define DTD qh_and_dtd.DTD
-
 
 static dTD_t * dtd_free_list;
+
+
+static inline unsigned MASK (unsigned ep)
+{
+    return ep & 0x80 ? 0x10000 << (ep - 0x80) : 1 << ep;
+}
+
+static inline dQH_t * QH(int ep)
+{
+    return ep & 0x80 ? &qh_and_dtd.QH[ep - 0x80].IN : &qh_and_dtd.QH[ep].OUT;
+}
 
 
 static void put_dtd (dTD_t * dtd)
@@ -39,7 +45,7 @@ void usb_init (void)
 
     dtd_free_list = NULL;
     for (int i = 0; i != NUM_DTDS; ++i)
-        put_dtd (&DTD[i]);
+        put_dtd (&qh_and_dtd.DTD[i]);
 
     *USBMODE = 0xa;                     // Device.  Tripwire.
     *OTGSC = 9;
@@ -49,7 +55,7 @@ void usb_init (void)
     qh_init (0x80, 0x20408000);
 
     // Set the endpoint list pointer.
-    *ENDPOINTLISTADDR = (unsigned) &QH;
+    *ENDPOINTLISTADDR = (unsigned) &qh_and_dtd.QH;
     *DEVICEADDR = 0;
 
     *USBCMD = 1;                        // Run.
@@ -81,15 +87,8 @@ dTD_t * get_dtd (void)
 
 void schedule_dtd (unsigned ep, dTD_t * dtd)
 {
-    dQH_t * qh;
-    if (ep >= 0x80) {                   // IN.
-        qh = &QH[ep - 0x80].IN;
-        ep = 0x10000 << (ep - 0x80);
-    }
-    else {                              // OUT.
-        qh = &QH[ep].OUT;
-        ep = 1 << ep;
-    }
+    dQH_t * qh = QH (ep);
+    ep = MASK (ep);
 
     dtd->next = (dTD_t *) 1;
     if (qh->last != NULL) {
@@ -187,17 +186,8 @@ static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
 
 void endpt_complete (unsigned ep, bool reprime)
 {
-    dQH_t * qh;
-    unsigned mask;
-
-    if (ep & 0x80) {
-        qh = &QH[ep - 0x80].IN;
-        mask = 0x10000 << (ep - 0x80);
-    }
-    else {
-        qh = &QH[ep].OUT;
-        mask = 1 << ep;
-    }
+    dQH_t * qh = QH (ep);
+    unsigned mask = MASK (ep);
 
     // Clean-up the DTDs...
     if (qh->first == NULL)
@@ -228,13 +218,7 @@ void endpt_complete (unsigned ep, bool reprime)
 
 void qh_init (unsigned ep, unsigned capabilities)
 {
-    dQH_t * qh;
-
-    if (ep & 0x80)
-        qh = &QH[ep - 0x80].IN;
-    else
-        qh = &QH[ep].OUT;
-
+    dQH_t * qh = QH (ep);
     qh->capabilities = capabilities;
     qh->next = (void *) 1;
 }
@@ -246,8 +230,8 @@ unsigned long long get_0_setup (void)
     unsigned setup1;
     do {
         *USBCMD |= 1 << 13;             // Set tripwire.
-        setup0 = QH[0].OUT.setup0;
-        setup1 = QH[0].OUT.setup1;
+        setup0 = QH(0)->setup0;
+        setup1 = QH(0)->setup1;
     }
     while (!(*USBCMD & (1 << 13)));
     *USBCMD &= ~(1 << 13);
