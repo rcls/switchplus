@@ -65,6 +65,8 @@ $W/%b-s.png: %.pcb
 
 CC=arm-linux-gnu-gcc
 LD=arm-linux-gnu-ld
+LD=$(CC)
+LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb \
 	-ffreestanding -fno-common \
@@ -73,7 +75,7 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb \
 
 -include .*.d
 
-main.bin.elf main.flashA.elf: monkey.o usb.o switch.o
+main.bin.elf main.flashA.elf: liblpc.a
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
@@ -81,7 +83,7 @@ main.bin.elf main.flashA.elf: monkey.o usb.o switch.o
 %: %.c
 
 %.bin.elf: %.o
-	$(LD) -T sram-link.ld -o $@ $+
+	$(LINK.c) -T sram-link.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.zero.elf: %.o
 	$(LD) -T zero.ld -o $@ $+
@@ -107,3 +109,6 @@ flash.zero:
 	utils/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
 	mv $@.tmp2 $@
+
+liblpc.a: freq.o monkey.o switch.o usb.o
+	ar cr $@ $+
