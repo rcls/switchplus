@@ -5,14 +5,17 @@
 
 #include <stdarg.h>
 
+// Ring-buffer descriptor.  insert==limit implies the buffer is full; we set
+// insert=beginning, limit=end when empty.  The area from insert to limit is
+// either in-flight or waiting to be sent.
 static struct {
-    unsigned char * insert;
-    unsigned char * limit;
-    unsigned char * send;
-    bool outstanding;
+    unsigned char * insert;             // Where to insert new characters.
+    unsigned char * limit;              // End of insertion region.
+    bool outstanding;                   // Do we have a USB xmit outstanding?
 } monkey_pos;
 
 static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
+#define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
 
 static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
 
@@ -21,9 +24,8 @@ bool log_serial;
 void init_monkey (void)
 {
     if (log_monkey) {
-        monkey_pos.send = monkey_buffer;
         monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
+        monkey_pos.limit = monkey_buffer_end;
     }
 
     // Bring up USART3.
@@ -56,23 +58,15 @@ static void write_byte (int byte)
     if (!log_monkey)
         return;
 
-    if (monkey_pos.insert != monkey_pos.limit) {
-        *monkey_pos.insert++ = byte;
-        return;
-    }
+    if (monkey_pos.insert == monkey_pos.limit)
+        return;                         // Full
 
-    // If we're not at the end of buffer, that means we're full & have to drop.
-    // If we haven't sent anything, that also means we're full.
-    if (monkey_pos.limit != monkey_buffer + sizeof monkey_buffer
-        || monkey_pos.send == monkey_buffer)
-        return;
+    *monkey_pos.insert++ = byte;
+    if (monkey_pos.insert == monkey_buffer_end)
+        monkey_pos.insert = monkey_buffer;
 
-    // Go back to the beginning.
-    monkey_pos.insert = monkey_buffer;
-    monkey_pos.limit = monkey_pos.send;
-
-    if (monkey_pos.insert != monkey_pos.limit)
-        *monkey_pos.insert++ = byte;
+    if (monkey_pos.limit == monkey_buffer_end)
+        monkey_pos.limit = monkey_buffer;
 }
 
 
@@ -98,7 +92,8 @@ void monkey_kick (void)
     // If the dTD is in-flight, or there is no data, or the monkey end-point is
     // not in use, then nothing to do.
     if (!log_monkey || monkey_pos.outstanding
-        || monkey_pos.send == monkey_pos.insert || !(*ENDPTCTRL3 & 0x800000))
+        || monkey_pos.limit - monkey_pos.insert == 4096
+        || !(*ENDPTCTRL3 & 0x800000))
         return;
 
     // FIXME - we should do something to get stuff out on out-of-dtds.
@@ -106,10 +101,10 @@ void monkey_kick (void)
     if (!dtd)
         return;                         // FIXME - we need better.
 
-    dtd->buffer_page[0] = (unsigned) monkey_pos.send;
+    dtd->buffer_page[0] = (unsigned) monkey_pos.limit;
     dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
-    int length = monkey_pos.insert - monkey_pos.send;
-    if (length < 0)
+    unsigned length = monkey_pos.insert - monkey_pos.limit;
+    if (length <= 0)
         length += 4096;
     dtd->length_and_status = length * 65536 + 0x8080;
     dtd->completion = monkey_in_complete;
@@ -122,14 +117,11 @@ static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
 {
     // FIXME - distinguish between errors and sending a full page?
     monkey_pos.outstanding = false;
-    monkey_pos.send = (unsigned char *) dtd->buffer_page[0];
-    if (monkey_pos.insert == monkey_buffer + sizeof monkey_buffer)
-        monkey_pos.insert = monkey_buffer;
-    if (monkey_pos.send == monkey_pos.insert) {
+    monkey_pos.limit = (unsigned char *) dtd->buffer_page[0];
+    if (monkey_pos.limit == monkey_pos.insert) {
         // We're idle.  Reset the pointers.
-        monkey_pos.send = monkey_buffer;
         monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer + sizeof monkey_buffer;
+        monkey_pos.limit = monkey_buffer_end;
     }
     else {
         monkey_kick();
