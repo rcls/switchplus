@@ -21,15 +21,20 @@ void _start (void)
     GPIO_BYTE[4][1] = 0;
     GPIO_BYTE[4][2] = 1;
 
+    // Enable USB0 PHY power.
+    *CREG0 &= ~32;
+
     // Generate 480MHz off IRC...
     // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    * (v32*) 0x40050020 = 0x01000818;   // Control.
+    * (v32*) 0x40050020 = 0x01000819;   // Control.
     * (v32*) 0x40050024 = 0x06167ffa;   // mdiv
     * (v32*) 0x40050028 = 0x00302062;   // np_div.
+    * (v32*) 0x40050020 = 0x01000818;   // Control.
 
     for (volatile int i = 0; i != 100000; ++i);
 
-    unsigned * high = (unsigned*) 0x10007000;
+    //unsigned * high = (unsigned*) 0x10007000;
+    unsigned high[64];
     for (int i = 0; i != 32; ++i)
         high[i] = OTP[i];
 
