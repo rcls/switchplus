@@ -688,7 +688,7 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
                      endpt_rx_complete);
     if (debug)
-        printf ("RX to usb..: %08x %08x\n", buffer, status);
+        printf ("RX to usb..: %p %08x\n", buffer, status);
 }
 
 
@@ -699,7 +699,7 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     void * buffer = tx->buffer1;
     schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
     if (debug)
-        printf ("TX Complete: %08x %08x\n", buffer, tx->status);
+        printf ("TX Complete: %p %08x\n", buffer, tx->status);
 }
 
 
@@ -770,7 +770,7 @@ static void usb_interrupt (void)
     unsigned complete = *ENDPTCOMPLETE;
     *ENDPTCOMPLETE = complete;
 
-    // Don't spam the monkey log.
+    // Don't log interrupts that look like they're monkey completions.
     if (debug && (!log_monkey || (complete != 0x80000)))
         puts ("usb interrupt...\n");
 
@@ -862,6 +862,10 @@ void doit (void)
 
     init_switch();
     init_ethernet();
+
+    puts ("***********************************\n");
+    puts ("**          Supa Switch          **\n");
+    puts ("***********************************\n");
 
     puts ("Init pll\n");
 
