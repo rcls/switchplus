@@ -219,6 +219,13 @@ void printf (const char * restrict f, ...)
             case 'o':
                 base = 8;
                 break;
+            case 'p': {
+                void * value = va_arg (args, void *);
+                if (width == 0)
+                    width = 8;
+                format_number ((unsigned) value, 16, 32, false, width, '0');
+                break;
+            }
             case 's':
                 format_string (va_arg (args, const char *), width, fill);
                 break;
@@ -244,4 +251,7 @@ void printf (const char * restrict f, ...)
     }
 
     va_end (args);
+
+    if (log_monkey)
+        monkey_kick();
 }
