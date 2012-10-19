@@ -1,8 +1,6 @@
 
+#include "monkey.h"
 #include "registers.h"
-
-extern void ser_w_string (const char * s);
-extern void ser_w_hex (unsigned value, int nibbles, const char * term);
 
 
 void meminit (void)
@@ -63,7 +61,8 @@ void meminit (void)
     for (int i = 0; i != sizeof pins / sizeof pins[0]; ++i) {
         unsigned pin = pins[i] >> 8;
         unsigned config = pins[i] & 0xff;
-        SFSP[pin >> 5][pin & 31] = config;
+        SFSP[0][pin] = config;
+        //SFSP[pin >> 5][pin & 31] = config;
     }
 
     // The datasheet says all clocks and allow input.
@@ -114,7 +113,7 @@ void meminit (void)
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
     // The unit for the register is 16 cycles.
-    *DYNAMICREFRESH = 46;               // The real refresh period.
+    *DYNAMICREFRESH = 96 * 64000 / 131072; // The real refresh period.
 
     *DYNAMICCONTROL = 0x0083;           // Mode command.
 
@@ -136,25 +135,23 @@ void meminit (void)
 
 void memtest (void)
 {
-    ser_w_string ("Meminit\r\n");
+    puts ("Meminit\r\n");
     meminit();
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;
 
-    ser_w_string ("Write\r\n");
+    puts ("Memtest: Write\n");
     for (int i = 0; i != size; ++i)
         sdram[i] = i * 0x02030401;
 
-    ser_w_string ("Read\r\n");
+    puts ("Memtest: Read\n");
     for (int i = 0; i != size; ++i) {
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
-        if (v != e) {
-            ser_w_hex (i, 6, " ");
-            ser_w_hex (e, 8, " ");
-            ser_w_hex (v, 8, " bugger\r\n");
-        }
+        if (v != e)
+            printf ("Memtest: Bugger @ %06x export %08x got %08x\n",
+                    i, e, v);
     }
-    ser_w_string ("Done\r\n");
+    puts ("Memtest: Done\n");
 }
