@@ -858,8 +858,7 @@ static void usart3_interrupt (void)
         serial_byte (*USART3_RBR & 0xff);
 }
 
-
-void doit (void)
+void main (void)
 {
     // Disable all interrupts for now...
     NVIC_ICER[0] = 0xffffffff;
@@ -950,7 +949,7 @@ void doit (void)
 void * start[64] __attribute__ ((section (".start"), externally_visible));
 void * start[64] = {
     [0] = (void*) 0x10089ff0,
-    [1] = doit,
+    [1] = main,
 
     [21] = eth_interrupt,
     [24] = usb_interrupt,

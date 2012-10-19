@@ -13,15 +13,15 @@ CFLAGS=-Os -Wall -Werror -std=gnu99 -mcpu=cortex-m4 -mthumb \
 
 -include .*.d
 
-main.bin.elf main.flashA.elf: liblpc.a
+main.sram.elf main.flashA.elf: liblpc.a
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 %: %.c
 
-%.bin.elf: %.o
-	$(LINK.c) -T sram-link.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.sram.elf: %.o
+	$(LINK.c) -T sram.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.zero.elf: %.o
 	$(LINK.c) -T zero.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
