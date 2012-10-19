@@ -4,7 +4,7 @@
 
 void doit(void);
 
-void * start[64] __attribute__ ((section (".start")));
+void * start[64] __attribute__ ((section (".start"), externally_visible));
 // Start address of payload is start[63], number of bytes is start[62].
 void * start[64] = {
     (void*) 0x10089ff0,

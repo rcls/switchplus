@@ -14,7 +14,7 @@ static void ser_w_string(const char * term)
         ser_w_byte(*term);
 }
 
-void _start (void) __attribute__ ((section (".start")));
+void _start (void) __attribute__ ((section (".start"), externally_visible));
 void _start (void)
 {
     GPIO_DIR[4] |= 6;
