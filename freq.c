@@ -11,16 +11,18 @@ static unsigned freq_mon (unsigned clock, unsigned count)
     do
         f = *FREQ_MON;
     while (f & (1 << 23));
-    return (f >> 9) & 16383;
+    return f;
 }
+
 
 unsigned frequency (unsigned clock, unsigned multiplier)
 {
-    // First do a rcnt count to 256; this should cover everything...
-    unsigned f = freq_mon (clock, 256);
-    unsigned r = 511;
-    if (f > 6144)
-        r = 12288 * 256 / f;
-    // Now do it for real...
-    return (freq_mon (clock, r) * 24 * multiplier + r) / (2 * r);
+    unsigned fm = freq_mon (clock, 511);
+    unsigned r = 511 - (fm & 511);
+    if (r != 511 && r > 3) {
+        fm = freq_mon (clock, r - 3);
+        r = r - 3 - (fm & 511);
+    }
+    unsigned f = (fm >> 9) & 16383;
+    return (f * 24 * multiplier + r) / (2 * r);
 }
