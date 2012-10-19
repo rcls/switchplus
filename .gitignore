@@ -1,11 +1,13 @@
 \#*#
 PCB.*.save
 /docs/
-*.dfu
-*.boot
-*.elf
-*.zero
 *.bin
+*.boot
+#*.dfu
+*.elf
+*.flashA
+*.flasher
+*.zero
 utils/addheader
 utils/runit
 utils/flasher

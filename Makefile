@@ -1,15 +1,17 @@
 
+.PHONY: all clean
 all: main.sram.boot main.flashA.flasher
 
+clean:
+	-rm -f *.elf *.bin *.flasher *.sram *.flashA *.boot *.o *.a
+
 CC=arm-linux-gnu-gcc
-LD=arm-linux-gnu-ld
 LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -Wall -Werror -std=gnu99 -mcpu=cortex-m4 -mthumb \
-	-ffreestanding -fno-common -flto -fwhole-program \
-	-ffunction-sections -fdata-sections -Wno-error=unused-function \
-	-MMD -MP -MF.$@.d
+CFLAGS=-Os -flto -fwhole-program -std=gnu99 -ffreestanding \
+	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.$@.d \
+	-fno-common -fdata-sections  -Wall -Werror -Wno-error=unused-function
 
 -include .*.d
 
@@ -18,6 +20,7 @@ main.sram.elf main.flashA.elf: liblpc.a
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
+# Kill this rule.
 %: %.c
 
 %.sram.elf: %.o
@@ -29,20 +32,18 @@ main.sram.elf main.flashA.elf: liblpc.a
 %.flashA.elf: %.o
 	$(LINK.c) -T flashA.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-%: %.elf
+%.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 
-%.boot: %
+%.boot: %.bin
 	utils/addheader < $< > $@
 
 %.dfu: %
 	cp $< $@.tmp
-	/home/ralph/dfu-util/src/dfu-suffix -v 0x1fc9 -p 0x000c -a $@.tmp
+	/home/ralph/dfu-util/src/dfu-suffix -v 0xf055 -p 0x4c52 -a $@.tmp
 	mv $@.tmp $@
 
-flash.zero:
-
-%.flasher: % flash.zero
+%.flasher: %.bin flash.zero
 	utils/flasher flash.zero $< > $@.tmp
 	utils/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
