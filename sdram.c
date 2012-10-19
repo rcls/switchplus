@@ -113,7 +113,7 @@ void meminit (void)
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
     // The unit for the register is 16 cycles.
-    *DYNAMICREFRESH = 96 * 64000 / 131072; // The real refresh period.
+    *DYNAMICREFRESH = 96 * 64000 / 8192 / 16; // The real refresh period.
 
     *DYNAMICCONTROL = 0x0083;           // Mode command.
 
