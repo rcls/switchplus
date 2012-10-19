@@ -68,8 +68,8 @@ LD=arm-linux-gnu-ld
 LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -Wall -Werror -std=gnu99 -march=armv7-m -mthumb \
-	-ffreestanding -fno-common \
+CFLAGS=-Os -Wall -Werror -std=gnu99 -mcpu=cortex-m4 -mthumb \
+	-ffreestanding -fno-common -flto -fwhole-program \
 	-ffunction-sections -fdata-sections -Wno-error=unused-function \
 	-MMD -MP -MF.$@.d
 
@@ -86,10 +86,10 @@ main.bin.elf main.flashA.elf: liblpc.a
 	$(LINK.c) -T sram-link.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.zero.elf: %.o
-	$(LD) -T zero.ld -o $@ $+
+	$(LINK.c) -T zero.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.flashA.elf: %.o
-	$(LD) -T flashA.ld -o $@ $+
+	$(LINK.c) -T flashA.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %: %.elf
 	$(OBJCOPY) -O binary $< $@

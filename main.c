@@ -947,7 +947,7 @@ void doit (void)
 }
 
 
-void * start[64] __attribute__ ((section (".start")));
+void * start[64] __attribute__ ((section (".start"), externally_visible));
 void * start[64] = {
     [0] = (void*) 0x10089ff0,
     [1] = doit,
