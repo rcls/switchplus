@@ -1,9 +1,10 @@
 
+#include "freq.h"
 #include "monkey.h"
 #include "registers.h"
+#include "sdram.h"
 
-
-void meminit (void)
+void meminit (unsigned mhz)
 {
     // Enable CLK_M4_EMC and CLK_M4EMC_DIV.
     * (v32 *) 0x40051430 = 1;
@@ -73,12 +74,15 @@ void meminit (void)
 
     // The -7e device is CL3 at 143MHz, CL2 at 133MHz.
 
-    *DYNAMICRASCAS2 = 0x0202;           // RAS, CAS latencies.
+    if (mhz >= 143)
+        *DYNAMICRASCAS2 = 0x0303;       // RAS, CAS latencies.
+    else
+        *DYNAMICRASCAS2 = 0x0202;       // RAS, CAS latencies.
     *DYNAMICREADCONFIG = 1;
 
     // EMCDELAYCLK?
 
-#define NS2CLK(x) ((x) * 96 / 1000)
+#define NS2CLK(x) ((x) * mhz / 1000)
     // Settings for 96MHz.
     *DYNAMICRP = NS2CLK(15);            // Precharge period, tRP = 15ns.
     *DYNAMICRAS = NS2CLK(37);           // Active to precharge, tRAS = 37ns.
@@ -95,12 +99,12 @@ void meminit (void)
 
     *DYNAMICCONFIG2 = 0x0680;           // Row, bank, column, 16M x 16.
 
-    for (int i = 0; i != 10000; ++i)
+    for (int i = 0; i != 100 * mhz; ++i)
         asm volatile ("");
 
     *DYNAMICCONTROL = 0x0183;           // Issue NOP.
 
-    for (int i = 0; i != 20000; ++i)
+    for (int i = 0; i != 200 * mhz; ++i)
         asm volatile ("");
 
     *DYNAMICCONTROL = 0x0103;           // Issue precharge-all.
@@ -108,12 +112,12 @@ void meminit (void)
     *DYNAMICREFRESH = 5;                // 5*16 = 80 cycles.
 
     // Perform at least 2 refresh cycles at around 80ns.  This is heaps.
-    for (int i = 0; i != 1000; ++i)
+    for (int i = 0; i != 10 * mhz; ++i)
         asm volatile ("");
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
     // The unit for the register is 16 cycles.
-    *DYNAMICREFRESH = 96 * 64000 / 8192 / 16; // The real refresh period.
+    *DYNAMICREFRESH = mhz * 64000 / 8192 / 16; // The real refresh period.
 
     *DYNAMICCONTROL = 0x0083;           // Mode command.
 
@@ -122,7 +126,10 @@ void meminit (void)
     // Width = 1
     // Bank bits = 2
     // Sequential v interleaved probably doesn't matter: 0=sequential.
-    * (volatile unsigned char *) (0x60000000 + (0x023 << 12));
+    if (mhz >= 143)
+        * (volatile unsigned char *) (0x60000000 + (0x033 << 12));
+    else
+        * (volatile unsigned char *) (0x60000000 + (0x023 << 12));
 
     // Normal mode.
     *DYNAMICCONTROL = 0x0000;
@@ -132,26 +139,64 @@ void meminit (void)
 }
 
 
-
-void memtest (void)
+void memtest1 (unsigned bit, unsigned w0, unsigned w1)
 {
-    puts ("Meminit\r\n");
-    meminit();
+    if (w0 == w1 || bit == 0)
+        printf ("Memtest: Write pattern %08x\n", w0);
+    else
+        printf ("Memtest: Write address & %x ? %08x : %08x\n",
+                bit, w1, w0);
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;
 
-    puts ("Memtest: Write\n");
+    for (int i = 0; i < size; ++i)
+        sdram[i] = i & bit ? w1 : w0;
+    printf ("Memtest: read...\n");
+    for (int i = 0; i < size; ++i) {
+        unsigned v = sdram[i];
+        if (v != (i & bit ? w1 : w0))
+            printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
+                    i, i & bit ? w1 : w0, v);
+    }
+}
+
+
+void memtest (void)
+{
+    puts ("Memtest: Init\r\n");
+
+    //unsigned base_m4 = *BASE_M4_CLK >> 24;
+    //unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
+    meminit (96);
+
+    const unsigned size = 8 << 20;
+    volatile unsigned * const sdram = (v32 *) 0x60000000;
+
+    puts ("Memtest: Write basic.\n");
     for (int i = 0; i != size; ++i)
         sdram[i] = i * 0x02030401;
 
-    puts ("Memtest: Read\n");
+    puts ("Memtest: Read basic.\n");
     for (int i = 0; i != size; ++i) {
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
         if (v != e)
-            printf ("Memtest: Bugger @ %06x export %08x got %08x\n",
+            printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
                     i, e, v);
     }
+
+    static unsigned patterns[] = {
+        0xaaaaaaaa, 0x55555555, 0xcccccccc, 0x33333333, 0xf0f0f0f0, 0x0f0f0f0f,
+        0xff00ff00, 0x00ff00ff, 0xffff0000, 0x0000ffff,
+    };
+    for (int j = 0; j != sizeof patterns / sizeof patterns[0]; ++j)
+        memtest1 (0, patterns[j], patterns[j]);
+
+    for (unsigned bit = 1; bit < size; bit <<= 1) {
+        memtest1 (bit, 0, 0xffffffff);
+        memtest1 (bit, 0xffffffff, 0);
+    }
+
     puts ("Memtest: Done\n");
 }

@@ -3,6 +3,7 @@
 #include "freq.h"
 #include "monkey.h"
 #include "registers.h"
+#include "sdram.h"
 #include "switch.h"
 #include "usb.h"
 
@@ -431,6 +432,9 @@ static void serial_byte (unsigned byte)
             log_serial = true;
             puts ("Serial log on\n");
         }
+        return;
+    case 'm':
+        deferred = memtest;
         return;
     }
 

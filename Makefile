@@ -49,5 +49,5 @@ main.sram.elf main.flashA.elf: liblpc.a
 	rm $@.tmp
 	mv $@.tmp2 $@
 
-liblpc.a: freq.o monkey.o switch.o usb.o
+liblpc.a: freq.o monkey.o sdram.o switch.o usb.o
 	ar cr $@ $+
