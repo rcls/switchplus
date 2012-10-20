@@ -49,6 +49,32 @@ void init_monkey (void)
 }
 
 
+static inline unsigned current_irs (void)
+{
+    unsigned r;
+    asm ("\tmrs %0,psr\n" : "=r"(r));
+    return r & 511;
+}
+
+
+static inline unsigned enter_monkey (void)
+{
+    unsigned r = current_irs();
+    if (!r)
+        asm volatile ("\tcpsid i\n" ::: "memory");
+    return r;
+}
+
+
+static inline void leave_monkey (unsigned r)
+{
+    if (log_monkey)
+        monkey_kick();
+    if (!r)
+        asm volatile ("\tcpsie i\n" ::: "memory");
+}
+
+
 static void write_byte (int byte)
 {
     if (log_serial) {
@@ -58,8 +84,14 @@ static void write_byte (int byte)
     if (!log_monkey)
         return;
 
-    if (monkey_pos.insert == monkey_pos.limit)
-        return;                         // Full
+    while (monkey_pos.insert == monkey_pos.limit) {
+        // If we're in an interrupt handler, or there is nothing outstanding,
+        // drop the data.
+        monkey_kick();
+        if (!monkey_pos.outstanding || current_irs() != 0)
+            return;                     // Full
+        asm volatile ("\twfi\n\tcpsie i\n\tcpsid i\n" ::: "memory");
+    }
 
     *monkey_pos.insert++ = byte;
     if (monkey_pos.insert == monkey_buffer_end)
@@ -72,18 +104,18 @@ static void write_byte (int byte)
 
 void putchar (int byte)
 {
-    if (byte == '\n')
-        write_byte ('\r');
+    unsigned l = enter_monkey();
     write_byte (byte);
+    leave_monkey (l);
 }
 
 
 void puts (const char * s)
 {
+    unsigned l = enter_monkey();
     for (; *s; s++)
-        putchar (*s);
-    if (log_monkey)
-        monkey_kick();
+        write_byte (*s);
+    leave_monkey (l);
 }
 
 
@@ -135,9 +167,9 @@ static void format_string (const char * s, unsigned width, unsigned char fill)
         if (width == 0)
             break;
     for (; width != 0; --width)
-        putchar (fill);
+        write_byte (fill);
     for (; *s; ++s)
-        putchar (*s);
+        write_byte (*s);
 }
 
 
@@ -166,23 +198,24 @@ static void format_number (
     else if (fill == ' ')
         *p++ = '-';
     else {
-        putchar ('-');
+        write_byte ('-');
         if (width > 0)
             --width;
     }
 
     while (width > p - c) {
-        putchar (fill);
+        write_byte (fill);
         --width;
     }
 
     while (p != c)
-        putchar (*--p);
+        write_byte (*--p);
 }
 
 
 void printf (const char * restrict f, ...)
 {
+    unsigned l = enter_monkey();
     va_list args;
     va_start (args, f);
     const unsigned char * s;
@@ -243,15 +276,12 @@ void printf (const char * restrict f, ...)
             break;
         }
 
-        case '\n':
-            putchar ('\r');
         default:
-            putchar (*s);
+            write_byte (*s);
         }
     }
 
     va_end (args);
 
-    if (log_monkey)
-        monkey_kick();
+    leave_monkey (l);
 }

@@ -1,9 +1,9 @@
 
 .PHONY: all clean
-all: main.sram.boot main.flashA.flasher
+all: main.sram.boot main.flashA.flasher dfu.sram.bin
 
 clean:
-	-rm -f *.elf *.bin *.flasher *.sram *.flashA *.boot *.o *.a
+	-rm -f *.elf *.bin *.flasher *.boot *.o *.a
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)
@@ -43,8 +43,8 @@ main.sram.elf main.flashA.elf: liblpc.a
 	/home/ralph/dfu-util/src/dfu-suffix -v 0xf055 -p 0x4c52 -a $@.tmp
 	mv $@.tmp $@
 
-%.flasher: %.bin flash.zero
-	utils/flasher flash.zero $< > $@.tmp
+%.flasher: %.bin flash.zero.bin
+	utils/flasher flash.zero.bin $< > $@.tmp
 	utils/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
 	mv $@.tmp2 $@

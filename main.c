@@ -426,7 +426,7 @@ static void start_mgmt (void)
     // FIXME - default mgmt packets?
     *ENDPTCTRL1 = 0xcc0000;
 
-    // No 0-size-frame.
+    // No 0-size-frame on the monkey.
     qh_init (0x03, 0x22000000);
     qh_init (0x83, 0x22000000);
     *ENDPTCTRL3 = 0x008c008c;
@@ -899,13 +899,6 @@ void main (void)
     disable_clocks();
     puts ("Clocks disabled.\n");
 
-#if 0
-    // Now measure the clock rate.
-    *FREQ_MON = 0x07800000 + 240;
-    while (*FREQ_MON & 0x00800000);
-    ser_w_hex (*FREQ_MON, 8, " freq mon\n");
-#endif
-
     usb_init();
 
     // Enable the ethernet, usb and serial interrupts.
@@ -919,9 +912,7 @@ void main (void)
         asm volatile ("wfi\n" ::: "memory");
     while (!enter_dfu);
 
-    asm volatile ("cpsid i\n");
     puts ("Enter DFU\n");
-    asm volatile ("cpsie i\n");
     if (log_monkey)
         for (int i = 0; i != 1000000; ++i)
             asm volatile ("");

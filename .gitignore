@@ -3,11 +3,8 @@ PCB.*.save
 /docs/
 *.bin
 *.boot
-#*.dfu
 *.elf
-*.flashA
 *.flasher
-*.zero
 utils/addheader
 utils/runit
 utils/flasher
