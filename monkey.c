@@ -135,7 +135,7 @@ void monkey_kick (void)
 
     dtd->buffer_page[0] = (unsigned) monkey_pos.limit;
     dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
-    unsigned length = monkey_pos.insert - monkey_pos.limit;
+    int length = monkey_pos.insert - monkey_pos.limit;
     if (length <= 0)
         length += 4096;
     dtd->length_and_status = length * 65536 + 0x8080;
