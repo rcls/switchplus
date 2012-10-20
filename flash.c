@@ -2,13 +2,13 @@
 
 #include "registers.h"
 
-void doit(void);
-
 void * start[64] __attribute__ ((section (".start"), externally_visible));
+static void main (void);
+
 // Start address of payload is start[63], number of bytes is start[62].
 void * start[64] = {
     (void*) 0x10089ff0,
-    doit,
+    main,
 };
 
 static void printc (char c)
@@ -72,7 +72,7 @@ static void die (const char * s)
     while (1);
 }
 
-void doit (void)
+void main (void)
 {
     unsigned size = (unsigned) start[62];
 

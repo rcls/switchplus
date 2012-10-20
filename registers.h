@@ -2,6 +2,8 @@
 #define REGISTERS_H_
 
 #define __memory_barrier() asm volatile ("" : : : "memory")
+#define __section(s) __attribute__ ((section (s)))
+#define __aligned(s) __attribute__ ((aligned (s)))
 
 typedef volatile unsigned char v8;
 typedef volatile unsigned v32;

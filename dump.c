@@ -18,7 +18,7 @@ static void ser_w_hex (unsigned value, int nibbles, const char * term)
 }
 
 
-void _start (void) __attribute__ ((section (".start")));
+void _start (void) __section (".start");
 void _start (void)
 {
     GPIO_BYTE[4][1] = 1;

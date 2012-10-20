@@ -14,7 +14,8 @@ static struct {
     bool outstanding;                   // Do we have a USB xmit outstanding?
 } monkey_pos;
 
-static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
+static unsigned char monkey_buffer[4096] __aligned (4096)
+    __section ("ahb0.monkey_buffer");
 #define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
 
 static void monkey_in_complete (dTD_t * dtd);

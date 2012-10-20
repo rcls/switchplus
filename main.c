@@ -19,8 +19,8 @@
 
 #define EDMA_COUNT 4
 #define EDMA_MASK 3
-static volatile EDMA_DESC_t tx_dma[EDMA_COUNT];
-static volatile EDMA_DESC_t rx_dma[EDMA_COUNT];
+static volatile EDMA_DESC_t tx_dma[EDMA_COUNT] __section ("ahb0.tx_dma");
+static volatile EDMA_DESC_t rx_dma[EDMA_COUNT] __section ("ahb0.rx_dma");
 static unsigned tx_dma_retire;
 static unsigned tx_dma_insert;
 static unsigned rx_dma_retire;
@@ -269,8 +269,8 @@ const unsigned char qualifier_descriptor[] = {
 };
 STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
-#define rx_ring_buffer ((unsigned char *) 0x20000000)
-#define tx_ring_buffer ((unsigned char *) 0x20004000)
+static unsigned char rx_ring_buffer[8192] __aligned (4096) __section ("ahb1");
+static unsigned char tx_ring_buffer[8192] __aligned (4096) __section ("ahb2");
 
 static unsigned char monkey_recv[512];
 
@@ -323,8 +323,7 @@ static void disable_clocks(void)
     }
 
     volatile unsigned * base = (volatile unsigned *) 0x40051000;
-    for (unsigned mask = CCU_BASE_DISABLE; mask;
-         mask >>= 1, base += 64)
+    for (unsigned mask = CCU_BASE_DISABLE; mask; mask >>= 1, base += 64)
         if ((mask & 1) && (*base & 1))
             *base = 0;
 }
@@ -896,6 +895,7 @@ static void usart3_interrupt (void)
     while (*USART3_LSR & 1)
         serial_byte (*USART3_RBR & 0xff);
 }
+
 
 void main (void)
 {

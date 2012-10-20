@@ -2,8 +2,10 @@
 .PHONY: all clean
 all: main.sram.boot main.flashA.flasher dfu.sram.bin
 
+.SECONDARY:
+
 clean:
-	-rm -f *.elf *.bin *.flasher *.boot *.o *.a
+	-rm *.elf *.bin *.flasher *.boot *.o *.a *.s
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)

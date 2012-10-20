@@ -12,7 +12,7 @@ typedef struct qh_pair_t {
 static struct qh_and_dtd_t {
     qh_pair_t QH[6];
     dTD_t DTD[NUM_DTDS];
-} qh_and_dtd __attribute__ ((aligned (2048)));
+} qh_and_dtd __aligned (2048) __section ("ahb0.qh_and_dtd");
 
 static dTD_t * dtd_free_list;
 
@@ -51,6 +51,8 @@ void usb_init (void)
     *OTGSC = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
 
+    for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
+        ((char *) &qh_and_dtd.QH)[i] = 0;
     qh_init (0x00, 0x20408000);
     qh_init (0x80, 0x20408000);
 
