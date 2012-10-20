@@ -4,9 +4,10 @@
 #include "usb.h"
 
 #include <stdarg.h>
+#include <stddef.h>
 
 // Ring-buffer descriptor.  insert==limit implies the buffer is full; we set
-// insert=beginning, limit=end when empty.  The area from insert to limit is
+// insert=beginning, limit=NULL when empty.  The area from insert to limit is
 // either in-flight or waiting to be sent.
 static struct {
     unsigned char * insert;             // Where to insert new characters.
@@ -24,11 +25,6 @@ bool log_serial;
 
 void init_monkey (void)
 {
-    if (log_monkey) {
-        monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer_end;
-    }
-
     // Bring up USART3.
     SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.
     SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
@@ -85,6 +81,13 @@ static void write_byte (int byte)
     if (!log_monkey)
         return;
 
+    if (monkey_pos.limit == NULL) {
+        monkey_pos.limit = monkey_buffer;
+        monkey_pos.insert = monkey_buffer;
+        *monkey_pos.insert++ = byte;
+        return;
+    }
+
     while (monkey_pos.insert == monkey_pos.limit) {
         // If we're in an interrupt handler, or there is nothing outstanding,
         // drop the data.
@@ -97,9 +100,6 @@ static void write_byte (int byte)
     *monkey_pos.insert++ = byte;
     if (monkey_pos.insert == monkey_buffer_end)
         monkey_pos.insert = monkey_buffer;
-
-    if (monkey_pos.limit == monkey_buffer_end)
-        monkey_pos.limit = monkey_buffer;
 }
 
 
@@ -125,8 +125,7 @@ void monkey_kick (void)
     // If the dTD is in-flight, or there is no data, or the monkey end-point is
     // not in use, then nothing to do.
     if (!log_monkey || monkey_pos.outstanding
-        || monkey_pos.limit - monkey_pos.insert == 4096
-        || !(*ENDPTCTRL3 & 0x800000))
+        || monkey_pos.limit == NULL || !(*ENDPTCTRL3 & 0x800000))
         return;
 
     // FIXME - we should do something to get stuff out on out-of-dtds.
@@ -153,8 +152,7 @@ static void monkey_in_complete (dTD_t * dtd)
     monkey_pos.limit = (unsigned char *) dtd->buffer_page[0];
     if (monkey_pos.limit == monkey_pos.insert) {
         // We're idle.  Reset the pointers.
-        monkey_pos.insert = monkey_buffer;
-        monkey_pos.limit = monkey_buffer_end;
+        monkey_pos.limit = NULL;
     }
     else {
         monkey_kick();
