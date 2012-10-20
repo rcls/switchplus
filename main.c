@@ -273,7 +273,10 @@ STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 
 static unsigned char monkey_recv[512];
 
-static volatile bool enter_dfu;
+
+typedef void function_t (void);
+
+static function_t * volatile deferred;
 
 
 #define CCU1_VALID_0 0
@@ -356,6 +359,51 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
 }
 
 
+static void enter_dfu (void)
+{
+    puts ("Enter DFU\n");
+#if 0
+    if (log_monkey)
+        for (int i = 0; i != 1000000; ++i)
+            asm volatile ("");
+#endif
+
+    NVIC_ICER[0] = 0xffffffff;
+
+    *USBCMD = 2;                       // Reset USB.
+    while (*USBCMD & 2);
+
+    unsigned fakeotp[64];
+    for (int i = 0; i != 64; ++i)
+        fakeotp[i] = OTP[i];
+
+    fakeotp[12] = (6 << 25) + (1 << 23); // Boot mode; use custom usb ids.
+    fakeotp[13] = 0x524cf055;           // Product id / vendor id.
+
+    typedef unsigned F (void*);
+    ((F*) 0x1040158d) (fakeotp);
+
+    puts ("Bugger.\n");
+    while (1);
+}
+
+
+static void log_frequencies (void)
+{
+    //unsigned base_m4 = *BASE_M4_CLK >> 24;
+    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
+    printf ("Frequencies...\n"
+            "IRC.......: %6u kHz\n"
+            "PLL0USB...: %6u kHz\n"
+            "PLL1......: %6u kHz\n"
+            "ETH_TX_CLK: %6u kHz\n"
+            "CPU (%2u)..: %6u kHz\n",
+            frequency (1, 1000), frequency (7, 1000),
+            frequency (9, 1000), frequency (3, 1000),
+            base_m4, frequency (base_m4, 1000));
+}
+
+
 static void serial_byte (unsigned byte)
 {
     switch (byte & 0xff) {
@@ -368,20 +416,10 @@ static void serial_byte (unsigned byte)
         puts (debug ? "Debug on\n" : "Debug off\n");
         return;
     case 'u':
-        enter_dfu = 1;
+        deferred = enter_dfu;
         break;
     case 'f': {
-        //unsigned base_m4 = *BASE_M4_CLK >> 24;
-        unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
-        printf ("Frequencies...\n"
-                "IRC.......: %6u kHz\n"
-                "PLL0USB...: %6u kHz\n"
-                "PLL1......: %6u kHz\n"
-                "ETH_TX_CLK: %6u kHz\n"
-                "CPU (%2u)..: %6u kHz\n",
-                frequency (1, 1000), frequency (7, 1000),
-                frequency (9, 1000), frequency (3, 1000),
-                base_m4, frequency (base_m4, 1000));
+        deferred = log_frequencies;
         return;
     }
     case 's':
@@ -400,8 +438,6 @@ static void serial_byte (unsigned byte)
         putchar ('\n');
     else
         putchar (byte);
-    if (log_monkey)
-        monkey_kick();
 }
 
 
@@ -548,7 +584,7 @@ static void process_setup (int i)
     switch (setup0 & 0xffff) {
     case 0x0021:                        // DFU detach.
         response_length = 0;
-        enter_dfu = true;
+        deferred = enter_dfu;
         break;
     case 0x0080:                        // Get status.
         response_data = "\0";
@@ -776,7 +812,6 @@ static void init_ethernet (void)
 }
 
 
-
 static void usb_interrupt (void)
 {
     unsigned status = *USBSTS;
@@ -906,34 +941,17 @@ void main (void)
     *USBINTR = 0x00000041;              // Port change, reset, data.
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
-    asm volatile ("cpsie if\n");
 
-    do
-        asm volatile ("wfi\n" ::: "memory");
-    while (!enter_dfu);
-
-    puts ("Enter DFU\n");
-    if (log_monkey)
-        for (int i = 0; i != 1000000; ++i)
-            asm volatile ("");
-
-    NVIC_ICER[0] = 0xffffffff;
-
-    *USBCMD = 2;                       // Reset USB.
-    while (*USBCMD & 2);
-
-    unsigned fakeotp[64];
-    for (int i = 0; i != 64; ++i)
-        fakeotp[i] = OTP[i];
-
-    fakeotp[12] = (6 << 25) + (1 << 23); // Boot mode; use custom usb ids.
-    fakeotp[13] = 0x524cf055;           // Product id / vendor id.
-
-    typedef unsigned F (void*);
-    ((F*) 0x1040158d) (fakeotp);
-
-    puts ("Bugger.\n");
-    while (1);
+    while (true) {
+        asm volatile ("cpsid i\n" ::: "memory");
+        function_t * function = deferred;
+        deferred = NULL;
+        if (!function)
+            asm volatile ("wfi\n" ::: "memory");
+        asm volatile ("cpsie i\n" ::: "memory");
+        if (function)
+            function();
+    }
 }
 
 
