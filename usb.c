@@ -198,7 +198,7 @@ void endpt_complete (unsigned ep, bool reprime)
     while (!(d->length_and_status & 0x80)) {
         //ser_w_hex (d->length_and_status, 8, " ok length and status\n");
         if (d->completion)
-            d->completion (ep, qh, d);
+            d->completion (d);
         d = retire_dtd (d, qh);
         if (d == NULL)
             return;
@@ -210,7 +210,7 @@ void endpt_complete (unsigned ep, bool reprime)
     // FIXME - what do we actually want to do on errors?
     printf ("ERROR length and status: %08x\n", d->length_and_status);
     if (d->completion)
-        d->completion (ep, qh, d);
+        d->completion (d);
     if (retire_dtd (d, qh) && reprime)
         *ENDPTPRIME = mask;             // Reprime the endpoint.
 }

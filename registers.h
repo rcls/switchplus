@@ -11,7 +11,7 @@ typedef v32 v32_32[32];
 typedef struct dTD_t dTD_t;
 typedef struct dQH_t dQH_t;
 
-typedef void dtd_completion_t (int ep, dQH_t * qh, dTD_t * dtd);
+typedef void dtd_completion_t (dTD_t * dtd);
 
 struct dTD_t {
     struct dTD_t * volatile next;

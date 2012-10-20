@@ -405,7 +405,7 @@ static void serial_byte (unsigned byte)
 }
 
 
-static void monkey_out_complete (int ep, dQH_t * qh, dTD_t * dtd)
+static void monkey_out_complete (dTD_t * dtd)
 {
     unsigned char * end = (unsigned char *) dtd->buffer_page[0];
     for (unsigned char * p = monkey_recv; p != end; ++p)
@@ -438,7 +438,7 @@ static void start_mgmt (void)
 }
 
 
-static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
+static void endpt_tx_complete (dTD_t * dtd)
 {
     // Send the buffer off to the network...
     unsigned buffer = dtd->buffer_page[4];
@@ -463,7 +463,7 @@ static void endpt_tx_complete (int ep, dQH_t * qh, dTD_t * dtd)
 }
 
 
-static void notify_network_up (int ep, dQH_t * qh, dTD_t * dtd)
+static void notify_network_up (dTD_t * dtd)
 {
     schedule_buffer (0x81, network_connected, sizeof network_connected, NULL);
     schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
@@ -669,7 +669,7 @@ static void process_setup (int i)
 }
 
 
-static void endpt_rx_complete (int ep, dQH_t * qh, dTD_t * dtd)
+static void endpt_rx_complete (dTD_t * dtd)
 {
     // Re-queue the buffer for network data.
     unsigned buffer = dtd->buffer_page[4];

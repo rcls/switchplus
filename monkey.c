@@ -17,7 +17,7 @@ static struct {
 static unsigned char monkey_buffer[4096] __attribute__ ((aligned (4096)));
 #define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
 
-static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd);
+static void monkey_in_complete (dTD_t * dtd);
 
 bool log_serial;
 
@@ -145,7 +145,7 @@ void monkey_kick (void)
 }
 
 
-static void monkey_in_complete (int ep, dQH_t * qh, dTD_t * dtd)
+static void monkey_in_complete (dTD_t * dtd)
 {
     // FIXME - distinguish between errors and sending a full page?
     monkey_pos.outstanding = false;
