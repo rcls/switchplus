@@ -11,9 +11,9 @@ void meminit (unsigned mhz)
     * (v32 *) 0x40051478 = 1;
 
     // Setup pins.
-    static const unsigned pins[] = {
-#define pin_in(a,b,f) (a * 32 * 256 + b * 256 + 0xe0 + f)
-#define pin_out(a,b,f) (a * 32 * 256 + b * 256 + 0x20 + f)
+    static const int pins[] = {
+#define pin_in(a,b,f) (a * 32 * 65536 + b * 65536 + 0xe0 + f)
+#define pin_out(a,b,f) (a * 32 * 65536 + b * 65536 + 0x20 + f)
         pin_in (1, 7, 3),               // T5  EMC_D0
         pin_in (1, 8, 3),               // R7  EMC_D1
         pin_in (1, 9, 3),               // T7  EMC_D2
@@ -60,8 +60,8 @@ void meminit (unsigned mhz)
     };
 
     for (int i = 0; i != sizeof pins / sizeof pins[0]; ++i) {
-        unsigned pin = pins[i] >> 8;
-        unsigned config = pins[i] & 0xff;
+        unsigned pin = pins[i] >> 16;
+        unsigned config = pins[i] & 0xffff;
         SFSP[0][pin] = config;
         //SFSP[pin >> 5][pin & 31] = config;
     }
@@ -109,10 +109,10 @@ void meminit (unsigned mhz)
 
     *DYNAMICCONTROL = 0x0103;           // Issue precharge-all.
 
-    *DYNAMICREFRESH = 5;                // 5*16 = 80 cycles.
+    *DYNAMICREFRESH = 1 + NS2CLK(5);    // 5*16 = 80 ns.
 
     // Perform at least 2 refresh cycles at around 80ns.  This is heaps.
-    for (int i = 0; i != 10 * mhz; ++i)
+    for (int i = 0; i != mhz; ++i)
         asm volatile ("");
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
@@ -142,17 +142,22 @@ void meminit (unsigned mhz)
 void memtest1 (unsigned bit, unsigned w0, unsigned w1)
 {
     if (w0 == w1 || bit == 0)
-        printf ("Memtest: Write pattern %08x\n", w0);
+        printf ("Memtest: pattern %08x", w0);
+    else if (w0 != ~w1)
+        printf ("Memtest: address & %x ? %08x : %08x", bit, w1, w0);
+    else if (w0 == 0)
+        printf ("Memtest: address & %x", bit);
+    else if (w1 == 0)
+        printf ("Memtest: address & %x inverted", bit);
     else
-        printf ("Memtest: Write address & %x ? %08x : %08x\n",
-                bit, w1, w0);
+        printf ("Memtest: address & %x flip %08x", bit, w1);
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;
 
     for (int i = 0; i < size; ++i)
         sdram[i] = i & bit ? w1 : w0;
-    printf ("Memtest: read...\n");
+    putchar ('\n');
     for (int i = 0; i < size; ++i) {
         unsigned v = sdram[i];
         if (v != (i & bit ? w1 : w0))
@@ -164,7 +169,7 @@ void memtest1 (unsigned bit, unsigned w0, unsigned w1)
 
 void memtest (void)
 {
-    puts ("Memtest: Init\r\n");
+    puts ("Memtest: Init\n");
 
     //unsigned base_m4 = *BASE_M4_CLK >> 24;
     //unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
@@ -173,11 +178,11 @@ void memtest (void)
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;
 
-    puts ("Memtest: Write basic.\n");
+    puts ("Memtest: basic.");
     for (int i = 0; i != size; ++i)
         sdram[i] = i * 0x02030401;
 
-    puts ("Memtest: Read basic.\n");
+    putchar ('\n');
     for (int i = 0; i != size; ++i) {
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
