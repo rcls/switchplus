@@ -366,22 +366,6 @@ static void enter_dfu (void)
 }
 
 
-static void log_frequencies (void)
-{
-    //unsigned base_m4 = *BASE_M4_CLK >> 24;
-    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
-    printf ("Frequencies...\n"
-            "IRC.......: %6u kHz\n"
-            "PLL0USB...: %6u kHz\n"
-            "PLL1......: %6u kHz\n"
-            "ETH_TX_CLK: %6u kHz\n"
-            "CPU (%2u)..: %6u kHz\n",
-            frequency (1, 1000), frequency (7, 1000),
-            frequency (9, 1000), frequency (3, 1000),
-            base_m4, frequency (base_m4, 1000));
-}
-
-
 static void serial_byte (unsigned byte)
 {
     switch (byte & 0xff) {
@@ -397,7 +381,7 @@ static void serial_byte (unsigned byte)
         deferred = enter_dfu;
         break;
     case 'f': {
-        deferred = log_frequencies;
+        deferred = clock_report;
         return;
     }
     case 's':

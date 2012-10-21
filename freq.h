@@ -3,6 +3,8 @@
 
 // Frequency measurement of a given clock.
 // @c multiplier is the return value for a 1MHz clock.
-unsigned frequency (unsigned clock, unsigned multiplier);
+int frequency (unsigned clock, unsigned multiplier);
+
+void clock_report (void);
 
 #endif
