@@ -44,42 +44,20 @@ enum string_descs_t {
 };
 
 // String0 - lang. descs.
-static const unsigned char string_lang[] = {
-    4, 3, 9, 4
-};
-static const unsigned char string_ralph[] = {
-    12, 3, 'R', 0, 'a', 0, 'l', 0, 'p', 0, 'h', 0
-};
-static const unsigned char string_switch[] = {
-    14, 3, 'S', 0, 'w', 0, 'i', 0, 't', 0, 'c', 0, 'h', 0
-};
-static const unsigned char string_0001[] = {
-    10, 3, '0', 0, '0', 0, '0', 0, '1', 0
-};
-static const unsigned char string_424242424242[] = {
-    26, 3,
-    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0,
-    '4', 0, '2', 0, '4', 0, '2', 0, '4', 0, '2', 0
-};
-static const unsigned char string_eth_mgmt[] = {
-    40, 3, 'E',0, 't',0, 'h',0, 'e',0, 'r',0, 'n',0, 'e',0, 't',0, ' ',0,
-    'M',0, 'a',0, 'n',0, 'a',0, 'g',0, 'e',0, 'm',0, 'e',0, 'n',0, 't',0,
-};
-static const unsigned char string_eth_idle[] = {
-    28, 3, 'E', 0, 't', 0, 'h', 0, 'e', 0, 'r', 0, 'n', 0, 'e', 0, 't', 0,
-    ' ', 0, 'I', 0, 'd', 0, 'l', 0, 'e', 0,
-};
-static const unsigned char string_eth_showtime[] = {
-    36, 3, 'E', 0, 't', 0, 'h', 0, 'e', 0, 'r', 0, 'n', 0, 'e', 0, 't', 0,
-    ' ', 0, 'S', 0, 'h', 0, 'o', 0, 'w', 0, 't', 0, 'i', 0, 'm', 0, 'e', 0,
-};
-static const unsigned char string_monkey[] = {
-    14, 3, 'M', 0, 'o', 0, 'n', 0, 'k', 0, 'e', 0, 'y', 0
-};
-static const unsigned char string_dfu[] = {
-    8, 3, 'D', 0, 'F', 0, 'U', 0
-};
-static const unsigned char * const string_descriptors[] = {
+static const unsigned short string_lang[2] = u"\x0304\x0409";
+static const unsigned short string_ralph[6] = u"\x030c""Ralph";
+static const unsigned short string_switch[7] = u"\x030e""Switch";
+static const unsigned short string_0001[5] = u"\x030a""0001";
+static const unsigned short string_424242424242[13] = u"\x031a""424242424242";
+static const unsigned short string_eth_mgmt[20] =
+    u"\x0328""Ethernet Management";
+static const unsigned short string_eth_idle[14] = u"\x031c""Ethernet Idle";
+static const unsigned short string_eth_showtime[18] =
+    u"\x0324""Ethernet Showtime";
+static const unsigned short string_monkey[7] = u"\x030e""Monkey";
+static const unsigned short string_dfu[4] = u"\x0308""DFU";
+
+static const unsigned short * const string_descriptors[] = {
     string_lang,
     [sd_ralph] = string_ralph,
     [sd_switch] = string_switch,
@@ -625,7 +603,7 @@ static void process_setup (int i)
             unsigned index = (setup0 >> 16) & 255;
             if (index < sizeof string_descriptors / 4) {
                 response_data = string_descriptors[index];
-                response_length = *string_descriptors[index];
+                response_length = *string_descriptors[index] & 0xff;
             }
             break;
         }
@@ -951,7 +929,7 @@ void main (void)
         function_t * function = deferred;
         deferred = NULL;
         if (!function)
-            asm volatile ("wfi\n" ::: "memory");
+            asm volatile ("wfi\n");
         asm volatile ("cpsie i\n" ::: "memory");
         if (function)
             function();

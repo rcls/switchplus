@@ -11,7 +11,7 @@ CC=arm-linux-gnu-gcc
 LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -flto -fwhole-program -std=gnu99 -ffreestanding \
+CFLAGS=-Os -flto -fwhole-program -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.$@.d \
 	-fno-common -fdata-sections  -Wall -Werror -Wno-error=unused-function
 
