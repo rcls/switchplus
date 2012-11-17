@@ -384,7 +384,7 @@ static void serial_byte (unsigned byte)
         deferred = clock_report;
         return;
     }
-    case 's':
+    case 'S':
         if (log_serial) {
             puts ("Serial log off\n");
             log_serial = false;

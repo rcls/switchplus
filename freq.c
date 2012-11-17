@@ -21,6 +21,21 @@ static int freq_mon (unsigned clock, unsigned count)
     }
 }
 
+// Measurement of PLL0USB.  If IRC is accurate, will be 16000.
+static unsigned calibration;
+
+
+// We assume PLL0USB is running at 480 MHz.  We measure that; the result is used
+// to adjust future calls to frequency().
+static void calibrate (void)
+{
+    int pll = freq_mon (7, 400);
+    unsigned m = (pll >> 9) & 16383;
+    if ((pll & 511) || m < 15680 || m > 16320)
+        m = 16000;
+    calibration = m;
+}
+
 
 int frequency (unsigned clock, unsigned multiplier)
 {
@@ -33,33 +48,24 @@ int frequency (unsigned clock, unsigned multiplier)
         r = r - 3 - (fm & 511);
     }
     unsigned f = (fm >> 9) & 16383;
-    return (f * 24 * multiplier + r) / (2 * r);
+    f = f * 16000 * 12 / (calibration ? calibration : 16000);
+    return (f * 2 * multiplier + r) / (2 * r);
 }
 
 
 static const char * const clock_names[] = {
-    "32 kHz",
-    "IRC",
-    "ENET_RX_CLK",
-    "ENET_TX_CLK",
-    "GP_CLKIN",
-    NULL,
-    "Crystal",
-    "PLL0USB",
-    "PLL0AUDIO",
-    "PLL1",
-    NULL, NULL,
-    "IDIVA",
-    "IDIVB",
-    "IDIVC",
-    "IDIVD",
-    "IDIVE"
+    "32 kHz", "IRC", "ENET_RX_CLK", "ENET_TX_CLK", "GP_CLKIN", NULL,
+    "Crystal", "PLL0USB", "PLL0AUDIO", "PLL1", NULL, NULL,
+    "IDIVA", "IDIVB", "IDIVC", "IDIVD", "IDIVE"
 };
 
 
 void clock_report (void)
 {
     printf ("Frequencies...\n");
+    calibrate();
+    printf ("Calibration: %6u kHz\n",
+            (16000 * 12000 * 2 + calibration) / (2 * calibration));
     for (int i = 0; i != sizeof clock_names / sizeof clock_names[0]; ++i) {
         const char * name = clock_names[i];
         if (name == NULL)
