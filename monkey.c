@@ -23,7 +23,7 @@ static void monkey_in_complete (dTD_t * dtd);
 
 bool log_serial;
 
-void init_monkey (void)
+void init_monkey_serial (void)
 {
     // Bring up USART3.
     SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.

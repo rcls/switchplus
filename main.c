@@ -1,6 +1,8 @@
 // Lets try to bring up a usb device...
 
+#include "callback.h"
 #include "freq.h"
+#include "jtag.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
@@ -253,11 +255,6 @@ static unsigned char tx_ring_buffer[8192] __aligned (4096) __section ("ahb2");
 static unsigned char monkey_recv[512];
 
 
-typedef void function_t (void);
-
-static function_t * volatile deferred;
-
-
 #define CCU1_VALID_0 0
 #define CCU1_VALID_1 0x3f
 #define CCU1_VALID_2 0x1f
@@ -378,24 +375,27 @@ static void serial_byte (unsigned byte)
         puts (debug ? "Debug on\n" : "Debug off\n");
         return;
     case 'u':
-        deferred = enter_dfu;
+        callback_simple(enter_dfu);
         break;
-    case 'f': {
-        deferred = clock_report;
+    case 'f':
+        callback_simple(clock_report);
         return;
-    }
+    case 'j':
+        callback_simple(jtag_init);
+        return;
     case 'S':
         if (log_serial) {
             puts ("Serial log off\n");
             log_serial = false;
         }
         else {
+            init_monkey_serial();
             log_serial = true;
             puts ("Serial log on\n");
         }
         return;
     case 'm':
-        deferred = memtest;
+        callback_simple(memtest);
         return;
     }
 
@@ -549,7 +549,7 @@ static void process_setup (int i)
     switch (setup0 & 0xffff) {
     case 0x0021:                        // DFU detach.
         response_length = 0;
-        deferred = enter_dfu;
+        callback_simple(enter_dfu);
         break;
     case 0x0080:                        // Get status.
         response_data = "\0";
@@ -872,9 +872,6 @@ void main (void)
 
     __memory_barrier();
 
-    // Set-up the monkey.
-    init_monkey();
-
     init_switch();
     init_ethernet();
 
@@ -908,16 +905,8 @@ void main (void)
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
 
-    while (true) {
-        asm volatile ("cpsid i\n" ::: "memory");
-        function_t * function = deferred;
-        deferred = NULL;
-        if (!function)
-            asm volatile ("wfi\n");
-        asm volatile ("cpsie i\n" ::: "memory");
-        if (function)
-            function();
-    }
+    while (true)
+        callback_run();
 }
 
 

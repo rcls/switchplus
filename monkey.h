@@ -7,7 +7,7 @@
 extern bool log_serial;
 #define log_monkey true
 
-void init_monkey (void);
+void init_monkey_serial (void);
 
 void monkey_kick (void);
 
