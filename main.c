@@ -28,7 +28,6 @@ static unsigned tx_dma_insert;
 static unsigned rx_dma_retire;
 static unsigned rx_dma_insert;
 
-static bool debug;
 extern unsigned char bss_start;
 extern unsigned char bss_end;
 
@@ -371,8 +370,8 @@ static void serial_byte (unsigned byte)
         RESET_CTRL[0] = 0xffffffff;
         break;
     case 'd':
-        debug = !debug;
-        puts (debug ? "Debug on\n" : "Debug off\n");
+        debug_flag = !debug_flag;
+        puts (debug_flag ? "Debug on\n" : "Debug off\n");
         return;
     case 'u':
         callback_simple(enter_dfu);
@@ -459,8 +458,7 @@ static void endpt_tx_complete (dTD_t * dtd)
 
     *EDMA_TRANS_POLL_DEMAND = 0;
 
-    if (debug)
-        printf ("TX to MAC..: %08x %08x\n", dtd->buffer_page[0], status);
+    debugf ("TX to MAC..: %08x %08x\n", dtd->buffer_page[0], status);
 }
 
 
@@ -688,9 +686,8 @@ static void endpt_rx_complete (dTD_t * dtd)
 
     *EDMA_REC_POLL_DEMAND = 0;
 
-    if (debug)
-        printf ("RX complete: %08x %08x\n",
-                dtd->buffer_page[0], dtd->length_and_status);
+    debugf("RX complete: %08x %08x\n",
+           dtd->buffer_page[0], dtd->length_and_status);
 }
 
 
@@ -703,8 +700,7 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     void * buffer = rx->buffer1;
     schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
                      endpt_rx_complete);
-    if (debug)
-        printf ("RX to usb..: %p %08x\n", buffer, status);
+    debugf ("RX to usb..: %p %08x\n", buffer, status);
 }
 
 
@@ -714,8 +710,7 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
     schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
-    if (debug)
-        printf ("TX Complete: %p %08x\n", buffer, tx->status);
+    debugf ("TX Complete: %p %08x\n", buffer, tx->status);
 }
 
 
@@ -786,7 +781,7 @@ static void usb_interrupt (void)
     *ENDPTCOMPLETE = complete;
 
     // Don't log interrupts that look like they're monkey completions.
-    if (debug && (!log_monkey || (complete != 0x80000)))
+    if (debug_flag && (!log_monkey || (complete != 0x80000)))
         puts ("usb interrupt...\n");
 
     if (complete & 4)
@@ -835,8 +830,7 @@ static void usb_interrupt (void)
 
 static void eth_interrupt (void)
 {
-    if (debug)
-        puts ("eth interrupt...\n");
+    debugf ("eth interrupt...\n");
     *EDMA_STAT = 0x1ffff;               // Clear interrupts.
 
     while (rx_dma_retire != rx_dma_insert
@@ -851,8 +845,7 @@ static void eth_interrupt (void)
 
 static void usart3_interrupt (void)
 {
-    if (debug)
-        puts ("usart interrupt\n");
+    debugf ("usart interrupt\n");
 
     while (*USART3_LSR & 1)
         serial_byte (*USART3_RBR & 0xff);

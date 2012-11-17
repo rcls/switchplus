@@ -22,6 +22,7 @@ static unsigned char monkey_buffer[4096] __aligned (4096)
 static void monkey_in_complete (dTD_t * dtd);
 
 bool log_serial;
+bool debug_flag;
 
 void init_monkey_serial (void)
 {
