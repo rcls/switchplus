@@ -15,6 +15,7 @@ typedef struct dQH_t dQH_t;
 
 typedef void dtd_completion_t (dTD_t * dtd);
 
+// USB transfer descriptor.
 struct dTD_t {
     struct dTD_t * volatile next;
     volatile unsigned length_and_status;
@@ -23,6 +24,7 @@ struct dTD_t {
     dtd_completion_t * completion;      // For our use...
 };
 
+// USB queue head.
 struct dQH_t {
     // 48 byte queue head.
     volatile unsigned capabilities;
@@ -42,6 +44,7 @@ struct dQH_t {
     unsigned dummy3;
 };
 
+// Ethernet DMA descriptor (short form).
 typedef struct EDMA_DESC_t {
     unsigned status;
     unsigned count;

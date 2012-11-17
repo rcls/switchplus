@@ -51,6 +51,7 @@ void usb_init (void)
     *OTGSC = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
 
+    // Start with just the control end-points.
     for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
         ((char *) &qh_and_dtd.QH)[i] = 0;
     qh_init (0x00, 0x20408000);

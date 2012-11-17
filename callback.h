@@ -7,6 +7,7 @@ typedef void callback_function_t (callback_record_t * record);
 struct callback_record_t {
     callback_record_t * next;
     callback_function_t * function;     // Null means not scheduled.
+    unsigned udata;                     // User data.
     void * data[];
 };
 
