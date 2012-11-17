@@ -5,17 +5,17 @@ all: main.sram.boot main.flashA.flasher dfu.sram.bin
 .SECONDARY:
 
 clean:
-	-rm *.elf *.bin *.flasher *.boot *.o *.a *.s
+	-rm *.elf *.bin *.flasher *.boot *.o *.a *.s .deps/*.d
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -flto -fwhole-program -std=gnu11 -ffreestanding \
-	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.$@.d \
+	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.deps/$@.d \
 	-fno-common -fdata-sections  -Wall -Werror -Wno-error=unused-function
 
--include .*.d
+-include .deps/*.d
 
 main.sram.elf main.flashA.elf: liblpc.a
 
