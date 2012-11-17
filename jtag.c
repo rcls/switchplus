@@ -19,7 +19,7 @@ static void jtag_rx_callback (callback_record_t *);
 
 static void wait(void)
 {
-    for (int i = 0; i != 10; ++i)
+    for (int i = 0; i != 25; ++i)
         asm volatile ("");
 }
 
