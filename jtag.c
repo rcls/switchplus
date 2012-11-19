@@ -276,12 +276,12 @@ static void jtag_commands (unsigned char * p, unsigned length)
     for (const unsigned char * q = p; q != end;)
         q = jtag_command (q, end, &result);
 
-    asm volatile ("\tcpsid i\n" ::: "memory");
+    __interrupt_disable();
     if (result != p)
         schedule_buffer (JTAG_EP_IN, p, result - p, jtag_tx_complete);
     else
         schedule_buffer (JTAG_EP_OUT, p, 512, jtag_rx_complete);
-    asm volatile ("\tcpsie i\n" ::: "memory");
+    __interrupt_enable();
 }
 
 static void jtag_rx_callback (callback_record_t * record)

@@ -59,7 +59,7 @@ static inline unsigned enter_monkey (void)
 {
     unsigned r = current_irs();
     if (!r)
-        asm volatile ("\tcpsid i\n" ::: "memory");
+        __interrupt_disable();
     return r;
 }
 
@@ -69,7 +69,7 @@ static inline void leave_monkey (unsigned r)
     if (log_monkey)
         monkey_kick();
     if (!r)
-        asm volatile ("\tcpsie i\n" ::: "memory");
+        __interrupt_enable();
 }
 
 
@@ -95,7 +95,9 @@ static void write_byte (int byte)
         monkey_kick();
         if (!monkey_pos.outstanding || current_irs() != 0)
             return;                     // Full
-        asm volatile ("\twfi\n\tcpsie i\n\tcpsid i\n" ::: "memory");
+        __interrupt_wait();
+        __interrupt_enable();
+        __interrupt_disable();
     }
 
     *monkey_pos.insert++ = byte;

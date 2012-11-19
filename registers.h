@@ -2,6 +2,10 @@
 #define REGISTERS_H_
 
 #define __memory_barrier() asm volatile ("" : : : "memory")
+#define __interrupt_disable() asm volatile ("cpsid i\n" ::: "memory");
+#define __interrupt_enable() asm volatile ("cpsie i\n" ::: "memory");
+#define __interrupt_wait() asm volatile ("wfi\n");
+
 #define __section(s) __attribute__ ((section (s)))
 #define __aligned(s) __attribute__ ((aligned (s)))
 

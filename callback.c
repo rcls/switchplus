@@ -1,5 +1,7 @@
 #include "callback.h"
+#include "registers.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 
 static callback_record_t * next_callback;
@@ -15,7 +17,7 @@ void callback_simple (void (*function) (void))
 void callback_schedule (callback_function_t * function,
                         callback_record_t * callback)
 {
-    asm volatile ("cpsid i\n" ::: "memory");
+    __interrupt_disable();
     if (next_callback == NULL)
         callback_tail = &next_callback;
 
@@ -24,20 +26,24 @@ void callback_schedule (callback_function_t * function,
         callback_tail = &callback->next;
     }
     callback->function = function;
-    asm volatile ("cpsie i\n" ::: "memory");
+    __interrupt_enable();
 }
+
 
 void callback_run (void)
 {
-    asm volatile ("cpsid i\n" ::: "memory");
-    while (next_callback) {
+    while (true) {
+        __interrupt_disable();
+        if (next_callback == NULL) {
+            __interrupt_wait();
+            __interrupt_enable();
+            continue;
+        }
         callback_record_t * callback = next_callback;
         next_callback = callback->next;
         callback_function_t * function = callback->function;
         callback->function = NULL;
-        asm volatile ("cpsie i\n" ::: "memory");
+        __interrupt_enable();
         function (callback);
-        asm volatile ("cpsid i\n" ::: "memory");
     }
-    asm volatile ("cpsie i\n" ::: "memory");
 }
