@@ -41,7 +41,7 @@ enum string_descs_t {
     sd_eth_idle,
     sd_eth_showtime,
     sd_monkey,
-    sd_jtag,
+    sd_jtag_fish,
     sd_dfu,
 };
 
@@ -58,7 +58,7 @@ static const unsigned short string_eth_showtime[18] =
     u"\x0324""Ethernet Showtime";
 static const unsigned short string_monkey[7] = u"\x030e""Monkey";
 static const unsigned short string_dfu[4] = u"\x0308""DFU";
-static const unsigned short string_jtag[5] = u"\x030a""JTAG";
+static const unsigned short string_jtag_fish[10] = u"\x0314""JTAG FISH";
 
 static const unsigned short * const string_descriptors[] = {
     string_lang,
@@ -70,7 +70,7 @@ static const unsigned short * const string_descriptors[] = {
     [sd_eth_idle] = string_eth_idle,
     [sd_eth_showtime] = string_eth_showtime,
     [sd_monkey] = string_monkey,
-    [sd_jtag] = string_jtag,
+    [sd_jtag_fish] = string_jtag_fish,
     [sd_dfu] = string_dfu,
 };
 
@@ -221,7 +221,7 @@ static const unsigned char config_descriptor[] = {
     0xff,                               // interface class (vendor specific).
     'J',                                // interface sub-class.
     'J',                                // protocol.
-    sd_jtag,                            // interface string index.
+    sd_jtag_fish,                       // interface string index.
     // Endpoint
     7,                                  // Length.
     5,                                  // Type: endpoint.
