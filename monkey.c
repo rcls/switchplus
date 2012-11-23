@@ -148,6 +148,13 @@ void monkey_kick (void)
 }
 
 
+bool monkey_is_empty (void)
+{
+    unsigned char * volatile * p = &monkey_pos.limit;
+    return *p == NULL;
+}
+
+
 static void monkey_in_complete (dTD_t * dtd)
 {
     // FIXME - distinguish between errors and sending a full page?

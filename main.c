@@ -365,12 +365,10 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
 
 static void enter_dfu (void)
 {
+    bool was_empty = monkey_is_empty();
     puts ("Enter DFU\n");
-#if 0
-    if (log_monkey)
-        for (int i = 0; i != 1000000; ++i)
-            asm volatile ("");
-#endif
+    if (was_empty && log_monkey)
+        for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
 
     NVIC_ICER[0] = 0xffffffff;
 

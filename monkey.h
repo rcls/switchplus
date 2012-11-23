@@ -12,6 +12,7 @@ extern bool debug_flag;
 void init_monkey_serial (void);
 
 void monkey_kick (void);
+bool monkey_is_empty (void);
 
 void putchar (int byte);
 void puts (const char * s);
