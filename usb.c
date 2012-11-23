@@ -73,13 +73,9 @@ dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
     if (r == NULL) {
+        GPIO_BYTE[4][1] = 0;
         log_serial = true;
         puts ("Out of DTDs!!!\n");
-        /* ser_w_hex (tx_dma_retire, 8, " "); */
-        /* ser_w_hex (tx_dma_insert, 8, " tx retire, insert\n"); */
-        /* ser_w_hex (rx_dma_retire, 8, " "); */
-        /* ser_w_hex (rx_dma_insert, 8, " rx retire, insert\n"); */
-        GPIO_BYTE[4][1] = 0;
         while (1)
             __interrupt_wait();
     }
@@ -156,8 +152,6 @@ bool schedule_buffer (unsigned ep, const void * data, unsigned length,
                       dtd_completion_t * cb)
 {
     dTD_t * dtd = get_dtd();
-    if (dtd == NULL)
-        return false;                   // Bugger.
 
     // Set terminate & active bits.
     dtd->length_and_status = (length << 16) + 0x8080;

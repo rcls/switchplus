@@ -133,9 +133,6 @@ void monkey_kick (void)
 
     // FIXME - we should do something to get stuff out on out-of-dtds.
     dTD_t * dtd = get_dtd();
-    if (!dtd)
-        return;                         // FIXME - we need better.
-
     dtd->buffer_page[0] = (unsigned) monkey_pos.limit;
     dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
     int length = monkey_pos.insert - monkey_pos.limit;
