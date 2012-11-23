@@ -686,15 +686,15 @@ static void process_setup (int i)
         break;
     }
 
-    if (response_length != 0xffffffff)
+    if (response_length != 0xffffffff) {
         respond_to_setup (i, setup1,
                           response_data, response_length, callback);
+        debugf ("Setup: %08x %08x\n", setup0, setup1);
+    }
     else {
         *ENDPTCTRL0 = 0x810081;         // Stall....
-        puts ("STALL on setup request.\n");
+        printf ("Setup STALL: %08x %08x\n", setup0, setup1);
     }
-    // FIXME - flush old setups.
-    printf ("Setup: %08x %08x\n", setup0, setup1);
 }
 
 
