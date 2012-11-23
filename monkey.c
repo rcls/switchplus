@@ -157,19 +157,17 @@ static void monkey_in_complete (dTD_t * dtd)
     // FIXME - distinguish between errors and sending a full page?
     monkey_pos.outstanding = false;
     monkey_pos.limit = (unsigned char *) dtd->buffer_page[0];
-    if (monkey_pos.limit == monkey_pos.insert) {
+    if (monkey_pos.limit == monkey_pos.insert)
         // We're idle.  Reset the pointers.
         monkey_pos.limit = NULL;
-    }
-    else {
+    else
         monkey_kick();
-    }
 }
 
 
 static void format_string (const char * s, unsigned width, unsigned char fill)
 {
-    for (const char * e = s; *e; ++e)
+    for (const char * e = s; *e; ++e, --width)
         if (width == 0)
             break;
     for (; width != 0; --width)
