@@ -281,9 +281,6 @@ STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
 static unsigned char rx_ring_buffer[8192] __aligned (4096) __section ("ahb1");
 static unsigned char tx_ring_buffer[8192] __aligned (4096) __section ("ahb2");
 
-static unsigned char monkey_recv[512];
-
-
 #define CCU1_VALID_0 0
 #define CCU1_VALID_1 0x3f
 #define CCU1_VALID_2 0x1f
@@ -402,13 +399,13 @@ static void serial_byte (unsigned byte)
         puts (debug_flag ? "Debug on\n" : "Debug off\n");
         return;
     case 'u':
-        callback_simple(enter_dfu);
+        enter_dfu();
         break;
     case 'f':
-        callback_simple(clock_report);
+        clock_report();
         return;
     case 'j':
-        callback_simple(jtag_reset);
+        jtag_reset();
         return;
     case 'S':
         if (log_serial) {
@@ -422,7 +419,7 @@ static void serial_byte (unsigned byte)
         }
         return;
     case 'm':
-        callback_simple(memtest);
+        memtest();
         return;
     }
 
@@ -430,16 +427,6 @@ static void serial_byte (unsigned byte)
         putchar ('\n');
     else
         putchar (byte);
-}
-
-
-static void monkey_out_complete (dTD_t * dtd)
-{
-    unsigned char * end = (unsigned char *) dtd->buffer_page[0];
-    for (unsigned char * p = monkey_recv; p != end; ++p)
-        serial_byte (*p);
-
-    schedule_buffer (3, monkey_recv, sizeof monkey_recv, monkey_out_complete);
 }
 
 
@@ -459,11 +446,7 @@ static void start_mgmt (void)
     qh_init (0x83, 0x22000000);
     *ENDPTCTRL3 = 0x008c008c;
 
-    if (log_monkey)
-        monkey_kick();
-
-    schedule_buffer (3, monkey_recv, sizeof monkey_recv, monkey_out_complete);
-
+    init_monkey_usb();
     jtag_init_usb();
 }
 
@@ -921,7 +904,7 @@ void main (void)
     *EDMA_INT_EN = 0x0001ffff;
 
     while (true)
-        callback_wait();
+        serial_byte (getchar());
 }
 
 

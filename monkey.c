@@ -1,4 +1,5 @@
 
+#include "callback.h"
 #include "monkey.h"
 #include "registers.h"
 #include "usb.h"
@@ -15,11 +16,23 @@ static struct {
     bool outstanding;                   // Do we have a USB xmit outstanding?
 } monkey_pos;
 
+
+static int monkey_in_next;
+static struct {
+    unsigned char * next;
+    unsigned char * end;
+} monkey_recv_pos[2];
+
+
 static unsigned char monkey_buffer[4096] __aligned (4096)
     __section ("ahb0.monkey_buffer");
 #define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
 
+static unsigned char monkey_recv[1024] __aligned (512)
+    __section ("ahb0.monkey_recv");
+
 static void monkey_in_complete (dTD_t * dtd);
+static void monkey_out_complete (dTD_t * dtd);
 
 bool log_serial;
 bool debug_flag;
@@ -44,6 +57,17 @@ void init_monkey_serial (void)
     *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
     *USART3_FCR = 1;                    // Enable fifos.
     *USART3_IER = 1;                    // Enable receive interrupts.
+}
+
+
+void init_monkey_usb (void)
+{
+    if (log_monkey)
+        monkey_kick();
+
+    schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
+    schedule_buffer (3, monkey_recv + 512, 512, monkey_out_complete);
+    monkey_in_next = -1;
 }
 
 
@@ -287,4 +311,59 @@ void printf (const char * restrict f, ...)
     va_end (args);
 
     leave_monkey (l);
+}
+
+
+int getchar (void)
+{
+    // In case we've done an unget...
+    int r = monkey_in_next;
+    monkey_in_next = -1;
+    if (r >= 0)
+        return r;
+
+    unsigned char * n = monkey_recv_pos->next;
+    __memory_barrier();
+    if (n == NULL) {
+        __interrupt_disable();
+        while (monkey_recv_pos->next == NULL)
+            callback_wait();
+        n = monkey_recv_pos->next;
+        __interrupt_enable();
+    }
+
+    r = *n++;
+    monkey_recv_pos->next = n;
+    if (n != monkey_recv_pos->end)
+        return r;
+
+    __interrupt_disable();
+    unsigned offset = (511 & ((long) monkey_recv_pos->end - 1)) + 1;
+    schedule_buffer (3, monkey_recv_pos->end - offset, 512,
+                     monkey_out_complete);
+    monkey_recv_pos[0] = monkey_recv_pos[1];
+    monkey_recv_pos[1].next = NULL;
+    monkey_recv_pos[1].end = NULL;
+    __interrupt_enable();
+    return r;
+}
+
+
+static void monkey_out_complete (dTD_t * dtd)
+{
+    unsigned char * buffer = (unsigned char *) dtd->buffer_page[4];
+    unsigned length = 512 - (dtd->length_and_status >> 16);
+
+    if (length == 0) {
+        // Reschedule immediately.
+        schedule_buffer (3, buffer, 512, monkey_out_complete);
+        return;
+    }
+
+    int index = 0;
+    if (monkey_recv_pos->next != NULL)
+        index = 1;
+
+    monkey_recv_pos[index].next = buffer;
+    monkey_recv_pos[index].end = buffer + length;
 }

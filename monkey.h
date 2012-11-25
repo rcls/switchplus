@@ -10,6 +10,7 @@ extern bool log_serial;
 extern bool debug_flag;
 
 void init_monkey_serial (void);
+void init_monkey_usb (void);
 
 void monkey_kick (void);
 bool monkey_is_empty (void);
@@ -18,6 +19,8 @@ void putchar (int byte);
 void puts (const char * s);
 void printf (const char * __restrict__ format, ...)
     __attribute__ ((format (printf, 1, 2)));
+
+int getchar (void);
 
 #define debugf !debug_flag ? (void)0 : printf
 
