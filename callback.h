@@ -17,6 +17,8 @@ void callback_simple (void (*function)(void));
 void callback_schedule (callback_function_t * function,
                         callback_record_t * record);
 
-void callback_run (void);
+// Either run a callback or wait for an interrupt.  Interrupts should be
+// disabled on entry.
+void callback_wait (void);
 
 #endif

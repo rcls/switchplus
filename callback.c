@@ -30,20 +30,19 @@ void callback_schedule (callback_function_t * function,
 }
 
 
-void callback_run (void)
+void callback_wait (void)
 {
-    while (true) {
-        __interrupt_disable();
-        if (next_callback == NULL) {
-            __interrupt_wait();
-            __interrupt_enable();
-            continue;
-        }
-        callback_record_t * callback = next_callback;
-        next_callback = callback->next;
-        callback_function_t * function = callback->function;
-        callback->function = NULL;
+    if (next_callback == NULL) {
+        __interrupt_wait();
         __interrupt_enable();
-        function (callback);
+        __interrupt_disable();
+        return;
     }
+    callback_record_t * callback = next_callback;
+    next_callback = callback->next;
+    callback_function_t * function = callback->function;
+    callback->function = NULL;
+    __interrupt_enable();
+    function (callback);
+    __interrupt_disable();
 }

@@ -885,6 +885,7 @@ static void usart3_interrupt (void)
 void main (void)
 {
     // Disable all interrupts for now...
+    __interrupt_disable();
     NVIC_ICER[0] = 0xffffffff;
     NVIC_ICER[1] = 0xffffffff;
 
@@ -929,7 +930,7 @@ void main (void)
     *EDMA_INT_EN = 0x0001ffff;
 
     while (true)
-        callback_run();
+        callback_wait();
 }
 
 
