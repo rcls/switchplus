@@ -392,7 +392,7 @@ static void enter_dfu (void)
 
 static void serial_byte (unsigned byte)
 {
-    switch (byte & 0xff) {
+    switch (byte) {
     case 'r':
         puts ("Reboot!\n");
         RESET_CTRL[0] = 0xffffffff;

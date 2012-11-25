@@ -177,9 +177,8 @@ static void format_string (const char * s, unsigned width, unsigned char fill)
 }
 
 
-static void format_number (
-    unsigned long value, unsigned base, unsigned lower,
-    bool sgn, unsigned width, unsigned char fill)
+static void format_number (unsigned long value, unsigned base, unsigned lower,
+                           bool sgn, unsigned width, unsigned char fill)
 {
     unsigned char c[23];
     unsigned char * p = c;
