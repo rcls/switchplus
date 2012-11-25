@@ -11,7 +11,7 @@ void meminit (unsigned mhz)
     * (v32 *) 0x40051478 = 1;
 
     // Setup pins.
-    static const int pins[] = {
+    static const unsigned pins[] = {
 #define pin_in(a,b,f) (a * 32 * 65536 + b * 65536 + 0xe0 + f)
 #define pin_out(a,b,f) (a * 32 * 65536 + b * 65536 + 0x20 + f)
         pin_in (1, 7, 3),               // T5  EMC_D0
@@ -173,7 +173,7 @@ void memtest (void)
 
     //unsigned base_m4 = *BASE_M4_CLK >> 24;
     //unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
-    meminit (96);
+    meminit (cpu_frequency (1));
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;

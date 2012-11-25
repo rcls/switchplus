@@ -53,6 +53,13 @@ int frequency (unsigned clock, unsigned multiplier)
 }
 
 
+int cpu_frequency (unsigned multiplier)
+{
+    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
+    return frequency (base_m4, multiplier);
+}
+
+
 static const char * const clock_names[] = {
     "32 kHz", "IRC", "ENET_RX_CLK", "ENET_TX_CLK", "GP_CLKIN", NULL,
     "Crystal", "PLL0USB", "PLL0AUDIO", "PLL1", NULL, NULL,
