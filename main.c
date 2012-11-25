@@ -873,15 +873,6 @@ static void eth_interrupt (void)
 }
 
 
-static void usart3_interrupt (void)
-{
-    debugf ("usart interrupt\n");
-
-    while (*USART3_LSR & 1)
-        serial_byte (*USART3_RBR & 0xff);
-}
-
-
 void main (void)
 {
     // Disable all interrupts for now...
@@ -924,7 +915,7 @@ void main (void)
     usb_init();
 
     // Enable the ethernet, usb and serial interrupts.
-    NVIC_ISER[0] = 0x08000120;
+    NVIC_ISER[0] = 0x00000120;
     *USBINTR = 0x00000041;              // Port change, reset, data.
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
@@ -941,5 +932,4 @@ void * start[64] = {
 
     [21] = eth_interrupt,
     [24] = usb_interrupt,
-    [43] = usart3_interrupt,
 };
