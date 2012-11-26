@@ -53,3 +53,7 @@ main.sram.elf main.flashA.elf: liblpc.a
 
 liblpc.a: callback.o freq.o jtag.o monkey.o sdram.o switch.o usb.o
 	ar cr $@ $+
+
+.PHONY: go
+go:	main.sram.boot
+	sudo dfu-util -D main.sram.boot
