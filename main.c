@@ -70,7 +70,6 @@ static const unsigned short * const string_descriptors[] = {
     [sd_eth_idle] = string_eth_idle,
     [sd_eth_showtime] = string_eth_showtime,
     [sd_monkey] = string_monkey,
-    [sd_jtag_fish] = string_jtag_fish,
     [sd_dfu] = string_dfu,
 };
 
@@ -104,7 +103,7 @@ enum usb_interfaces_t {
 };
 
 
-#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7 + 7 + 9 + 7 + 7 + 9 + 7)
+#define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7 + 7 + 9 + 7)
 static const unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
@@ -208,31 +207,6 @@ static const unsigned char config_descriptor[] = {
     7,                                  // Length.
     5,                                  // Type: endpoint.
     0x83,                               // IN 3.
-    0x2,                                // bulk
-    0, 2,                               // packet size
-    0,
-
-    // Interface (JTAG)
-    9,                                  // length.
-    4,                                  // type: interface.
-    usb_intf_jtag,                      // interface number.
-    0,                                  // alternate setting.
-    2,                                  // number of endpoints.
-    0xff,                               // interface class (vendor specific).
-    'J',                                // interface sub-class.
-    'J',                                // protocol.
-    sd_jtag_fish,                       // interface string index.
-    // Endpoint
-    7,                                  // Length.
-    5,                                  // Type: endpoint.
-    4,                                  // OUT 4.
-    0x2,                                // bulk
-    0, 2,                               // packet size
-    0,
-    // Endpoint
-    7,                                  // Length.
-    5,                                  // Type: endpoint.
-    0x84,                               // IN 3.
     0x2,                                // bulk
     0, 2,                               // packet size
     0,
@@ -447,7 +421,6 @@ static void start_mgmt (void)
     *ENDPTCTRL3 = 0x008c008c;
 
     init_monkey_usb();
-    jtag_init_usb();
 }
 
 
