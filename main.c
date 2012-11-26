@@ -405,7 +405,7 @@ static void serial_byte (unsigned byte)
         clock_report();
         return;
     case 'j':
-        jtag_reset();
+        jtag_cmd();
         return;
     case 'S':
         if (log_serial) {

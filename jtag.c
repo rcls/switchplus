@@ -47,6 +47,43 @@ static void jtag_clk_and_store(int tms, int tdi,
 }
 
 
+static void jtag_tms(int n, unsigned d)
+{
+    for (int i = 0; i != n; ++i)
+        jtag_clk(d & (1 << i), 1);
+}
+
+
+static unsigned jtag_tdi(int n, unsigned d)
+{
+    unsigned r = 0;
+    --n;
+    for (int i = 0; i != n; ++i)
+        r |= jtag_clk(0, d & (1 << i)) << i;
+
+    r |= jtag_clk(1, d & (1 << n)) << n;
+    return r;
+}
+
+
+static void jtag_ir(int n, unsigned d)
+{
+    // Select DR, Select IR, Capture IR, Shift IR.
+    jtag_tms (4, 3);
+    jtag_tdi (n, d);                    // Exit1 IR.
+    jtag_clk (1, 1);                    // Update IR.
+}
+
+
+static unsigned jtag_dr_short(int n, unsigned d)
+{
+    jtag_tms (3, 1);
+    unsigned r = jtag_tdi (n, d);       // Exit1 DR.
+    jtag_clk (1, 1);                    // Update DR.
+    return r;
+}
+
+
 void jtag_reset(void)
 {
     log_serial = false;                 // We share pins with the serial log...
@@ -69,22 +106,12 @@ void jtag_reset(void)
     SFSP[12][13] = 4;
     SFSP[2][4]   = 4;
 
-    // Reset jtag.
-    for (int i = 0; i != 10; ++i)
-        jtag_clk(1,1);
-
-    jtag_clk(0,1);                      // Goto run test idle.
-    jtag_clk(1,1);                      // Goto select DR.
-    jtag_clk(0,1);                      // Goto capture DR.
-    jtag_clk(0,1);                      // Goto shift DR.
-    unsigned code = 0;
-    for (int i = 0; i != 32; ++i)
-        code |= jtag_clk(0,1) << i;
-    printf ("idcode %08x\n", code);
+    // Reset jtag, land in run test/idle.
+    jtag_tms(9,0xff);
+    printf ("idcode %08x\n", jtag_dr_short (32, 0xdeadbeef));
 
     // Reset again.
-    for (int i = 0; i != 10; ++i)
-        jtag_clk(1,1);
+    jtag_tms(9,0xff);
 }
 
 // Opcodes: ooooxxxx
@@ -304,4 +331,39 @@ void jtag_init_usb (void)
 
     schedule_buffer (JTAG_EP_OUT, usb_buffer, 512, jtag_rx_complete);
     schedule_buffer (JTAG_EP_OUT, usb_buffer + 512, 512, jtag_rx_complete);
+}
+
+
+void jtag_cmd (void)
+{
+    jtag_reset();
+#define CLR "\r\e[K"
+
+    while (true) {
+        printf ("<R>eset, <I>d, <D>...");
+        switch (getchar()) {
+        case 'r':
+            printf (CLR "Reset\n");
+            jtag_reset();
+            break;
+
+        case 'i':
+            printf (CLR "Send ID command\n");
+            jtag_ir(6,9);
+            break;
+
+        case 'b':
+            printf (CLR "Send Bypass command\n");
+            jtag_ir(6, 0x3f);
+            break;
+
+        case 'd':
+            printf (CLR "32 DR bits %08x\n", jtag_dr_short(32, 0xdeadbeef));
+            break;
+
+        default:
+            printf (CLR "Jtag exit...\n");
+            return;
+        }
+    }
 }

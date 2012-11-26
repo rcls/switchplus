@@ -3,5 +3,6 @@
 
 void jtag_reset(void);
 void jtag_init_usb(void);
+void jtag_cmd(void);
 
 #endif
