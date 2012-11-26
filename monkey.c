@@ -349,6 +349,21 @@ int getchar (void)
 }
 
 
+int peekchar_nb (void)
+{
+    int r = monkey_in_next;
+    if (r == -1 && monkey_recv_pos->next)
+        r = *monkey_recv_pos->next;
+    return r;
+}
+
+
+void ungetchar (int c)
+{
+    monkey_in_next = c & 255;
+}
+
+
 static void monkey_out_complete (dTD_t * dtd)
 {
     unsigned char * buffer = (unsigned char *) dtd->buffer_page[4];

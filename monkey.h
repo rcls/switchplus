@@ -21,6 +21,8 @@ void printf (const char * __restrict__ format, ...)
     __attribute__ ((format (printf, 1, 2)));
 
 int getchar (void);
+void ungetchar (int c);
+int peekchar_nb (void);
 
 #define debugf !debug_flag ? (void)0 : printf
 

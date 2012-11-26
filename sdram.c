@@ -139,7 +139,7 @@ void meminit (unsigned mhz)
 }
 
 
-void memtest1 (unsigned bit, unsigned w0, unsigned w1)
+int memtest1 (unsigned bit, unsigned w0, unsigned w1)
 {
     if (w0 == w1 || bit == 0)
         printf ("Memtest: pattern %08x", w0);
@@ -164,6 +164,7 @@ void memtest1 (unsigned bit, unsigned w0, unsigned w1)
             printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
                     i, i & bit ? w1 : w0, v);
     }
+    return peekchar_nb();
 }
 
 
@@ -191,16 +192,22 @@ void memtest (void)
                     i, e, v);
     }
 
+    if (peekchar_nb() >= 0)
+        return;
+
     static unsigned patterns[] = {
         0xaaaaaaaa, 0x55555555, 0xcccccccc, 0x33333333, 0xf0f0f0f0, 0x0f0f0f0f,
         0xff00ff00, 0x00ff00ff, 0xffff0000, 0x0000ffff,
     };
     for (int j = 0; j != sizeof patterns / sizeof patterns[0]; ++j)
-        memtest1 (0, patterns[j], patterns[j]);
+        if (memtest1 (0, patterns[j], patterns[j]) >= 0)
+            return;
 
     for (unsigned bit = 1; bit < size; bit <<= 1) {
-        memtest1 (bit, 0, 0xffffffff);
-        memtest1 (bit, 0xffffffff, 0);
+        if (memtest1 (bit, 0, 0xffffffff) >= 0)
+            return;
+        if (memtest1 (bit, 0xffffffff, 0) >= 0)
+            return;
     }
 
     puts ("Memtest: Done\n");
