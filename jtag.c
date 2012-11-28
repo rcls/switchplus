@@ -132,7 +132,10 @@ void jtag_program (void)
     verbose ("JPROGRAM IR %02x\n", r);
     jtag_clk(0,0); // Run-test idle.
     for (int i = 0; i != 100000; ++i)
-        asm volatile("");
+        if (jtag_ir(BYPASS) == 0x11)
+            break;
+
+    jtag_clk(0,0); // Run-test idle.
     r = jtag_ir(CFG_IN);
     verbose ("CFG_IN IR %02x\n", r);
     //.... DR bitstream...
