@@ -24,7 +24,7 @@
 
 static void wait(void)
 {
-    for (int i = 0; i != 25; ++i)
+    for (int i = 0; i != 50; ++i)
         asm volatile ("");
 }
 
@@ -61,12 +61,13 @@ static unsigned jtag_tdi(int n, unsigned d)
 }
 
 
-static void jtag_ir(unsigned d)
+static unsigned jtag_ir(unsigned d)
 {
     // Select DR, Select IR, Capture IR, Shift IR.
     jtag_tms (4, 3);
-    jtag_tdi (6, d);                    // Exit1 IR.
+    unsigned r = jtag_tdi (6, d);       // Exit1 IR.
     jtag_clk (1, 1);                    // Update IR.
+    return r;
 }
 
 
@@ -118,8 +119,8 @@ int program_nibble (int next, int c, int * count, int final)
     jtag_clk(0, next & 4);
     jtag_clk(0, next & 2);
     jtag_clk(final, next & 1);
-    if ((++*count & 2047) == 0)
-        printf(CLR "Processed %u bits", *count * 4);
+    if ((++*count & 4095) == 0)
+        verbose(CLR "Processed %u bits", *count * 4);
     return c;
 }
 
@@ -127,7 +128,13 @@ int program_nibble (int next, int c, int * count, int final)
 void jtag_program (void)
 {
     jtag_tms(9,0xff);                   // Reset, Run-test/idle.
-    jtag_ir(CFG_IN);
+    int r = jtag_ir(JPROGRAM);
+    verbose ("JPROGRAM IR %02x\n", r);
+    jtag_clk(0,0); // Run-test idle.
+    for (int i = 0; i != 100000; ++i)
+        asm volatile("");
+    r = jtag_ir(CFG_IN);
+    verbose ("CFG_IN IR %02x\n", r);
     //.... DR bitstream...
     jtag_tms(3,1);
     // The bitstream...
@@ -144,8 +151,6 @@ void jtag_program (void)
         else if (c > ' ') {
             printf ("\nUnknown char %02x, abort program\n", c);
             count = -1;
-            jtag_reset();
-            return;
         }
     }
     if (next < 0 || count < 0) {
@@ -155,9 +160,11 @@ void jtag_program (void)
     }
 
     program_nibble (next, -1, &count, 1);
+    jtag_clk (1, 1);                    // Update DR.
 
     jtag_clk(0,0);                      // Run-test idle.
-    jtag_ir(JSTART);
+    r = jtag_ir(JSTART);
+    verbose ("\nJSTART IR %02x\n", r);
     jtag_tms(16,0);                     // Run-test idle.
     jtag_tms(3,7);                      // Reset.
     jtag_clk(0,0);                      // Run-test idle.
@@ -171,7 +178,7 @@ void jtag_cmd (void)
     jtag_reset();
 
     while (true) {
-        printf ("<R>eset, <I>d, <D>...");
+        verbose ("JTAG: <R>eset, <I>d, <D>, <B>, <P>...");
         switch (getchar()) {
         case 'j':
             printf (CLR "Reset\n");
@@ -179,8 +186,8 @@ void jtag_cmd (void)
             break;
 
         case 'i':
-            printf (CLR "Send ID command\n");
-            jtag_ir(IDCODE);
+            printf (CLR "Sent ID command, IR returns %02x\n",
+                    jtag_ir(IDCODE));
             break;
 
         case 'b':
@@ -193,8 +200,9 @@ void jtag_cmd (void)
             break;
 
         case 'p':
+            printf (CLR "Jtag program....\n");
             jtag_program();
-            return;
+            break;
 
         default:
             printf (CLR "Jtag exit...\n");

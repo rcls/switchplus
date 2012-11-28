@@ -337,7 +337,7 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
 static void enter_dfu (void)
 {
     bool was_empty = monkey_is_empty();
-    puts ("Enter DFU\n");
+    verbose ("Enter DFU\n");
     if (was_empty && log_monkey)
         for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
 
@@ -364,22 +364,18 @@ static void enter_dfu (void)
 static void serial_byte (unsigned byte)
 {
     switch (byte) {
-    case 'r':
-        puts ("Reboot!\n");
-        RESET_CTRL[0] = 0xffffffff;
-        break;
     case 'd':
         debug_flag = !debug_flag;
         puts (debug_flag ? "Debug on\n" : "Debug off\n");
         return;
-    case 'u':
-        enter_dfu();
-        break;
     case 'f':
         clock_report();
         return;
     case 'j':
         jtag_cmd();
+        return;
+    case 'm':
+        memtest();
         return;
     case 'S':
         if (log_serial) {
@@ -392,8 +388,16 @@ static void serial_byte (unsigned byte)
             puts ("Serial log on\n");
         }
         return;
-    case 'm':
-        memtest();
+    case 'r':
+        puts ("Reboot!\n");
+        RESET_CTRL[0] = 0xffffffff;
+        return;
+    case 'u':
+        enter_dfu();
+        return;
+    case 'v':
+        verbose_flag = !verbose_flag;
+        puts (verbose_flag ? "Verbose ON\n" : "Verbose OFF\n");
         return;
     }
 
@@ -422,7 +426,7 @@ static void start_mgmt (void)
     // No 0-size-frame on the monkey.
     qh_init (0x03, 0x22000000);
     qh_init (0x83, 0x22000000);
-    *ENDPTCTRL3 = 0x008c008c;
+    *ENDPTCTRL3 = 0x00c800c8;
 
     init_monkey_usb();
 }

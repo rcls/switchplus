@@ -36,6 +36,7 @@ static void monkey_out_complete (dTD_t * dtd);
 
 bool log_serial;
 bool debug_flag;
+bool verbose_flag;
 
 void init_monkey_serial (void)
 {
