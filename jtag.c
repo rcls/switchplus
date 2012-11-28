@@ -13,6 +13,15 @@
 #define JTAG_EP_OUT 0x04
 
 
+#define IDCODE 9
+#define JSTART 12
+#define CFG_IN 5
+#define JPROGRAM 11
+#define BYPASS 63
+
+// CR + ANSI clear line sequence.
+#define CLR "\r\e[K"
+
 static void wait(void)
 {
     for (int i = 0; i != 25; ++i)
@@ -52,11 +61,11 @@ static unsigned jtag_tdi(int n, unsigned d)
 }
 
 
-static void jtag_ir(int n, unsigned d)
+static void jtag_ir(unsigned d)
 {
     // Select DR, Select IR, Capture IR, Shift IR.
     jtag_tms (4, 3);
-    jtag_tdi (n, d);                    // Exit1 IR.
+    jtag_tdi (6, d);                    // Exit1 IR.
     jtag_clk (1, 1);                    // Update IR.
 }
 
@@ -101,32 +110,91 @@ static void jtag_reset(void)
 }
 
 
+int program_nibble (int next, int c, int * count, int final)
+{
+    if (next < 0 || *count < 0)
+        return c;
+    jtag_clk(0, next & 8);
+    jtag_clk(0, next & 4);
+    jtag_clk(0, next & 2);
+    jtag_clk(final, next & 1);
+    if ((++*count & 2047) == 0)
+        printf(CLR "Processed %u bits", *count * 4);
+    return c;
+}
+
+
+void jtag_program (void)
+{
+    jtag_tms(9,0xff);                   // Reset, Run-test/idle.
+    jtag_ir(CFG_IN);
+    //.... DR bitstream...
+    jtag_tms(3,1);
+    // The bitstream...
+    int next = -1;
+    int count = 0;
+    while (true) {
+        int c = getchar();
+        if (c == '.')
+            break;
+        if (c >= '0' && c <= '9')
+            next = program_nibble (next, c, &count, 0);
+        else if ((c&~32) >= 'A' && (c&~32) <= 'F')
+            next = program_nibble (next, c + 9, &count, 0);
+        else if (c > ' ') {
+            printf ("\nUnknown char %02x, abort program\n", c);
+            count = -1;
+            jtag_reset();
+            return;
+        }
+    }
+    if (next < 0 || count < 0) {
+        printf (CLR "No data; aborting\n");
+        jtag_reset();
+        return;
+    }
+
+    program_nibble (next, -1, &count, 1);
+
+    jtag_clk(0,0);                      // Run-test idle.
+    jtag_ir(JSTART);
+    jtag_tms(16,0);                     // Run-test idle.
+    jtag_tms(3,7);                      // Reset.
+    jtag_clk(0,0);                      // Run-test idle.
+
+    printf (CLR "Programmed %u bits\n", count * 4);
+}
+
+
 void jtag_cmd (void)
 {
     jtag_reset();
-#define CLR "\r\e[K"
 
     while (true) {
         printf ("<R>eset, <I>d, <D>...");
         switch (getchar()) {
-        case 'r':
+        case 'j':
             printf (CLR "Reset\n");
             jtag_reset();
             break;
 
         case 'i':
             printf (CLR "Send ID command\n");
-            jtag_ir(6,9);
+            jtag_ir(IDCODE);
             break;
 
         case 'b':
             printf (CLR "Send Bypass command\n");
-            jtag_ir(6, 0x3f);
+            jtag_ir(BYPASS);
             break;
 
         case 'd':
             printf (CLR "32 DR bits %08x\n", jtag_dr_short(32, 0xdeadbeef));
             break;
+
+        case 'p':
+            jtag_program();
+            return;
 
         default:
             printf (CLR "Jtag exit...\n");

@@ -397,6 +397,10 @@ static void serial_byte (unsigned byte)
         return;
     }
 
+    // Don't echo escape...
+    if (byte == 27)
+        return;
+
     if (byte == '\r')
         putchar ('\n');
     else

@@ -5,7 +5,8 @@ PCB.*.save
 *.boot
 *.elf
 *.flasher
+.deps/
 utils/addheader
 utils/runit
 utils/flasher
-.*.d
+utils/xbit
