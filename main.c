@@ -97,7 +97,6 @@ enum usb_interfaces_t {
     usb_intf_eth_comm,
     usb_intf_eth_data,
     usb_intf_monkey,
-    usb_intf_jtag,
     usb_intf_dfu,
     usb_num_intf
 };
