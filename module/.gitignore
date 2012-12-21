@@ -1,0 +1,7 @@
+# God kernel builds make a lot of crap.
+.*.cmd
+.tmp_versions
+Module.symvers
+modules.order
+monkey.ko
+monkey.mod.c
