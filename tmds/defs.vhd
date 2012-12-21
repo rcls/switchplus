@@ -28,7 +28,7 @@ package defs is
     q_m(8) := bb(bi(d(1)) + bi(d(2)) + bi(d(3)) + bi(d(4)) +
                  bi(d(5)) + bi(d(6)) + bi(d(7)) < 4);
     for i in 1 to 7 loop
-      q_m(i) := not q_m(i-1) xor d(i-1) xor q_m(8);
+      q_m(i) := not q_m(i-1) xor d(i) xor q_m(8);
     end loop;
     q_m(9) := '0';
 
@@ -44,7 +44,7 @@ package defs is
     elsif q_m(8) = '0' then
       return out_n & out_n;
     else
-      return out_p * out_p;
+      return out_p & out_p;
     end if;
   end encode_byte;
 
