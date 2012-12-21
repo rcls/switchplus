@@ -64,6 +64,7 @@ begin
   lcd_pll : pll_base
     generic map(
       CLK_FEEDBACK   => "CLKFBOUT",
+      COMPENSATION   => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE  => 2, CLKFBOUT_MULT => 15,
       CLKOUT0_DIVIDE => 1,
       CLKOUT1_DIVIDE => 4,
