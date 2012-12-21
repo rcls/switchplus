@@ -119,10 +119,10 @@ entity tmds_encode is
         ctl0, ctl1, ctl2, ctl3 : in std_logic;
         DE : in std_logic;
         Rp, Rn, Gp, Gn, Bp, Bn, Cp, Cn : out std_logic;
-        clk, clk_nibble, clk_bit, clk_bit180, locked : in std_logic);
+        clk, clk_nibble, clk_bit, locked : in std_logic);
 end tmds_encode;
 architecture tmds_encode of tmds_encode is
-  signal ioclk, ioclk180, lock, serdesstrobe : std_logic;
+  signal ioclk, lock, serdesstrobe : std_logic;
   signal clk180 : std_logic;
   signal Rnibble, Gnibble, Bnibble : nibble_t;
   signal Rq, Rt, Gq, Gt, Bq, Bt, Cq : std_logic;
@@ -135,29 +135,32 @@ begin
   Bc : entity work.tmds_channel port map (
     B, hsync, vsync, DE, Bnibble, clk, clk_nibble);
 
-  Ro : oserdes2 generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "DDR")
+  Ro : oserdes2
+    generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "SDR", DATA_RATE_OT=> "SDR")
     port map (D1=>Rnibble(0), D2=> Rnibble(1), D3=> Rnibble(2), D4=>Rnibble(3),
               T1=>'0', T2=>'0', T3=>'0', T4=>'0',
               SHIFTIN1=>'0', SHIFTIN2=>'0', SHIFTIN3=>'0', SHIFTIN4=>'0',
-              CLK0=> ioclk, CLK1=> ioclk180, CLKDIV=> clk_nibble,
+              CLK0=> ioclk, CLK1=> '0', CLKDIV=> clk_nibble,
               IOCE=> serdesstrobe, RST=> '0',
               TCE=> '1', TRAIN=>'0',
               -- OCE=>'0', TCE=>'0',
               OQ=> Rq, TQ=> Rt);
-  Go : oserdes2 generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "DDR")
+  Go : oserdes2
+    generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "SDR", DATA_RATE_OT=> "SDR")
     port map (D1=>Gnibble(0), D2=> Gnibble(1), D3=> Gnibble(2), D4=>Gnibble(3),
               T1=>'0', T2=>'0', T3=>'0', T4=>'0',
               SHIFTIN1=>'0', SHIFTIN2=>'0', SHIFTIN3=>'0', SHIFTIN4=>'0',
-              CLK0=> ioclk, CLK1=> ioclk180, CLKDIV=> clk_nibble,
+              CLK0=> ioclk, CLK1=> '0', CLKDIV=> clk_nibble,
               IOCE=> serdesstrobe, RST=> '0',
               TCE=> '1', TRAIN=>'0',
               -- OCE=>1, TCE=>1,
               OQ=> Gq, TQ=> Gt);
-  Bo : oserdes2 generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "DDR")
+  Bo : oserdes2
+    generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "SDR", DATA_RATE_OT=> "SDR")
     port map (D1=>Bnibble(0), D2=> Bnibble(1), D3=> Bnibble(2), D4=>Bnibble(3),
               T1=>'0', T2=>'0', T3=>'0', T4=>'0',
               SHIFTIN1=>'0', SHIFTIN2=>'0', SHIFTIN3=>'0', SHIFTIN4=>'0',
-              CLK0=> ioclk, CLK1=> ioclk180, CLKDIV=> clk_nibble,
+              CLK0=> ioclk, CLK1=> '0', CLKDIV=> clk_nibble,
               IOCE=> serdesstrobe, RST=> '0',
               TCE=> '1', TRAIN=>'0',
               -- OCE=>1, TCE=>1,
@@ -170,10 +173,7 @@ begin
   Gd : obuftds port map (I=> Gq, T=> Gt, O=> Gp, OB=> Gn);
   Bd : obuftds port map (I=> Bq, T=> Bt, O=> Bp, OB=> Bn);
   Cd : obufds port map (I=>Cq, O=> Cp, OB=>Cn);
-  bpl : bufpll generic map (DIVIDE=>2)
+  bpl : bufpll generic map (DIVIDE=>4)
     port map (GCLK=> clk_nibble, PLLIN=> clk_bit, LOCKED=> locked,
               IOCLK=> ioclk, SERDESSTROBE=>serdesstrobe, LOCK=> lock);
-  bpl180 : bufpll generic map (DIVIDE=>2)
-    port map (GCLK=> clk_nibble, PLLIN=> clk_bit180, LOCKED=> locked,
-              IOCLK=> ioclk180);
 end tmds_encode;

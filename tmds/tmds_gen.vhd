@@ -10,6 +10,7 @@ use unisim.vcomponents.all;
 
 entity tmds_gen is
   port (Rp, Rn, Gp, Gn, Bp, Bn, Cp, Cn : out std_logic;
+        led : out byte_t;
         clkin100 : in std_logic);
 end tmds_gen;
 architecture tmds_gen of tmds_gen is
@@ -22,6 +23,8 @@ architecture tmds_gen of tmds_gen is
   signal R, G, B : byte_t;
   signal hsync, vsync, de : std_logic;
 begin
+  led(7 downto 1) <= "1111111";
+  led(0) <= locked;
 
   -- 1280x720p @59.94/60 Hz
   -- 110 + 40 + 220 + 1280 = 1650 clocks/line
@@ -62,15 +65,13 @@ begin
     generic map(
       CLK_FEEDBACK   => "CLKFBOUT",
       DIVCLK_DIVIDE  => 2, CLKFBOUT_MULT => 15,
-      CLKOUT0_DIVIDE => 2,
-      CLKOUT1_DIVIDE => 2, CLKOUT1_PHASE => 180.000,
-      CLKOUT2_DIVIDE => 4,
-      CLKOUT3_DIVIDE => 10,
+      CLKOUT0_DIVIDE => 1,
+      CLKOUT1_DIVIDE => 4,
+      CLKOUT2_DIVIDE => 10,
       CLKIN_PERIOD   => 10.0)
     port map(
       CLKFBIN => clk_fb, CLKFBOUT => clk_fb,
-      CLKOUT0 => clk_bit, CLKOUT1 => clk_bit180, CLKOUT2 => clk_nibble_raw,
-      CLKOUT3 => clk,
+      CLKOUT0 => clk_bit, CLKOUT1 => clk_nibble_raw, CLKOUT2 => clk,
       RST => '0', LOCKED => locked, CLKIN => clkin100);
   clk_nibble_bufg : bufg port map (I => clk_nibble_raw, O => clk_nibble);
 
@@ -78,5 +79,5 @@ begin
     R, G, B,
     hsync, vsync, '0', '0', '0', '0', de,
     Rp, Rn, Gp, Gn, Bp, Bn, Cp, Cn,
-    clk, clk_nibble, clk_bit, clk_bit180, locked);
+    clk, clk_nibble, clk_bit, locked);
 end tmds_gen;
