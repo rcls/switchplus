@@ -9,7 +9,8 @@ library unisim;
 use unisim.vcomponents.all;
 
 entity tmds_gen is
-  port (Rp, Rn, Gp, Gn, Bp, Bn, Cp, Cn : out std_logic;
+  port (hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn,
+        hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn : out std_logic;
         led : out byte_t;
         clkin100 : in std_logic);
 end tmds_gen;
@@ -72,13 +73,14 @@ begin
       CLKIN_PERIOD   => 10.0)
     port map(
       CLKFBIN => clk_fb, CLKFBOUT => clk_fb,
-      CLKOUT0 => clk_bit, CLKOUT1 => clk_nibble_raw, CLKOUT2 => clk,
+      CLKOUT0 => clk_bit, CLKOUT1 => clk_nibble_raw, CLKOUT2 => clk_raw,
       RST => '0', LOCKED => locked, CLKIN => clkin100);
+  clk_bufg : bufg port map (I => clk_raw, O => clk);
   clk_nibble_bufg : bufg port map (I => clk_nibble_raw, O => clk_nibble);
 
   encode : entity work.tmds_encode port map (
     R, G, B,
     hsync, vsync, '0', '0', '0', '0', de,
-    Rp, Rn, Gp, Gn, Bp, Bn, Cp, Cn,
+    hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn, hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn,
     clk, clk_nibble, clk_bit, locked);
 end tmds_gen;
