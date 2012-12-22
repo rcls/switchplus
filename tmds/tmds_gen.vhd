@@ -19,8 +19,8 @@ architecture tmds_gen of tmds_gen is
   signal yy : integer range 0 to 749;
   signal xxlast : boolean;
   signal yylast : boolean;
-  signal clk, clk_fb, clk_bit, clk_bit180, clk_nibble_raw, locked : std_logic;
-  signal clk_nibble : std_logic;
+  signal clk_raw, clk_fb, clk_bit, clk_nibble_raw, locked : std_logic;
+  signal clk, clk_nibble : std_logic;
   signal R, G, B : byte_t;
   signal hsync, vsync, de : std_logic;
 begin
@@ -65,7 +65,6 @@ begin
   lcd_pll : pll_base
     generic map(
       CLK_FEEDBACK   => "CLKFBOUT",
-      COMPENSATION   => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE  => 2, CLKFBOUT_MULT => 15,
       CLKOUT0_DIVIDE => 1,
       CLKOUT1_DIVIDE => 4,
