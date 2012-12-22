@@ -68,8 +68,8 @@ entity tmds_channel is
         clk_nibble : in std_logic);
 end tmds_channel;
 architecture tmds_channel of tmds_channel is
-  signal buf, wordA, wordB : dec_t;
-  signal which, whichB : std_logic := '0';
+  signal buf, wordA, wordB, bufA, bufB : dec_t;
+  signal which, whichB, whichC : std_logic := '0';
   signal phase : integer range 0 to 4 := 0;
 begin
   encode : entity work.tmds_encode_byte port map (D, C0, C1, DE, buf, clk);
@@ -78,9 +78,9 @@ begin
     wait until rising_edge (clk);
     which <= not which;
     if which = '1' then
-      wordA <= buf;
+      bufA <= buf;
     else
-      wordB <= buf;
+      bufB <= buf;
     end if;
   end process;
   process
@@ -88,7 +88,10 @@ begin
     wait until rising_edge (clk_nibble);
     -- If which just transitioned to 0, then we just wrote A.
     whichB <= which;
-    if (whichB = '1' and which = '0') or phase = 4 then
+    whichC <= whichB;
+    wordA <= bufA;
+    wordB <= bufB;
+    if (whichC = '1' and whichB ='0') or phase = 4 then
       phase <= 0;
     else
       phase <= phase + 1;
