@@ -77,10 +77,27 @@ typedef struct EDMA_DESC_t {
 #define USART3_HDEN ((v32 *) 0x400c2040)
 
 #define CGU 0x40050000
+
+#define FREQ_MON ((v32 *) 0x40050014)
+
 #define PLL0USB_STAT ((v32 *) (CGU + 0x1c))
 #define PLL0USB_CTRL ((v32 *) (CGU + 0x20))
 #define PLL0USB_MDIV ((v32 *) (CGU + 0x24))
 #define PLL0USB_NP_DIV ((v32 *) (CGU + 0x28))
+
+#define PLL0AUDIO_STAT ((v32 *) (CGU + 0x2c))
+#define PLL0AUDIO_CTRL ((v32 *) (CGU + 0x30))
+#define PLL0AUDIO_MDIV ((v32 *) (CGU + 0x34))
+#define PLL0AUDIO_NP_DIV ((v32 *) (CGU + 0x38))
+#define PLL0AUDIO_FRAC ((v32 *) (CGU + 0x3c))
+
+#define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
+#define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
+#define BASE_LCD_CLK ((v32 *) (CGU + 0x88))
+#define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
+
+#define CCU1 ((v32 *) 0x40051000)
+#define CLK_M4_LCD_CFG (CCU1 + 0x106)
 
 #define SCU 0x40086000
 
@@ -88,11 +105,6 @@ typedef struct EDMA_DESC_t {
 #define SFSCLK ((v32 *) (SCU + 0xc00))
 
 #define OTP ((const unsigned *) 0x40045000)
-
-#define CGU 0x40050000
-#define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
-#define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
-#define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
 
 #define SSP0 0x40083000
 #define SSP0_CR0 ((v32 *) SSP0)
@@ -105,8 +117,6 @@ typedef struct EDMA_DESC_t {
 #define SSP0_MIS ((v32 *) (SSP0 + 28))
 #define SSP0_ICR ((v32 *) (SSP0 + 32))
 #define SSP0_DMACR ((v32 *) (SSP0 + 36))
-
-#define FREQ_MON ((v32 *) 0x40050014)
 
 #define RESET_CTRL ((v32 *) 0x40053100)
 #define RESET_ACTIVE_STATUS ((v32 *) 0x40053150)
@@ -232,5 +242,39 @@ typedef struct EDMA_DESC_t {
 
 #define DYNAMICCONFIG3 (EMC + 88)
 #define DYNAMICRASCAS3 (EMC + 89)
+
+#define LCD ((v32*) 0x40008000)
+
+#define LCD_TIMH (LCD + 0)
+#define LCD_TIMV (LCD + 1)
+#define LCD_POL (LCD + 2)
+#define LCD_LE (LCD + 3)
+#define LCD_UPBASE (LCD + 4)
+#define LCD_LPBASE (LCD + 5)
+#define LCD_CTRL (LCD + 6)
+#define LCD_INTMSK (LCD + 7)
+#define LCD_INTRAW (LCD + 8)
+#define LCD_INTSTAT (LCD + 9)
+#define LCD_INTCLR (LCD + 10)
+#define LCD_UPCURR (LCD + 11)
+#define LCD_LPCURR (LCD + 12)
+
+#define LCD_PAL (LCD + 128)
+
+#define CRSR_IMG (LCD + 512)
+
+#define CRSR (LCD + 768)
+
+#define CRSR_CTRL (CRSR + 0)
+#define CRSR_CFG (CRSR + 1)
+#define CRSR_PAL0 (CRSR + 2)
+#define CRSR_PAL1 (CRSR + 3)
+#define CRSR_XY (CRSR + 4)
+#define CRSR_CLIP (CRSR + 5)
+
+#define CRSR_INTMSK (CRSR + 8)
+#define CRSR_INTCLR (CRSR + 9)
+#define CRSR_INTRAW (CRSR + 10)
+#define CRSR_INTSTAT (CRSR + 11)
 
 #endif

@@ -1,0 +1,86 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.defs.all;
+
+library unisim;
+use unisim.vcomponents.all;
+
+entity tmds_serdes is
+  port (lcd_R, lcd_G, lcd_B : in byte_t;
+        lcd_hsync, lcd_vsync, lcd_de : in std_logic;
+        hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn,
+        hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn : out std_logic;
+        led : out byte_t;
+        lcd_clk : in std_logic);
+end tmds_serdes;
+architecture tmds_serdes of tmds_serdes is
+  signal R, G, B : byte_t;
+  signal hsync, vsync, de : std_logic;
+  signal clk_raw, clk_fb, clk_bit, clk_nibble_raw, locked : std_logic;
+  signal clk, clk_nibble : std_logic;
+  signal blink : unsigned(25 downto 0);
+  signal fcount : byte_t;
+  signal lcount : unsigned(10 downto 0);
+
+  attribute iob : string;
+  attribute iob of R, G, B, hsync, vsync, de : signal is "TRUE";
+begin
+  led(7 downto 3) <= "11111";
+  led(2) <= fcount(5);
+  led(1) <= blink(25);
+  led(0) <= locked;
+
+  process
+  begin
+    wait until rising_edge(lcd_clk);
+    blink <= blink + 1;
+  end process;
+
+  process
+  begin
+    wait until rising_edge(lcd_vsync);
+    fcount <= fcount + 1;
+  end process;
+
+  -- 1280x720p @59.94/60 Hz
+  -- 110 + 40 + 220 + 1280 = 1650 clocks/line
+  -- 5 + 5 + 20 + 720 = 750 lines/frame
+  -- 1650 * 750 = 123750 clocks/frame
+  -- 123750 * 60 = 74250000 MHz.
+  -- Let's call it 75MHz.
+  process
+  begin
+    wait until rising_edge(clk);
+
+    R <= lcd_R;
+    G <= lcd_G;
+    B <= lcd_B;
+    hsync <= lcd_hsync;
+    vsync <= lcd_vsync;
+    de <= lcd_de;
+  end process;
+
+  lcd_pll : pll_base
+    generic map(
+      CLK_FEEDBACK   => "CLKOUT0",
+      DIVCLK_DIVIDE  => 1,
+      CLKOUT0_DIVIDE => 10,
+      CLKOUT1_DIVIDE => 1,
+      CLKOUT2_DIVIDE => 4,
+      CLKIN_PERIOD   => 19.138)
+    port map(
+      CLKFBIN => clk, CLKFBOUT => clk_fb,
+      CLKOUT0 => clk_raw, CLKOUT1 => clk_bit, CLKOUT2 => clk_nibble_raw,
+      RST => '0', LOCKED => locked, CLKIN => lcd_clk);
+  clk_bufg : bufg port map (I => clk_raw, O => clk);
+  clk_nibble_bufg : bufg port map (I => clk_nibble_raw, O => clk_nibble);
+
+  encode : entity work.tmds_encode port map (
+    R, G, B,
+    hsync, vsync, '0', '0', '0', '0', de,
+    hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn, hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn,
+    clk, clk_nibble, clk_bit, locked);
+end tmds_serdes;

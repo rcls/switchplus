@@ -3,6 +3,7 @@
 #include "callback.h"
 #include "freq.h"
 #include "jtag.h"
+#include "lcd.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
@@ -372,6 +373,10 @@ static void serial_byte (unsigned byte)
         return;
     case 'j':
         jtag_cmd();
+        return;
+    case 'l':
+        meminit (cpu_frequency (1));
+        lcd_init();
         return;
     case 'm':
         memtest();
