@@ -47,7 +47,7 @@ void lcd_init (void)
     *LCD_POL = 0x07ff3020;
     *LCD_UPBASE = 0x60000000;           // SDRAM.
     *LCD_LPBASE = 0x60000000;
-    *LCD_CTRL = 0x28;                   // TFT, 16bpp, disabled.
+    *LCD_CTRL = 0x2c;                   // TFT, 16bpp, disabled.
 
     // Setup pins.
     static const unsigned pins[] = {
@@ -66,13 +66,13 @@ void lcd_init (void)
         pin_out(8,7,3),                 // K1  LCD_VD4
         pin_out(8,6,3),                 // K3  LCD_VD5
         pin_out(8,5,3),                 // J1  LCD_VD6
-        pin_out(8,4,3),                 // J2  LCD_VD7
+        pin_out(7,1,4),                 // C14 LCD_VD7
         pin_out(7,5,3),                 // A7  LCD_VD8
         pin_out(4,8,2),                 // E2  LCD_VD9
         pin_out(4,10,2),                // M3  LCD_VD10
         pin_out(4,9,2),                 // L2  LCD_VD11
-        pin_out(8,3,3),                 // J3  LCD_VD12
-        pin_out(4,0,5),                 // D5  LCD_VD13
+        pin_out(3,5,7),                 // C12 LCD_VD12
+        pin_out(3,4,7),                 // A15 LCD_VD13
         pin_out(11,5,2),                // A12 LCD_VD14
         pin_out(11,4,2),                // B11 LCD_VD15
         pin_out(7,4,3),                 // C8  LCD_VD16
@@ -93,5 +93,5 @@ void lcd_init (void)
     }
 
     // Enable the lcd.
-    *LCD_CTRL = 0x829;                  // TFT, 16bpp.
+    *LCD_CTRL = 0x82d;                  // TFT, 16bpp, 565.
 }
