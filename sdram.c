@@ -174,7 +174,6 @@ void memtest (void)
 
     //unsigned base_m4 = *BASE_M4_CLK >> 24;
     //unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
-    meminit (cpu_frequency (1));
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;

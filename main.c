@@ -375,7 +375,6 @@ static void serial_byte (unsigned byte)
         jtag_cmd();
         return;
     case 'l':
-        meminit (cpu_frequency (1));
         lcd_init();
         return;
     case 'm':

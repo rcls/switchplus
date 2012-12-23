@@ -1,10 +1,15 @@
 
+#include "freq.h"
 #include "lcd.h"
 #include "monkey.h"
 #include "registers.h"
+#include "sdram.h"
 
 void lcd_init (void)
 {
+    // Enable the lcd register clock branch.
+    *CLK_M4_LCD_CFG = 1;
+
     // Setup the PLL0AUDIO to give 52.25MHz off 52MHz ethernet clock.
     // ndec=5, mdec=32426, pdec=5
     // selr=0, seli=28, selp=14
@@ -24,14 +29,12 @@ void lcd_init (void)
     // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
     *BASE_LCD_CLK = 0x08000800;
 
-    // Enable the lcd register clock branch.
-    *CLK_M4_LCD_CFG = 1;
-
     // Reset the lcd.
     RESET_CTRL[0] = 1 << 16;
+    while (!(RESET_ACTIVE_STATUS[0] & (1 << 16)));
 
-    for (int i = 0; i != 10000; ++i)
-        asm volatile("");
+    // Reset the SDRAM.
+    meminit (cpu_frequency (1));
 
     // 1024x640 59.89 Hz (CVT 0.66MA) hsync: 39.82 kHz; pclk: 52.25 MHz
     //Modeline "1024x640_60.00"   52.25  1024 1072 1168 1312  640 643 649 665
