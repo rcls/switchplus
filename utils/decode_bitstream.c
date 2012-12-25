@@ -1,8 +1,6 @@
 #include <err.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "util.h"
 
@@ -15,23 +13,13 @@ int main (int argc, const char * const argv[])
     size_t offset = 0;
     size_t size = 0;
 
-    int fd = checkz(open(argv[1], O_RDONLY), "open input");
-    slurp_file(fd, &buffer, &offset, &size);
-    close(fd);
+    slurp_path(argv[1], &buffer, &offset, &size);
 
     const unsigned char * end = buffer + offset;
-    const unsigned char * p = find_data (buffer, &end);
+    const unsigned char * p = bitfile_find_stream (buffer, &end);
 
-    const unsigned char * aa = memchr (p, 0xaa, end - p);
-    if (aa == NULL || end - aa < 4
-        || aa[1] != 0x99 || aa[2] != 0x55 || aa[3] != 0x66)
-        errx(1, "No sync word in file.\n");
+    p = skip_sync(p, end);
 
-    for (; p != aa; ++p)
-        if (*p != 0xff)
-            errx(1, "No sync word in file.\n");
-
-    p += 4;
     while (end - p >= 2) {
         unsigned h = p[0] * 256 + p[1];
         unsigned len = h & 31;

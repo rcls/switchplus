@@ -13,11 +13,14 @@ void * xrealloc(void * ptr, size_t size)
 void slurp_file(int file, unsigned char * * restrict buffer,
                 size_t * restrict offset, size_t * restrict size);
 
+void slurp_path(const char * file, unsigned char * * restrict buffer,
+                size_t * restrict offset, size_t * restrict size);
+
 void dump_file(int file, const void * data, size_t len);
 
 // Find the config data within a .bit file.
-const unsigned char * find_data(const unsigned char * p,
-                                const unsigned char ** pend);
+const unsigned char * bitfile_find_stream(const unsigned char * p,
+                                          const unsigned char ** pend);
 
 // Skip to after the sync word.
 const unsigned char * skip_sync(const unsigned char * p,

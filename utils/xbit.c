@@ -1,10 +1,8 @@
 // Read a xilinx .bit file and spit it out as hex for our jtag.
 
 #include <err.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "util.h"
 
@@ -18,12 +16,12 @@ int main (int argc, const char * const argv[])
     size_t offset = 0;
     size_t size = 0;
 
-    int fd = checkz(open(argv[1], O_RDONLY), "open input");
-    slurp_file(fd, &buffer, &offset, &size);
-    close(fd);
+    slurp_path(argv[1], &buffer, &offset, &size);
 
     const unsigned char * end = buffer + offset;
-    const unsigned char * p = find_data (buffer, &end);
+    const unsigned char * p = bitfile_find_stream (buffer, &end);
+
+    check_reg_writes(p, end, 10, 2, 2);
 
     unsigned len = end - p;
 

@@ -1,5 +1,6 @@
 #include "util.h"
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +10,7 @@ void * xmalloc(size_t size)
 {
     void * res = malloc(size);
     if (!res)
-        err(1, "malloc");
+        errx(1, "malloc");
     return res;
 }
 
@@ -38,6 +39,15 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 }
 
 
+void slurp_path(const char * path, unsigned char * * restrict buffer,
+                size_t * restrict offset, size_t * restrict size)
+{
+    int fd = checkz(open(path, O_RDONLY), "open input");
+    slurp_file(fd, buffer, offset, size);
+    close(fd);
+}
+
+
 void dump_file(int file, const void * data, size_t len)
 {
     const unsigned char * start = data;
@@ -47,8 +57,8 @@ void dump_file(int file, const void * data, size_t len)
 }
 
 
-const unsigned char * find_data(const unsigned char * p,
-                                const unsigned char ** pend)
+const unsigned char * bitfile_find_stream(const unsigned char * p,
+                                          const unsigned char ** pend)
 {
     const unsigned char * end = *pend;
 
