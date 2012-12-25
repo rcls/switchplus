@@ -112,12 +112,10 @@ begin
   osd : oserdes2
     generic map (DATA_WIDTH=> 4, DATA_RATE_OQ=> "SDR", DATA_RATE_OT=> "SDR")
     port map (D1=>nibble(0), D2=> nibble(1), D3=> nibble(2), D4=>nibble(3),
-              T1=>'0', T2=>'0', T3=>'0', T4=>'0',
+              CLK0=> ioclk, CLKDIV=> clk_nibble, IOCE=> serdesstrobe, OQ=> Q,
               SHIFTIN1=>'0', SHIFTIN2=>'0', SHIFTIN3=>'0', SHIFTIN4=>'0',
-              CLK0=> ioclk, CLK1=> '0', CLKDIV=> clk_nibble,
-              IOCE=> serdesstrobe,
-              RST=> '0', TCE=> '1', TRAIN=>'0',
-              OQ=> Q);
+              T1=>'0', T2=>'0', T3=>'0', T4=>'0',
+              RST=> '0', TCE=> '1', TRAIN=>'0', CLK1=> '0');
   obd : obufds port map (I=> Q, O=> Qp, OB=> Qn);
 end tmds_channel;
 
@@ -147,9 +145,9 @@ architecture tmds_encode of tmds_encode is
   attribute keep_hierarchy of tmds_encode : architecture is "soft";
 begin
   Rc : entity work.tmds_channel port map (
-    R, ctl2, ctl3, DE, Rp, Rn, clk, clk_nibble, ioclk, lock, serdesstrobe);
+    R, ctl3, ctl2, DE, Rp, Rn, clk, clk_nibble, ioclk, lock, serdesstrobe);
   Gc : entity work.tmds_channel port map (
-    G, ctl1, ctl0, DE, Gp, Gn, clk, clk_nibble, ioclk, lock, serdesstrobe);
+    G, ctl0, ctl1, DE, Gp, Gn, clk, clk_nibble, ioclk, lock, serdesstrobe);
   Bc : entity work.tmds_channel port map (
     B, hsync, vsync, DE, Bp, Bn, clk, clk_nibble, ioclk, lock, serdesstrobe);
 

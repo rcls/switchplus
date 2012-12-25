@@ -11,15 +11,23 @@ use unisim.vcomponents.all;
 entity tmds_serdes is
   port (lcd_R, lcd_G, lcd_B : in byte_t;
         lcd_hsync, lcd_vsync, lcd_de : in std_logic;
+        lcd_clk : in std_logic;
+
         hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn,
         hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn : out std_logic;
+
         led : out byte_t;
-        lcd_clk : in std_logic);
+
+        ssp1_ssel, ssp1_sck, ssp1_mosi : in std_logic;
+        ssp1_miso : out std_logic;
+
+        flash_cs_inv, flash_sclk, flash_si : out std_logic;
+        flash_so : in std_logic);
 end tmds_serdes;
 architecture tmds_serdes of tmds_serdes is
   signal R, G, B : byte_t;
   signal hsync, vsync, de : std_logic;
-  signal clk_raw, clk_fb, clk_bit, clk_nibble_raw, locked : std_logic;
+  signal clk_raw, clk_bit, clk_nibble_raw, locked : std_logic;
   signal clk, clk_nibble : std_logic;
   signal blink : unsigned(25 downto 0);
   signal fcount : byte_t;
@@ -32,6 +40,11 @@ begin
   led(2) <= fcount(5);
   led(1) <= blink(25);
   led(0) <= locked;
+
+  flash_cs_inv <= ssp1_ssel;
+  flash_sclk <= ssp1_sck;
+  flash_si <= ssp1_mosi;
+  ssp1_miso <= flash_so;
 
   process
   begin
@@ -72,9 +85,8 @@ begin
       CLKOUT2_DIVIDE => 4,
       CLKIN_PERIOD   => 19.138)
     port map(
-      CLKFBIN => clk, CLKFBOUT => clk_fb,
       CLKOUT0 => clk_raw, CLKOUT1 => clk_bit, CLKOUT2 => clk_nibble_raw,
-      RST => '0', LOCKED => locked, CLKIN => lcd_clk);
+      CLKIN => lcd_clk, CLKFBIN => clk, RST => '0', LOCKED => locked);
   clk_bufg : bufg port map (I => clk_raw, O => clk);
   clk_nibble_bufg : bufg port map (I => clk_nibble_raw, O => clk_nibble);
 
