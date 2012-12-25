@@ -94,10 +94,15 @@ typedef struct EDMA_DESC_t {
 #define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
 #define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
 #define BASE_LCD_CLK ((v32 *) (CGU + 0x88))
+#define BASE_SSP1_CLK ((v32 *) (CGU + 0x98))
 #define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
 
 #define CCU1 ((v32 *) 0x40051000)
 #define CLK_M4_LCD_CFG (CCU1 + 0x106)
+#define CLK_M4_SSP1_CFG (CCU1 + 0x18a)
+
+#define CCU2 ((v32 *) 0x40052000)
+#define CLK_APB2_SSP1_CFG (CCU2 + 0x180)
 
 #define SCU 0x40086000
 
@@ -117,6 +122,21 @@ typedef struct EDMA_DESC_t {
 #define SSP0_MIS ((v32 *) (SSP0 + 28))
 #define SSP0_ICR ((v32 *) (SSP0 + 32))
 #define SSP0_DMACR ((v32 *) (SSP0 + 36))
+
+typedef struct ssp_t {
+    unsigned cr0;
+    unsigned cr1;
+    unsigned dr;
+    unsigned sr;
+    unsigned cpsr;
+    unsigned imsc;
+    unsigned ris;
+    unsigned mis;
+    unsigned icr;
+    unsigned dmacr;
+} ssp_t;
+
+#define SSP1 ((volatile ssp_t *) 0x400c5000)
 
 #define RESET_CTRL ((v32 *) 0x40053100)
 #define RESET_ACTIVE_STATUS ((v32 *) 0x40053150)

@@ -7,6 +7,7 @@
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
+#include "spirom.h"
 #include "switch.h"
 #include "usb.h"
 
@@ -390,6 +391,9 @@ static void serial_byte (unsigned byte)
             log_serial = true;
             puts ("Serial log on\n");
         }
+        return;
+    case 's':
+        spirom_init();
         return;
     case 'r':
         puts ("Reboot!\n");
