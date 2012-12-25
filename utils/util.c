@@ -108,3 +108,66 @@ const unsigned char * bitfile_find_stream(const unsigned char * p,
     *pend = p + len;
     return p;
 }
+
+
+const unsigned char * skip_sync(const unsigned char * p,
+                                const unsigned char * end)
+{
+    const unsigned char * aa = memchr (p, 0xaa, end - p);
+    if (aa == NULL || end - aa < 4
+        || aa[1] != 0x99 || aa[2] != 0x55 || aa[3] != 0x66)
+        errx(1, "No sync word in file.\n");
+
+    for (const unsigned char * q = p; q != aa; ++q)
+        if (*q != 0xff)
+            errx(1, "No sync word in file.\n");
+
+    return aa + 4;
+}
+
+
+// Check writes to a register in a bitstream.
+void check_reg_writes(const unsigned char * p,
+                      const unsigned char * end,
+                      unsigned reg, unsigned mask, unsigned expect)
+{
+    if (end != p && *p == 0xff)
+        p = skip_sync(p, end);
+
+    while (end - p >= 2) {
+        unsigned h = p[0] * 256 + p[1];
+        unsigned len = h & 31;
+        p += 2;
+        if (end - p < len * 2)
+            errx(1, "Data overruns.\n");
+
+        if ((h >> 13) == 1 && ((h >> 11) & 3) == 2
+            && ((h >> 5) & 31) == reg) {
+            if (len != 1)
+                errx(1, "Reg %d write len %d is not 1.\n", reg, len);
+            unsigned v = p[0] * 256 + p[1];
+            if ((v & mask) != expect)
+                errx(1, "Reg %d write %04x masked %04x is %04x not %04x.\n",
+                     reg, v, mask, v & mask, expect);
+            fprintf(stderr, "Reg %d write %04x\n", reg, v);
+        }
+
+
+        p += len * 2;
+        if ((h >> 13) != 2)
+            continue;
+
+        if (end - p < 4)
+            errx(1, "Type 2 word count overruns.\n");
+        len = (p[0] << 24) + p[1] * 65536 + p[2] * 256 + p[3];
+        p += 4;
+        if (len & 0xf0000000)
+            errx(1, "Type 2 word count too big.\n");
+        len += 2;
+        if (end - p < len * 2)
+            errx(1, "Type 2 data overruns.\n");
+        p += len * 2;
+    }
+    if (end != p)
+        errx(1, "Trailing data.\n");
+}

@@ -24,7 +24,12 @@ const unsigned char * bitfile_find_stream(const unsigned char * p,
 
 // Skip to after the sync word.
 const unsigned char * skip_sync(const unsigned char * p,
-                                const unsigned char ** pend);
+                                const unsigned char * end);
+
+// Check writes to a register in a bitstream.
+void check_reg_writes(const unsigned char * p,
+                      const unsigned char * end,
+                      unsigned reg, unsigned mask, unsigned expect);
 
 inline ssize_t checkz(ssize_t r, const char * w)
 {
