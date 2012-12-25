@@ -393,7 +393,7 @@ static void serial_byte (unsigned byte)
         }
         return;
     case 's':
-        spirom_init();
+        spirom_command();
         return;
     case 'r':
         puts ("Reboot!\n");
