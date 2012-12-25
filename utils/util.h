@@ -15,6 +15,14 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 
 void dump_file(int file, const void * data, size_t len);
 
+// Find the config data within a .bit file.
+const unsigned char * find_data(const unsigned char * p,
+                                const unsigned char ** pend);
+
+// Skip to after the sync word.
+const unsigned char * skip_sync(const unsigned char * p,
+                                const unsigned char ** pend);
+
 inline ssize_t checkz(ssize_t r, const char * w)
 {
     if (r < 0)
