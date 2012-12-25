@@ -130,7 +130,7 @@ void jtag_program (void)
     jtag_tms(9,0xff);                   // Reset, Run-test/idle.
     int r = jtag_ir(JPROGRAM);
     verbose ("JPROGRAM IR %02x\n", r);
-    jtag_clk(0,0); // Run-test idle.
+    jtag_clk(0,0);                      // Run-test idle.
     for (int i = 0; i != 100000; ++i)
         if (jtag_ir(BYPASS) == 0x11)
             break;
@@ -194,8 +194,10 @@ void jtag_cmd (void)
             break;
 
         case 'b':
-            printf (CLR "Send Bypass command\n");
-            jtag_ir(BYPASS);
+            printf (CLR "Reboot fpga\n");
+            jtag_tms(9,0xff);           // Reset, Run-test/idle.
+            jtag_ir(JPROGRAM);
+            jtag_tms(5,0x1f);
             break;
 
         case 'd':
