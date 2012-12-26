@@ -343,6 +343,9 @@ static void enter_dfu (void)
 
     NVIC_ICER[0] = 0xffffffff;
 
+    // Switch back to IDIVC.
+    *BASE_M4_CLK = 0x0e000800;
+
     *USBCMD = 2;                       // Reset USB.
     while (*USBCMD & 2);
 
@@ -402,8 +405,12 @@ static void serial_byte (unsigned byte)
         return;
     case 'r':
         puts ("Reboot!\n");
-        RESET_CTRL[0] = 1;
-        return;
+        for (int i = 0; i != 100000; ++i)
+            asm volatile ("");
+        while (1) {
+            RESET_CTRL[1] = 0xffffffff;
+            RESET_CTRL[0] = 0xffffffff;
+        }
     case 'u':
         enter_dfu();
         return;
@@ -883,7 +890,24 @@ void main (void)
     *PLL0USB_NP_DIV = 5 << 12;
     *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
     puts ("Lock wait\n");
+
+    // Resets don't always seem to restore PLL1 & BASE_M4_CLK.  Do that now.
+    *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
+#define PLL1_STAT ((v32*) 0x40050040)
+#define PLL1_CTRL ((v32*) 0x40050044)
+#define IDIVC_CTRL ((v32*) 0x40050050)
+    *PLL1_CTRL = 0x01170940;
+    *IDIVC_CTRL = 0x09000808;
+    // Wait for locks.
     while (!(*PLL0USB_STAT & 1));
+    while (!(*PLL1_STAT & 1));
+    // Get DIVC to output PLL1 / 3.
+    // Switch back to IDIVC.
+    *BASE_M4_CLK = 0x0e000800;
+
+    // Now ramp to 160MHz.
+    *IDIVA_CTRL = 0x07000808;
+    *BASE_M4_CLK = 0x0c000800;
 
     disable_clocks();
     puts ("Clocks disabled.\n");

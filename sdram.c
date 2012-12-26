@@ -70,7 +70,16 @@ void meminit (unsigned mhz)
     SFSCLK[0] = 0xe0;                   // N5, function 0
     SFSCLK[1] = 0xe0;                   // T10, function 0
     SFSCLK[2] = 0xe5;                   // D14 EMC_CLK23, CLK2 func 5
-    SFSCLK[3] = 0xe0;                   // P12, function 0 (?)
+    SFSCLK[3] = 0;
+    //SFSCLK[3] = 0xe0;                   // P12, function 0 (?)
+
+    // Delays...
+    if (mhz > 121)
+        *EMCDELAYCLK = 2;
+    else if (mhz > 97)
+        *EMCDELAYCLK = 1;
+    else
+        *EMCDELAYCLK = 0;
 
     // Make sure reset is complete.
     while (!(RESET_ACTIVE_STATUS[0] & (1 << 21)));
@@ -90,8 +99,11 @@ void meminit (unsigned mhz)
     *DYNAMICRP = NS2CLK(15);            // Precharge period, tRP = 15ns.
     *DYNAMICRAS = NS2CLK(37);           // Active to precharge, tRAS = 37ns.
     *DYNAMICSREX = NS2CLK(67);          // tSREX or tXSR=67ns
-    *DYNAMICAPR = 3;                    // tAPR. ???  Using tDAL.
-    *DYNAMICDAL = 3;                    // tDAL=4clocks or tAPW.
+    *DYNAMICAPR = NS2CLK(15+14);        // tAPR. ???  Using tDAL=tWR+tRP.
+    if (mhz > 97)
+        *DYNAMICDAL = 4;                // Seems good to 160MHz.
+    else
+        *DYNAMICDAL = 3;
     *DYNAMICWR = NS2CLK(14);            // Write recovery, tWR=14ns.
     *DYNAMICRC = NS2CLK(60);            // Active to active, tRC=60ns.
     *DYNAMICRFC = NS2CLK(66);           // tRFC, auto refresh period = 66ns.

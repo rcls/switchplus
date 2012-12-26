@@ -78,7 +78,7 @@ typedef struct EDMA_DESC_t {
 
 #define CGU 0x40050000
 
-#define FREQ_MON ((v32 *) 0x40050014)
+#define FREQ_MON ((v32 *) (CGU + 0x14))
 
 #define PLL0USB_STAT ((v32 *) (CGU + 0x1c))
 #define PLL0USB_CTRL ((v32 *) (CGU + 0x20))
@@ -90,6 +90,9 @@ typedef struct EDMA_DESC_t {
 #define PLL0AUDIO_MDIV ((v32 *) (CGU + 0x34))
 #define PLL0AUDIO_NP_DIV ((v32 *) (CGU + 0x38))
 #define PLL0AUDIO_FRAC ((v32 *) (CGU + 0x3c))
+
+#define IDIVA_CTRL ((v32*) (CGU + 0x48))
+#define BASE_M4_CLK ((v32*) (CGU + 0x6c))
 
 #define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
 #define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
@@ -108,6 +111,7 @@ typedef struct EDMA_DESC_t {
 
 #define SFSP ((v32_32 *) SCU)
 #define SFSCLK ((v32 *) (SCU + 0xc00))
+#define EMCDELAYCLK ((v32*) 0x40086d00)
 
 #define OTP ((const unsigned *) 0x40045000)
 
@@ -228,6 +232,8 @@ typedef struct ssp_t {
 #define NVIC_IABR (NVIC + 192)
 #define NVIC_IPR (NVIC + 256)
 #define NVIC_STIR (NVIC + 960)
+
+#define CORTEX_M_AIRCR ((v32*) 0xe000ed0c)
 
 #define EMC ((v32*) 0x40005000)
 
