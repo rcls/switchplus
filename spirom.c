@@ -93,14 +93,7 @@ void spirom_init(void)
     // cpol - clock high between frames.
     // cpha - capture data on second clock transition.
     // divide clock by 2*(63+1) = 128.
-    // Not sure what the story is with clocking...
     *BASE_SSP1_CLK = 0x0e000800;        // Base clock is 96MHz.
-    *CLK_M4_SSP1_CFG = 1;               // Enable register clock.
-    *CLK_APB2_SSP1_CFG = 1;             // Enable peripheral clock.
-
-    /* printf ("Addresses %p %p %p %p %p %p %p %p\n", */
-    /*         BASE_SSP1_CLK, CLK_M4_SSP1_CFG, CLK_APB2_SSP1_CFG, */
-    /*         &SSP1->cr0, &SSP1->cr1, &SSP1->dr, &SSP1->sr, &SSP1->cpsr); */
 
     printf("Reset SSP1");
 
@@ -237,7 +230,7 @@ void spirom_command(void)
     spirom_init();
 
     while (true) {
-        verbose(CLR "SPIROM: <p>, <i>, <s>...");
+        verbose(CLR "SPIROM: <r>ead, <p>rogram, <i>dle, <s>tatus...");
         switch (getchar()) {
         case 'p':
             spirom_program();

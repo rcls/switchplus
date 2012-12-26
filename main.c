@@ -274,14 +274,14 @@ static const unsigned ccu1_disable_mask[] = {
     CCU1_VALID_4 & ~0x30335,
     // SSP0, SCU, CREG
     CCU1_VALID_5 & ~0xc8,
-    // USART3
-    CCU1_VALID_6 & ~0x4,
+    // USART3, SSP1
+    CCU1_VALID_6 & ~0x24,
     // Periph... (?)
     CCU1_VALID_7 & ~0x0,
 };
 
-// USB1, SPI, VADC, APLL, USART2, UART1, USART0, SSP1, SDIO.
-#define CCU_BASE_DISABLE 0x017a0e00
+// USB1, SPI, VADC, APLL, USART2, UART1, USART0, SDIO.
+#define CCU_BASE_DISABLE 0x013a0e00
 
 static void disable_clocks(void)
 {
