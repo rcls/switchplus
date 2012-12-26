@@ -43,7 +43,6 @@ enum string_descs_t {
     sd_eth_idle,
     sd_eth_showtime,
     sd_monkey,
-    sd_jtag_fish,
     sd_dfu,
 };
 
@@ -60,7 +59,6 @@ static const unsigned short string_eth_showtime[18] =
     u"\x0324""Ethernet Showtime";
 static const unsigned short string_monkey[7] = u"\x030e""Monkey";
 static const unsigned short string_dfu[4] = u"\x0308""DFU";
-static const unsigned short string_jtag_fish[10] = u"\x0314""JTAG FISH";
 
 static const unsigned short * const string_descriptors[] = {
     string_lang,
@@ -398,7 +396,7 @@ static void serial_byte (unsigned byte)
         return;
     case 'r':
         puts ("Reboot!\n");
-        RESET_CTRL[0] = 0xffffffff;
+        RESET_CTRL[0] = 1;
         return;
     case 'u':
         enter_dfu();
