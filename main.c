@@ -361,6 +361,12 @@ static void enter_dfu (void)
 }
 
 
+static void initiate_enter_dfu (dTD_t * dtd)
+{
+    callback_simple (enter_dfu);
+}
+
+
 static void serial_byte (unsigned byte)
 {
     switch (byte) {
@@ -547,7 +553,7 @@ static void process_setup (int i)
     switch (setup0 & 0xffff) {
     case 0x0021:                        // DFU detach.
         response_length = 0;
-        callback_simple(enter_dfu);
+        callback = initiate_enter_dfu;
         break;
     case 0x0080:                        // Get status.
         response_data = "\0";
