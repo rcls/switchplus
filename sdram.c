@@ -6,10 +6,6 @@
 
 void meminit (unsigned mhz)
 {
-    // Enable CLK_M4_EMC and CLK_M4EMC_DIV.
-    * (v32 *) 0x40051430 = 1;
-    * (v32 *) 0x40051478 = 1;
-
     // Setup pins.
     static const unsigned pins[] = {
 #define pin_in(a,b,f) (a * 32 * 65536 + b * 65536 + 0xe0 + f)
