@@ -886,6 +886,8 @@ void main (void)
 
     usb_init();
 
+    lcd_init();
+
     // Enable the ethernet, usb and serial interrupts.
     NVIC_ISER[0] = 0x00000120;
     *USBINTR = 0x00000041;              // Port change, reset, data.

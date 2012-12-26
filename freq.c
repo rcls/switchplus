@@ -21,7 +21,7 @@ static int freq_mon (unsigned clock, unsigned count)
     }
 }
 
-// Measurement of PLL0USB.  If IRC is accurate, will be 16000.
+// Measurement of PLL0USB.  If clocks are perfect it, will be 16000.
 static unsigned calibration;
 
 

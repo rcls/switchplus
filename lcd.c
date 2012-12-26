@@ -7,7 +7,7 @@
 
 void lcd_init (void)
 {
-    // Setup the PLL0AUDIO to give 52.25MHz off 52MHz ethernet clock.
+    // Setup the PLL0AUDIO to give 52.25MHz off 50MHz ethernet clock.
     // ndec=5, mdec=32426, pdec=5
     // selr=0, seli=28, selp=14
     // pllfract = 26.125,0x0d1000
@@ -19,9 +19,9 @@ void lcd_init (void)
     *PLL0AUDIO_FRAC = 0x0d1000;
 
     *PLL0AUDIO_CTRL = 0x03001810;
-    puts ("LCD lock wait");
+    puts ("LCD lock wait:");
     while (!(*PLL0AUDIO_STAT & 1));
-    puts ("\n");
+    puts (" done\n");
 
     // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
     *BASE_LCD_CLK = 0x08000800;

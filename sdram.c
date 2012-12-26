@@ -6,6 +6,8 @@
 
 void meminit (unsigned mhz)
 {
+    verbose("SDRAM init @ %d MHz\n", mhz);
+
     // Setup pins.
     static const unsigned pins[] = {
 #define pin_in(a,b,f) (a * 32 * 65536 + b * 65536 + 0xe0 + f)
@@ -55,6 +57,8 @@ void meminit (unsigned mhz)
         pin_out (1, 6, 3),              // T4 EMC_WE
     };
 
+    RESET_CTRL[0] = 1 << 21;
+
     for (int i = 0; i != sizeof pins / sizeof pins[0]; ++i) {
         unsigned pin = pins[i] >> 16;
         unsigned config = pins[i] & 0xffff;
@@ -67,6 +71,9 @@ void meminit (unsigned mhz)
     SFSCLK[1] = 0xe0;                   // T10, function 0
     SFSCLK[2] = 0xe5;                   // D14 EMC_CLK23, CLK2 func 5
     SFSCLK[3] = 0xe0;                   // P12, function 0 (?)
+
+    // Make sure reset is complete.
+    while (!(RESET_ACTIVE_STATUS[0] & (1 << 21)));
 
     // The -7e device is CL3 at 143MHz, CL2 at 133MHz.
 
@@ -146,7 +153,7 @@ int memtest1 (unsigned bit, unsigned w0, unsigned w1)
     else if (w1 == 0)
         printf ("Memtest: address & %x inverted", bit);
     else
-        printf ("Memtest: address & %x flip %08x", bit, w1);
+        printf ("Memtest: address & %x flip %08x", bit, w0);
 
     const unsigned size = 8 << 20;
     volatile unsigned * const sdram = (v32 *) 0x60000000;
@@ -156,9 +163,12 @@ int memtest1 (unsigned bit, unsigned w0, unsigned w1)
     putchar ('\n');
     for (int i = 0; i < size; ++i) {
         unsigned v = sdram[i];
-        if (v != (i & bit ? w1 : w0))
+        if (v != (i & bit ? w1 : w0)) {
             printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
                     i, i & bit ? w1 : w0, v);
+            if (peekchar_nb() >= 0)
+                return 0;
+        }
     }
     return peekchar_nb();
 }
@@ -182,9 +192,12 @@ void memtest (void)
     for (int i = 0; i != size; ++i) {
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
-        if (v != e)
+        if (v != e) {
             printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
                     i, e, v);
+            if (peekchar_nb() >= 0)
+                break;
+        }
     }
 
     if (peekchar_nb() >= 0)
