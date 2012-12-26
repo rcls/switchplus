@@ -7,9 +7,6 @@
 
 void lcd_init (void)
 {
-    // Enable the lcd register clock branch.
-    *CLK_M4_LCD_CFG = 1;
-
     // Setup the PLL0AUDIO to give 52.25MHz off 52MHz ethernet clock.
     // ndec=5, mdec=32426, pdec=5
     // selr=0, seli=28, selp=14
