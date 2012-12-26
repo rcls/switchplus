@@ -67,3 +67,6 @@ NET "ssp1_ssel" LOC = "P26" | IOSTANDARD = "LVCMOS33";
 NET "ssp1_sck"  LOC = "P24" | IOSTANDARD = "LVCMOS33";
 NET "ssp1_mosi" LOC = "P21" | IOSTANDARD = "LVCMOS33";
 NET "ssp1_miso" LOC = "P15" | IOSTANDARD = "LVCMOS33";
+
+NET "spartan_m0" LOC = "P69" | IOSTANDARD = "LVCMOS33";
+NET "spartan_m1" LOC = "P60" | IOSTANDARD = "LVCMOS33";

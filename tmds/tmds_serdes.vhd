@@ -18,6 +18,8 @@ entity tmds_serdes is
 
         led : out byte_t;
 
+        spartan_m0, spartan_m1 : in std_logic;
+
         ssp1_ssel, ssp1_sck, ssp1_mosi : in std_logic;
         ssp1_miso : out std_logic;
 
@@ -35,11 +37,16 @@ architecture tmds_serdes of tmds_serdes is
 
   attribute iob : string;
   attribute iob of R, G, B, hsync, vsync, de : signal is "TRUE";
+  attribute pullup : string;
+  attribute pullup of spartan_m0, spartan_m1 : signal is "TRUE";
 begin
-  led(7 downto 3) <= "11111";
+  led(5 downto 3) <= "111";
   led(2) <= fcount(5);
   led(1) <= blink(25);
   led(0) <= locked;
+
+  led(7) <= not spartan_m1;
+  led(6) <= spartan_m0;
 
   flash_cs_inv <= ssp1_ssel;
   flash_sclk <= ssp1_sck;
