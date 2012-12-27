@@ -72,6 +72,42 @@ static void die (const char * s)
     while (1);
 }
 
+
+static unsigned freq_mon (unsigned clock, unsigned count)
+{
+    *FREQ_MON = clock * 16777216 + 0x800000 + count;
+    for (int i = 0; i != 100; ++i)
+        asm volatile ("");              // Delay a bit to let clocks start.
+    while (1) {
+        unsigned f = *FREQ_MON;
+        if (!(f & (1 << 23)))
+            return f;                   // Finished.
+        if ((f & 0x7fffff) == count)
+            die ("Getting frequency failed\n"); // Nothing happening.
+    }
+}
+
+// In kHz.
+static unsigned frequency (unsigned clock)
+{
+    unsigned fm = freq_mon (clock, 511);
+    unsigned r = 511 - (fm & 511);
+    if (r != 511 && r > 3) {
+        fm = freq_mon (clock, r - 3);
+        r = r - 3 - (fm & 511);
+    }
+    unsigned f = (fm >> 9) & 16383;
+    return (f * 24000 + r) / (2 * r);
+}
+
+
+static int cpu_frequency(void)
+{
+    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
+    return frequency (base_m4);
+}
+
+
 void main (void)
 {
     unsigned size = (unsigned) start[62];
@@ -83,13 +119,14 @@ void main (void)
         sectors = ((size + 65535) >> 16) + 7;
 
     unsigned bank = 0;
+    unsigned cpu_freq = cpu_frequency();
 
     for (int i = 0; i != sectors; ++i) {
         print ("Blanking...\r\n");
         /* if (sector_command (53, i, bank, 0) != 0) { // Blank check. */
         print (" not blank...\r\n");
         sector_command (50, i, bank, 0); // Prepare for write.
-        sector_command (52, i, 96000, bank); // Erase.
+        sector_command (52, i, cpu_freq, bank); // Erase.
         if (sector_command (53, i, bank, 0) != 0)
             die ("Cannot blank\r\n");
         /* } */
@@ -121,7 +158,7 @@ void main (void)
         if (size > 4096)
             amount = 4096;
 
-        if (command (51, dest, source, amount, 96000) != 0)
+        if (command (51, dest, source, amount, cpu_freq) != 0)
             die ("Cannot write\r\n");
 
         source += amount;
@@ -141,10 +178,12 @@ void main (void)
         die ("Compare fails\r\n");
 
     print ("Make boot....\r\n");
-    if (command (60, bank, 96000, 0, 0) != 0)
+    if (command (60, bank, cpu_freq, 0, 0) != 0)
         die ("Cannot make boot\r\n");
 
     print ("Done\r\n");
-    while (1)
-        RESET_CTRL[0] = 0xffffffff;
+    while (1) {
+        RESET_CTRL[1] = 0xfffffff;
+        RESET_CTRL[0] = 0xfffffff;
+    }
 }
