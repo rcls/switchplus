@@ -893,9 +893,6 @@ void main (void)
 
     // Resets don't always seem to restore PLL1 & BASE_M4_CLK.  Do that now.
     *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
-#define PLL1_STAT ((v32*) 0x40050040)
-#define PLL1_CTRL ((v32*) 0x40050044)
-#define IDIVC_CTRL ((v32*) 0x40050050)
     *PLL1_CTRL = 0x01170940;
     *IDIVC_CTRL = 0x09000808;
     // Wait for locks.

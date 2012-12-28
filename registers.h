@@ -91,7 +91,11 @@ typedef struct EDMA_DESC_t {
 #define PLL0AUDIO_NP_DIV ((v32 *) (CGU + 0x38))
 #define PLL0AUDIO_FRAC ((v32 *) (CGU + 0x3c))
 
+#define PLL1_STAT ((v32*) (CGU + 0x40))
+#define PLL1_CTRL ((v32*) (CGU + 0x44))
+
 #define IDIVA_CTRL ((v32*) (CGU + 0x48))
+#define IDIVC_CTRL ((v32*) (CGU + 0x50))
 #define BASE_M4_CLK ((v32*) (CGU + 0x6c))
 
 #define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
@@ -101,11 +105,7 @@ typedef struct EDMA_DESC_t {
 #define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
 
 #define CCU1 ((v32 *) 0x40051000)
-#define CLK_M4_LCD_CFG (CCU1 + 0x106)
-#define CLK_M4_SSP1_CFG (CCU1 + 0x18a)
-
 #define CCU2 ((v32 *) 0x40052000)
-#define CLK_APB2_SSP1_CFG (CCU2 + 0x180)
 
 #define SCU 0x40086000
 
@@ -114,18 +114,6 @@ typedef struct EDMA_DESC_t {
 #define EMCDELAYCLK ((v32*) 0x40086d00)
 
 #define OTP ((const unsigned *) 0x40045000)
-
-#define SSP0 0x40083000
-#define SSP0_CR0 ((v32 *) SSP0)
-#define SSP0_CR1 ((v32 *) (SSP0 + 4))
-#define SSP0_DR ((v32 *) (SSP0 + 8))
-#define SSP0_SR ((v32 *) (SSP0 + 12))
-#define SSP0_CPSR ((v32 *) (SSP0 + 16))
-#define SSP0_IMSC ((v32 *) (SSP0 + 20))
-#define SSP0_RIS ((v32 *) (SSP0 + 24))
-#define SSP0_MIS ((v32 *) (SSP0 + 28))
-#define SSP0_ICR ((v32 *) (SSP0 + 32))
-#define SSP0_DMACR ((v32 *) (SSP0 + 36))
 
 typedef struct ssp_t {
     unsigned cr0;
@@ -140,6 +128,7 @@ typedef struct ssp_t {
     unsigned dmacr;
 } ssp_t;
 
+#define SSP0 ((volatile ssp_t *) 0x40083000)
 #define SSP1 ((volatile ssp_t *) 0x400c5000)
 
 #define RESET_CTRL ((v32 *) 0x40053100)

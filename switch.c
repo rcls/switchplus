@@ -6,27 +6,27 @@
 unsigned spi_io (unsigned data, int num_bytes)
 {
     // Wait for idle.
-    while (*SSP0_SR & 16);
+    while (SSP0->sr & 16);
     // Clear input FIFO.
-    while (*SSP0_SR & 4)
-        *SSP0_DR;
+    while (SSP0->sr & 4)
+        SSP0->dr;
 
     // Take the SSEL GPIO low.
     GPIO_BYTE[7][16] = 0;
 
     for (int i = 0; i < num_bytes; ++i)
-        *SSP0_DR = (data >> (num_bytes - i - 1) * 8) & 255;
+        SSP0->dr = (data >> (num_bytes - i - 1) * 8) & 255;
 
     // Wait for idle.
-    while (*SSP0_SR & 16);
+    while (SSP0->sr & 16);
 
     // Take the SSEL GPIO high again.
     GPIO_BYTE[7][16] = 1;
 
     unsigned result = 0;
     for (int i = 0; i < num_bytes; ++i) {
-        while (!(*SSP0_SR & 4));
-        result = result * 256 + (*SSP0_DR & 255);
+        while (!(SSP0->sr & 4));
+        result = result * 256 + (SSP0->dr & 255);
     }
 
     return result;
@@ -73,17 +73,15 @@ void init_switch (void)
     SFSP[15][1] = 4;                    // GPIO is function 4.
 
     // Set the prescaler to divide by 2.
-    *SSP0_CPSR = 2;
+    SSP0->cpsr = 2;
 
-    // Is SSP0 unit clock running by default?  "All branch clocks are enabled
-    // by default".
     // Keep clock HI while idle, CPOL=1,CPHA=1
     // Output data on falling edge.  Read data on rising edge.
     // Divide clock by 30.
-    *SSP0_CR0 = 0x00001dc7;
+    SSP0->cr0 = 0x00001dc7;
 
     // Enable SSP0.
-    *SSP0_CR1 = 0x00000002;
+    SSP0->cr1 = 0x00000002;
 
     // Set up the pins.
     SFSP[3][3] = 2; // Clock pin, has high drive but we don't want that.
