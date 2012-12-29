@@ -97,7 +97,7 @@ void spirom_init(void)
 
     printf("Reset SSP1");
 
-    RESET_CTRL[1] |= 1 << 19;           // Reset ssp1.
+    RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
     while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
 
     SSP1->cpsr = 20;
