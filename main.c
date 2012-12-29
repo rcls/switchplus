@@ -404,6 +404,7 @@ static void serial_byte (unsigned byte)
         return;
     case 'r':
         puts ("Reboot!\n");
+        *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
         for (int i = 0; i != 100000; ++i)
             asm volatile ("");
         while (1) {
@@ -827,7 +828,6 @@ static void usb_interrupt (void)
         if (!(*PORTSC1 & 0x100))
             puts ("BuggeR\n");
 
-        stop_network();
         stop_mgmt();
 
         *ENDPTNAK = 0xffffffff;
@@ -904,6 +904,9 @@ void main (void)
     // Now ramp to 160MHz.
     *IDIVA_CTRL = 0x07000808;
     *BASE_M4_CLK = 0x0c000800;
+
+    *FLASHCFGA = 0x8000703a;
+    *FLASHCFGB = 0x8000703a;
 
     disable_clocks();
     puts ("Clocks disabled.\n");
