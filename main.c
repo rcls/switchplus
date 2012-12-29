@@ -14,10 +14,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define JOIN2(a,b) a##b
-#define JOIN(a,b) JOIN2(a,b)
-#define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
-
 // Buffer space for each packet transfer.
 #define BUF_SIZE 2048
 
@@ -91,7 +87,8 @@ static const unsigned char device_descriptor[] = {
     sd_0001,                            // Serial number string index.
     1                                   // Number of configurations.
 };
-STATIC_ASSERT (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor));
+_Static_assert (DEVICE_DESCRIPTOR_SIZE == sizeof (device_descriptor),
+                "device_descriptor size");
 
 enum usb_interfaces_t {
     usb_intf_eth_comm,
@@ -225,7 +222,8 @@ static const unsigned char config_descriptor[] = {
     0, 255,                             // Detach timeout.
     0, 16,                              // Transfer size.
 };
-STATIC_ASSERT (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor));
+_Static_assert (CONFIG_DESCRIPTOR_SIZE == sizeof (config_descriptor),
+                "config_descriptor size");
 
 
 static const unsigned char network_connected[] = {
@@ -249,7 +247,8 @@ const unsigned char qualifier_descriptor[] = {
     255, 1, 1,                          // class / subclass / protocol
     64, 1, 0                            // packet size / num. configs / zero
 };
-STATIC_ASSERT (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor));
+_Static_assert (QUALIFIER_DESCRIPTOR_SIZE == sizeof (qualifier_descriptor),
+                "qualifier_descriptor size");
 
 static unsigned char rx_ring_buffer[8192] __aligned (4096) __section ("ahb1");
 static unsigned char tx_ring_buffer[8192] __aligned (4096) __section ("ahb2");
