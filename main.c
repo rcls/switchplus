@@ -383,7 +383,14 @@ static void serial_byte (unsigned byte)
         jtag_cmd();
         return;
     case 'l':
-        lcd_init();
+        if (log_video) {
+            puts ("Video log off\n");
+            log_video = false;
+        }
+        else {
+            log_video = true;
+            puts ("Video log on\n");
+        }
         return;
     case 'm':
         memtest();

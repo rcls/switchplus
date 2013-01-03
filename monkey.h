@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 extern bool log_serial;
+extern bool log_video;
 #define log_monkey true
 
 extern bool debug_flag;

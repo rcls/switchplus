@@ -1,4 +1,5 @@
 
+#include "characters.h"
 #include "freq.h"
 #include "lcd.h"
 #include "monkey.h"
@@ -99,4 +100,148 @@ void lcd_init (void)
 
     // Enable the lcd.
     *LCD_CTRL = 0x82d;                  // TFT, 16bpp, 565.
+}
+
+
+// Draw a 8 by 16 character, in colour.
+void drawcharcolour (unsigned short * restrict target,
+                     const unsigned * restrict bitmap,
+                     unsigned foreground, unsigned background)
+{
+    unsigned flip = foreground ^ background;
+
+    for (int i = 0; i != 4; ++i) {
+        unsigned bits = *bitmap++;
+        for (int j = 0; j != 4; ++j) {
+            for (int k = 0; k != 8; ++k, bits >>= 1)
+                *target++ = background ^ (flip & -(bits & 1));
+            target += 1024 - 8;
+        }
+    }
+}
+
+
+// Draw a 8 by 16 character, white on black.
+void drawcharbw (unsigned short * restrict target,
+                 const unsigned * restrict bitmap)
+{
+    for (int i = 0; i != 4; ++i) {
+        unsigned bits = *bitmap++;
+        for (int j = 0; j != 4; ++j) {
+            for (int k = 0; k != 8; ++k, bits >>= 1)
+                *target++ = -(bits & 1);
+            target += 1024 - 8;
+        }
+    }
+}
+
+static unsigned pc_x;
+static unsigned pc_y;
+
+typedef enum pc_state_t {
+    s_normal,
+    s_escape,
+    s_command,
+} pc_state_t;
+static pc_state_t pc_state;
+
+
+static void scroll(void)
+{
+    // Barrier because of aliasing.
+    __memory_barrier();
+    unsigned * target = (unsigned *) FRAMEBUFFER;
+    unsigned * source = 512 * 16 + (unsigned *) FRAMEBUFFER;
+    unsigned * end = 512 * 16 * TEXT_LINES + (unsigned *) FRAMEBUFFER;
+    do {
+        unsigned a = *source++;
+        unsigned b = *source++;
+        unsigned c = *source++;
+        unsigned d = *source++;
+        *target++ = a;
+        *target++ = b;
+        *target++ = c;
+        *target++ = d;
+    }
+    while (source != end);
+    do {
+        *target++ = 0;
+        *target++ = 0;
+        *target++ = 0;
+        *target++ = 0;
+    }
+    while (target != end);
+    __memory_barrier();
+    --pc_y;
+}
+
+
+static void clear_eol(void)
+{
+    __memory_barrier();
+    unsigned * base = pc_x * 4 + pc_y * 16 * 512 + (unsigned *) FRAMEBUFFER;
+    unsigned * end = 512 + pc_y * 16 * 512 + (unsigned *) FRAMEBUFFER;
+    for (int i = 0; i != 16; ++i) {
+        unsigned * line = base;
+        do {
+            *line++ = 0;
+            *line++ = 0;
+            *line++ = 0;
+            *line++ = 0;
+        }
+        while (line != end);
+        base += 512;
+        end += 512;
+    }
+    __memory_barrier();
+}
+
+
+void lcd_putchar(unsigned char c)
+{
+    if (pc_state == s_normal && c >= 32) {
+        if (pc_y == TEXT_LINES)
+            scroll();
+        drawcharbw(FRAMEBUFFER + pc_x * 8 + pc_y * 16 * 1024, characters[c]);
+        ++pc_x;
+        if (pc_x == 128) {
+            pc_x = 0;
+            ++pc_y;
+        }
+        return;
+    }
+
+    if (pc_state == s_normal) {            // Control.
+        switch (c) {
+        case '\r':
+            pc_x = 0;
+            return;
+        case '\n':
+            pc_x = 0;
+            ++pc_y;
+            if (pc_y == TEXT_LINES)
+                scroll();
+            return;
+        case 27:
+            pc_state = s_escape;
+            return;
+        default:
+            return;
+        }
+    }
+
+    switch (pc_state) {
+    case s_escape:
+        if (c == '[') {
+            pc_state = s_command;
+            return;
+        }
+    case s_command:
+        if (c == 'K')
+            clear_eol();
+        break;
+    default:
+        break;
+    }
+    pc_state = s_normal;
 }

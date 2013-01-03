@@ -1,5 +1,6 @@
 
 #include "callback.h"
+#include "lcd.h"
 #include "monkey.h"
 #include "registers.h"
 #include "usb.h"
@@ -35,6 +36,7 @@ static void monkey_in_complete (dTD_t * dtd);
 static void monkey_out_complete (dTD_t * dtd);
 
 bool log_serial;
+bool log_video;
 bool debug_flag;
 bool verbose_flag;
 
@@ -104,6 +106,10 @@ static void write_byte (int byte)
         while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
         *USART3_THR = byte;
     }
+
+    if (log_video)
+        lcd_putchar(byte);
+
     if (!log_monkey)
         return;
 
