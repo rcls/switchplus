@@ -5,6 +5,14 @@
 #include "registers.h"
 #include "sdram.h"
 
+#define FRAMEBUFFER ((unsigned short *) 0x60000000)
+#define TEXT_LINES 64
+
+static inline unsigned pll_np_div (unsigned pdec, unsigned ndec)
+{
+    return pdec + (ndec << 12);
+}
+
 void lcd_init (void)
 {
     // Setup the PLL0AUDIO to give 52.25MHz off 50MHz ethernet clock.
@@ -14,9 +22,9 @@ void lcd_init (void)
     // pre-divider=5, feedback div=26, post-div=5
     // fcco=522.5MHz, fout=52.25MHz.
     *PLL0AUDIO_CTRL = 0x03001811;
-    *PLL0AUDIO_MDIV = 32426;
-    *PLL0AUDIO_NP_DIV = (5 << 12) + 5;
-    *PLL0AUDIO_FRAC = 0x0d1000;
+    *PLL0AUDIO_MDIV = 13107;
+    *PLL0AUDIO_NP_DIV = pll_np_div(66, 122);
+    *PLL0AUDIO_FRAC = 0x17eb85;
 
     *PLL0AUDIO_CTRL = 0x03001810;
     puts ("LCD lock wait:");
@@ -33,17 +41,17 @@ void lcd_init (void)
     // Reset the SDRAM.
     meminit (cpu_frequency (1));
 
-    // 1024x640 59.89 Hz (CVT 0.66MA) hsync: 39.82 kHz; pclk: 52.25 MHz
-    //Modeline "1024x640_60.00"   52.25  1024 1072 1168 1312  640 643 649 665
-    //-hsync +vsync
-    // horizontal 1024 48 96 144
-    // vertical 640 3 6 16
+    // 1024x1024 59.90 Hz (CVT) hsync: 63.13 kHz; pclk: 74.75 MHz
+    // Modeline "1024x1024R"   74.75  1024 1072 1104 1184  1024 1027 1037 1054
+    // +hsync -vsync
+    // horizontal 1024 48 32 80
+    // vertical 1024 3 10 17
 
-    *LCD_TIMH = 0x8f2f5ffc;
-    *LCD_TIMV = 0x0f02167f;
+    *LCD_TIMH = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
+    *LCD_TIMV = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
     *LCD_POL = 0x07ff3020;
-    *LCD_UPBASE = 0x60000000;           // SDRAM.
-    *LCD_LPBASE = 0x60000000;
+    *LCD_UPBASE = (unsigned) FRAMEBUFFER;           // SDRAM.
+    *LCD_LPBASE = (unsigned) FRAMEBUFFER;
     *LCD_CTRL = 0x2c;                   // TFT, 16bpp, disabled.
 
     // Setup pins.
