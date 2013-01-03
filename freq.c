@@ -67,6 +67,11 @@ static const char * const clock_names[] = {
 };
 
 
+static void * __attribute__ ((noinline)) bra (void)
+{
+    return __builtin_return_address (0);
+}
+
 void clock_report (void)
 {
     printf ("Frequencies...\n");
@@ -87,4 +92,18 @@ void clock_report (void)
     if (base_m4 < sizeof clock_names / sizeof clock_names[0]
         && clock_names[base_m4])
         printf ("CPU is %s.\n", clock_names[base_m4]);
+
+    unsigned base = (unsigned) bra();
+    if (base < 0x10000000) {
+        printf ("Using shadow area\n");
+        base = *M4MEMMAP;
+    }
+    if (base >= 0x10000000 && base < 0x10400000)
+        printf ("Running from RAM\n");
+    else if (base >= 0x1a000000 && base < 0x1b000000)
+        printf ("Running from flashA\n");
+    else if (base >= 0x1b000000 && base < 0x1c000000)
+        printf ("Running from flashB\n");
+    else
+        printf ("Running from 0x%08x\n", base);
 }
