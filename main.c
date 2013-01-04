@@ -876,8 +876,6 @@ void main (void)
     puts ("**          Supa Switch          **\n");
     puts ("***********************************\n");
 
-    puts ("Init pll\n");
-
     // 50 MHz in from eth_tx_clk
     // Configure the clock to USB.
     // Generate 480MHz off 50MHz...
@@ -888,7 +886,6 @@ void main (void)
     *PLL0USB_MDIV = (28 << 22) + (13 << 17) + 32682;
     *PLL0USB_NP_DIV = 5 << 12;
     *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
-    puts ("Lock wait\n");
 
     // Resets don't always seem to restore PLL1 & BASE_M4_CLK.  Do that now.
     *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
@@ -909,7 +906,6 @@ void main (void)
     *FLASHCFGB = 0x8000703a;
 
     disable_clocks();
-    puts ("Clocks disabled.\n");
 
     usb_init();
 
