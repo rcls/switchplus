@@ -294,4 +294,25 @@ typedef struct ssp_t {
 #define CRSR_INTRAW (CRSR + 10)
 #define CRSR_INTSTAT (CRSR + 11)
 
+typedef struct i2c_t {
+    unsigned conset;
+    unsigned stat;
+    unsigned dat;
+    unsigned adr0;
+    unsigned sclh;
+    unsigned scll;
+    unsigned conclr;
+    unsigned mmctl;
+    unsigned adr1;
+    unsigned adr2;
+    unsigned adr3;
+    unsigned data_buffer;
+    unsigned mask0;
+    unsigned mask1;
+    unsigned mask2;
+    unsigned mask3;
+} i2c_t;
+
+#define I2C0 ((volatile i2c_t *) 0x400a1000)
+
 #endif
