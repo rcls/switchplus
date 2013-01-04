@@ -65,12 +65,6 @@ begin
     fcount <= fcount + 1;
   end process;
 
-  -- 1280x720p @59.94/60 Hz
-  -- 110 + 40 + 220 + 1280 = 1650 clocks/line
-  -- 5 + 5 + 20 + 720 = 750 lines/frame
-  -- 1650 * 750 = 123750 clocks/frame
-  -- 123750 * 60 = 74250000 MHz.
-  -- Let's call it 75MHz.
   process
   begin
     wait until rising_edge(clk);
@@ -83,6 +77,16 @@ begin
     de <= lcd_de;
   end process;
 
+  -- 1280x720p @59.94/60 Hz
+  -- 110 + 40 + 220 + 1280 = 1650 clocks/line
+  -- 5 + 5 + 20 + 720 = 750 lines/frame
+  -- 1650 * 750 = 123750 clocks/frame
+  -- 123750 * 60 = 74250000 MHz.
+  -- Let's call it 75MHz.
+
+  -- 1024x1024R @60Hz.  74.75MHz.
+  -- Horizontal: 1024 1072 1104 1184
+  -- Vertical: 1024 1027 1037 1054
   lcd_pll : pll_base
     generic map(
       CLK_FEEDBACK   => "CLKOUT0",
@@ -90,7 +94,7 @@ begin
       CLKOUT0_DIVIDE => 10,
       CLKOUT1_DIVIDE => 1,
       CLKOUT2_DIVIDE => 4,
-      CLKIN_PERIOD   => 19.138)
+      CLKIN_PERIOD   => 13.378)
     port map(
       CLKOUT0 => clk_raw, CLKOUT1 => clk_bit, CLKOUT2 => clk_nibble_raw,
       CLKIN => lcd_clk, CLKFBIN => clk, RST => '0', LOCKED => locked);

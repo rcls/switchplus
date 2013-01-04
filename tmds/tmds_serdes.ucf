@@ -1,5 +1,5 @@
 
 NET "lcd_clk" TNM_NET = lcd_clk;
-TIMESPEC ts_lcd_clk = PERIOD "lcd_clk" 52.25 mhz HIGH 50%;
+TIMESPEC ts_lcd_clk = PERIOD "lcd_clk" 74.75 mhz HIGH 50%;
 
 NET "lcd_vsync" CLOCK_DEDICATED_ROUTE = FALSE;
