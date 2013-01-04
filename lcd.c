@@ -136,6 +136,7 @@ void drawcharbw (unsigned short * restrict target,
 }
 
 static unsigned pc_x;
+static unsigned base_y;
 static unsigned pc_y;
 
 typedef enum pc_state_t {
@@ -149,30 +150,21 @@ static pc_state_t pc_state;
 static void scroll(void)
 {
     // Barrier because of aliasing.
+    if (base_y == TEXT_LINES) {
+        base_y = 0;
+        pc_y -= TEXT_LINES;
+    }
+    ++base_y;
+    *LCD_UPBASE = base_y * 32768 + (unsigned) FRAMEBUFFER;
+
     __memory_barrier();
-    unsigned * target = (unsigned *) FRAMEBUFFER;
-    unsigned * source = 512 * 16 + (unsigned *) FRAMEBUFFER;
-    unsigned * end = 512 * 16 * TEXT_LINES + (unsigned *) FRAMEBUFFER;
-    do {
-        unsigned a = *source++;
-        unsigned b = *source++;
-        unsigned c = *source++;
-        unsigned d = *source++;
-        *target++ = a;
-        *target++ = b;
-        *target++ = c;
-        *target++ = d;
-    }
-    while (source != end);
-    do {
+    unsigned * end = (unsigned *) FRAMEBUFFER
+        + (base_y + TEXT_LINES) * 8192;
+    unsigned * target = end - 8192;
+    do
         *target++ = 0;
-        *target++ = 0;
-        *target++ = 0;
-        *target++ = 0;
-    }
     while (target != end);
     __memory_barrier();
-    --pc_y;
 }
 
 
@@ -183,12 +175,8 @@ static void clear_eol(void)
     unsigned * end = 512 + pc_y * 16 * 512 + (unsigned *) FRAMEBUFFER;
     for (int i = 0; i != 16; ++i) {
         unsigned * line = base;
-        do {
+        do
             *line++ = 0;
-            *line++ = 0;
-            *line++ = 0;
-            *line++ = 0;
-        }
         while (line != end);
         base += 512;
         end += 512;
@@ -200,9 +188,12 @@ static void clear_eol(void)
 void lcd_putchar(unsigned char c)
 {
     if (pc_state == s_normal && c >= 32) {
-        if (pc_y == TEXT_LINES)
+        if (pc_y >= TEXT_LINES + base_y)
             scroll();
         drawcharbw(FRAMEBUFFER + pc_x * 8 + pc_y * 16 * 1024, characters[c]);
+        if (pc_y >= TEXT_LINES)
+            drawcharbw(FRAMEBUFFER + pc_x * 8
+                       + (pc_y - TEXT_LINES) * 16 * 1024, characters[c]);
         ++pc_x;
         if (pc_x == 128) {
             pc_x = 0;
@@ -219,7 +210,7 @@ void lcd_putchar(unsigned char c)
         case '\n':
             pc_x = 0;
             ++pc_y;
-            if (pc_y == TEXT_LINES)
+            if (pc_y >= base_y + TEXT_LINES)
                 scroll();
             return;
         case 27:
