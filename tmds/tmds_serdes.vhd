@@ -21,14 +21,17 @@ entity tmds_serdes is
         spartan_m0, spartan_m1 : in std_logic;
 
         ssp1_ssel, ssp1_sck, ssp1_mosi : in std_logic;
-        ssp1_miso : out std_logic;
+        ssp1_miso : out std_logic
 
-        flash_cs_inv, flash_sclk, flash_si : out std_logic;
-        flash_so : in std_logic);
+        --flash_cs_inv, flash_sclk, flash_si : out std_logic;
+        --flash_so : in std_logic
+        );
 end tmds_serdes;
 architecture tmds_serdes of tmds_serdes is
   signal R, G, B : byte_t;
   signal hsync, vsync, de : std_logic;
+  signal txt_R, txt_G, txt_B : byte_t;
+  signal txt_hsync, txt_vsync, txt_de : std_logic;
   signal clk_raw, clk_bit, clk_nibble_raw, locked : std_logic;
   signal clk, clk_nibble : std_logic;
   signal blink : unsigned(25 downto 0);
@@ -48,10 +51,10 @@ begin
   led(7) <= not spartan_m1;
   led(6) <= spartan_m0;
 
-  flash_cs_inv <= ssp1_ssel;
-  flash_sclk <= ssp1_sck;
-  flash_si <= ssp1_mosi;
-  ssp1_miso <= flash_so;
+  --flash_cs_inv <= ssp1_ssel;
+  --flash_sclk <= ssp1_sck;
+  --flash_si <= ssp1_mosi;
+  --ssp1_miso <= flash_so;
 
   process
   begin
@@ -94,16 +97,22 @@ begin
       CLKOUT0_DIVIDE => 10,
       CLKOUT1_DIVIDE => 1,
       CLKOUT2_DIVIDE => 4,
-      CLKIN_PERIOD   => 13.378)
+      CLKIN_PERIOD   => 13.3779264214047)
     port map(
       CLKOUT0 => clk_raw, CLKOUT1 => clk_bit, CLKOUT2 => clk_nibble_raw,
       CLKIN => lcd_clk, CLKFBIN => clk, RST => '0', LOCKED => locked);
   clk_bufg : bufg port map (I => clk_raw, O => clk);
   clk_nibble_bufg : bufg port map (I => clk_nibble_raw, O => clk_nibble);
 
+  c : entity work.console port map (
+    R, G, B, hsync, vsync, de,
+    txt_R, txt_G, txt_B, txt_hsync, txt_vsync, txt_de,
+    ssp1_ssel, ssp1_mosi, ssp1_sck,
+    ssp1_miso, -- fixme, use a gpio.
+    clk);
+
   encode : entity work.tmds_encode port map (
-    R, G, B,
-    hsync, vsync, '0', '0', '0', '0', de,
+    txt_R, txt_G, txt_B, txt_hsync, txt_vsync, '0', '0', '0', '0', txt_de,
     hdmi_Rp, hdmi_Rn, hdmi_Gp, hdmi_Gn, hdmi_Bp, hdmi_Bn, hdmi_Cp, hdmi_Cn,
     clk, clk_nibble, clk_bit, locked);
 end tmds_serdes;
