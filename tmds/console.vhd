@@ -11,6 +11,7 @@ entity console is
 
         out_R, out_G, out_B : out byte_t;
         out_hsync, out_vsync, out_de : out std_logic;
+        lcd_clk : in std_logic;
 
         spi_sel, spi_in, spi_clk : in std_logic;
 
@@ -263,7 +264,7 @@ begin
 
   process -- text render.
   begin
-    wait until rising_edge(clk);
+    wait until rising_edge(lcd_clk);
 
     if in_de = '0' and in_vsync /= vsync2 then
       pixel_text_x <= text_start_x;
