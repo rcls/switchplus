@@ -34,31 +34,8 @@ static unsigned char monkey_recv[1024] __aligned (512)
 static void monkey_in_complete (dTD_t * dtd);
 static void monkey_out_complete (dTD_t * dtd);
 
-bool log_serial;
 bool debug_flag;
 bool verbose_flag;
-
-void init_monkey_serial (void)
-{
-    // Bring up USART3.
-    SFSP[2][3] = 2;                     // P2_3, J12 is TXD on function 2.
-    SFSP[2][4] = 0x42;                  // P2_4, K11 is RXD on function 2.
-
-    // Set the USART3 clock to be the 12MHz IRC.
-    *BASE_UART3_CLK = 0x01000800;
-
-    *USART3_LCR = 0x83;                 // Enable divisor access.
-
-    // From the user-guide: Based on these findings, the suggested USART setup
-    // would be: DLM = 0, DLL = 4, DIVADDVAL = 5, and MULVAL = 8.
-    *USART3_DLM = 0;
-    *USART3_DLL = 4;
-    *USART3_FDR = 0x85;
-
-    *USART3_LCR = 0x3;                  // Disable divisor access, 8N1.
-    *USART3_FCR = 1;                    // Enable fifos.
-    *USART3_IER = 1;                    // Enable receive interrupts.
-}
 
 
 void init_monkey_usb (void)
@@ -100,10 +77,6 @@ static inline void leave_monkey (unsigned r)
 
 static void write_byte (int byte)
 {
-    if (log_serial) {
-        while (!(*USART3_LSR & 32));    // Wait for THR to be empty.
-        *USART3_THR = byte;
-    }
     if (!log_monkey)
         return;
 

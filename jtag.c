@@ -82,8 +82,6 @@ static unsigned jtag_dr_short(int n, unsigned d)
 
 static void jtag_reset(void)
 {
-    log_serial = false;                 // We share pins with the serial log...
-
     // Set the jtag pins to be GPIO.
     // TCK is GPIO6[13] PC_14 func 4 ball N1
     // TDO is GPIO5[3] P2_3 func 4 ball J12

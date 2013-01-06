@@ -388,17 +388,6 @@ static void serial_byte (unsigned byte)
     case 'm':
         memtest();
         return;
-    case 'S':
-        if (log_serial) {
-            puts ("Serial log off\n");
-            log_serial = false;
-        }
-        else {
-            init_monkey_serial();
-            log_serial = true;
-            puts ("Serial log on\n");
-        }
-        return;
     case 's':
         spirom_command();
         return;

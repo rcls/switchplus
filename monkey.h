@@ -4,13 +4,11 @@
 
 #include <stdbool.h>
 
-extern bool log_serial;
 #define log_monkey true
 
 extern bool debug_flag;
 extern bool verbose_flag;
 
-void init_monkey_serial (void);
 void init_monkey_usb (void);
 
 void monkey_kick (void);
