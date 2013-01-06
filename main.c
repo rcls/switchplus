@@ -860,6 +860,7 @@ void main (void)
 
     init_switch();
     init_ethernet();
+    init_monkey_ssp();
 
     puts ("***********************************\n");
     puts ("**          Supa Switch          **\n");

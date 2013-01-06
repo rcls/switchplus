@@ -5,11 +5,13 @@
 #include <stdbool.h>
 
 #define log_monkey true
+extern bool log_ssp;
 
 extern bool debug_flag;
 extern bool verbose_flag;
 
 void init_monkey_usb (void);
+void init_monkey_ssp (void);
 
 void monkey_kick (void);
 bool monkey_is_empty (void);

@@ -7,6 +7,8 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#define CONSOLE_CS (&GPIO_BYTE[7][19])
+
 // Ring-buffer descriptor.  insert==limit implies the buffer is full; we set
 // insert=beginning, limit=NULL when empty.  The area from insert to limit is
 // either in-flight or waiting to be sent.
@@ -36,6 +38,7 @@ static void monkey_out_complete (dTD_t * dtd);
 
 bool debug_flag;
 bool verbose_flag;
+bool log_ssp;
 
 
 void init_monkey_usb (void)
@@ -46,6 +49,38 @@ void init_monkey_usb (void)
     schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
     schedule_buffer (3, monkey_recv + 512, 512, monkey_out_complete);
     monkey_in_next = -1;
+}
+
+
+void init_monkey_ssp (void)
+{
+    log_ssp = false;
+    __memory_barrier();
+
+    *BASE_SSP1_CLK = 0x0c000800;        // Base clock is 160MHz.
+
+    RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
+    while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
+
+    SSP1->cpsr = 2;                    // Clock pre-scale: 160MHz / 2 = 80MHz.
+    // 8-bit xfer, clock low between frames, capture on first (rising) edge of
+    // frame (we'll output on falling edge).  No divide.
+    SSP1->cr0 = 0x0007;
+    SSP1->cr1 = 2;                      // Enable master.
+    // Setup pins; make CS a GPIO output, pulse it high for a bit.
+    GPIO_DIR[7] |= 1 << 19;
+    *CONSOLE_CS = 1;
+
+    SFSP[15][4] = 0x20;                 // SCK is D10, PF_4 func 0.
+    SFSP[15][5] = 0x24;                 // SSEL is E9, PF_5, GPIO7[19] func 4.
+    SFSP[15][6] = 0xe2;                 // MISO is E7, PF_6 func 2.
+    SFSP[15][7] = 0x22;                 // MOSI is B7, PF_7 func 2.
+
+    // Leave CS low.
+    *CONSOLE_CS = 0;
+
+    __memory_barrier();
+    log_ssp = true;
 }
 
 
@@ -77,6 +112,12 @@ static inline void leave_monkey (unsigned r)
 
 static void write_byte (int byte)
 {
+    if (log_ssp) {
+        // FIXME - also poll the gpio used for overflow.
+        while (!(SSP1->sr & 2));
+        SSP1->dr = byte;
+    }
+
     if (!log_monkey)
         return;
 

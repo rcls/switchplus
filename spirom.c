@@ -5,7 +5,8 @@
 #define JOIN2(a,b) a##b
 #define JOIN(a,b) JOIN2(a,b)
 #define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
-#define CS1 (&GPIO_BYTE[7][19])
+#define CONSOLE_CS (&GPIO_BYTE[7][19])
+#define ROM_CS (&GPIO_BYTE[3][8])
 #define CLR "\r\e[K"
 
 #define PAGE_LEN 264
@@ -15,9 +16,15 @@ static bool buffer_select;
 static void spi_start (volatile ssp_t * ssp, volatile unsigned char * cs,
                        unsigned op)
 {
+    log_ssp = false;
+    __memory_barrier();
+
     // Wait for idle & clear out the fifo..
     while (ssp->sr & 20)
         ssp->dr;
+
+    *CONSOLE_CS = 1;
+    SSP1->cr0 = 0x4f07;                 // divide-by-80 (1MHz), 8 bits.
 
     *cs = 0;
     ssp->dr = op;
@@ -28,6 +35,11 @@ static void spi_end (volatile ssp_t * ssp, volatile unsigned char * cs)
 {
     while (ssp->sr & 16);              // Wait for idle.
     *cs = 1;
+
+    SSP1->cr0 = 0x0007;                 // divide-by-1.
+    *CONSOLE_CS = 0;
+    __memory_barrier();
+    log_ssp = true;
 }
 
 
@@ -92,49 +104,40 @@ void spirom_init(void)
     // Format = spi.
     // cpol - clock high between frames.
     // cpha - capture data on second clock transition.
-    // divide clock by 2*(63+1) = 128.
-    *BASE_SSP1_CLK = 0x0e000800;        // Base clock is 96MHz.
+    // We rely on the ssp log having set up the SSP.
 
-    printf("Reset SSP1");
-
-    RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
-    while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
-
-    SSP1->cpsr = 20;
-    SSP1->cr0 = 0x3f07;
-    SSP1->cr1 = 2;                      // Enable master.
-
-    // Setup pins; make CS a GPIO output.
-    *CS1 = 1;
-    GPIO_DIR[7] |= 1 << 19;
-
-    SFSP[15][4] = 0;                    // SCK is D10, PF_4 func 0.
-    SFSP[15][5] = 4;                    // SSEL is E9, PF_5, GPIO7[19] func 4.
-    SFSP[15][6] = 0x42;                 // MISO is E7, PF_6 func 2.
-    SFSP[15][7] = 2;                    // MOSI is B7, PF_7 func 2.
+    // Set up B16, P7_0 as function 0, GPIO3_8.  High slew rate.
+    SFSP[7][0] = 0x20;
+    GPIO_DIR[3] |= 1 << 8;
 
     printf("\nGet id:");
 
     // Wait for idle.
-    spi_start(SSP1, CS1, 0x9f);
+    spi_start(SSP1, ROM_CS, 0x9f);
     for (int i = 0; i != 6; ++i)
         SSP1->dr = 0;
 
+    unsigned char bytes[7];
     for (int i = 0; i != 7; ++i) {
         while (!(SSP1->sr & 4));
-        printf(" %02x", SSP1->dr);
+        bytes[i] = SSP1->dr;
     }
 
+    spi_end(SSP1, ROM_CS);
+
+    for (int i = 0; i != 7; ++i)
+        printf(" %02x", bytes[i]);
     printf("\n");
 
-    spi_end(SSP1, CS1);
-
-    spi_start(SSP1, CS1, 0xd7);
+    spi_start(SSP1, ROM_CS, 0xd7);
     SSP1->dr = 0;
     SSP1->dr = 0;
-    spi_end (SSP1, CS1);
+    while (SSP1->sr & 16);              // Wait for idle.
     SSP1->dr;
-    printf("Status = %02x %02x\n", SSP1->dr, SSP1->dr);
+    int s = SSP1->dr;
+    int t = SSP1->dr;
+    spi_end (SSP1, ROM_CS);
+    printf("Status = %02x %02x\n", s, t);
 }
 
 
@@ -185,7 +188,7 @@ static void spirom_program(void)
     }
     verbose(CLR "SPIROM program page 0x%x press ENTER: ", page);
     if (getchar() == '\n')
-        write_page (SSP1, CS1, page, data);
+        write_page (SSP1, ROM_CS, page, data);
     else
         printf ("Aborted\n");
 }
@@ -205,7 +208,8 @@ static void spirom_read(void)
         page = page * 16 + n;
     }
     printf(CLR "SPIROM read page 0x%x\n", page);
-    op_address(SSP1, CS1, 0xb, page * 512);
+    unsigned char bytes[PAGE_LEN + 5];
+    op_address(SSP1, ROM_CS, 0xb, page * 512);
     int i = 0;
     int j = 0;
     while (j < PAGE_LEN + 5 || (SSP1->sr & 0x15) != 1) {
@@ -213,15 +217,14 @@ static void spirom_read(void)
             ++i;
             SSP1->dr = 0;
         }
-        if (SSP1->sr & 4) {
-            if (j++ < 5)
-                SSP1->dr;
-            else
-                printf("%02x%s", SSP1->dr, (j & 15) == 5 ? "\n" : " ");
-        }
+        if (SSP1->sr & 4)
+            bytes[j++] = SSP1->dr;
     }
-    spi_end(SSP1, CS1);
-    printf("\n");
+    spi_end(SSP1, ROM_CS);
+    for (int i = 5; i < PAGE_LEN + 5; ++i)
+        printf("%02x%s", bytes[i], (i & 15) == 4 ? "\n" : " ");
+    if (PAGE_LEN & 15)
+        printf("\n");
 }
 
 
@@ -239,15 +242,15 @@ void spirom_command(void)
             spirom_read();
             break;
         case 's':
-            spi_start(SSP1, CS1, 0xd7);
+            spi_start(SSP1, ROM_CS, 0xd7);
             SSP1->dr = 0;
-            spi_end(SSP1, CS1);
+            spi_end(SSP1, ROM_CS);
             SSP1->dr;
             printf(CLR "Status = %02x\n", SSP1->dr);
             break;
         case 'i':
             verbose(CLR "Idle wait");
-            if (!spirom_idle(SSP1, CS1))
+            if (!spirom_idle(SSP1, ROM_CS))
                 printf(CLR "Idle wait failed!\n");
             else
                 verbose(CLR "SPIROM idle\n");
