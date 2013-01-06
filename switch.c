@@ -58,7 +58,7 @@ void init_switch (void)
     GPIO_BYTE[7][9] = 1;
 
     // Wait ~ 100us.
-    for (int i = 0; i < 10000; ++i)
+    for (int i = 0; i < 160000; ++i)
         asm volatile ("");
 
     // Switch SPI is on SSP0.

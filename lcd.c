@@ -94,7 +94,6 @@ void lcd_init (void)
         unsigned pin = pins[i] >> 16;
         unsigned config = pins[i] & 0xffff;
         SFSP[0][pin] = config;
-        //SFSP[pin >> 5][pin & 31] = config;
     }
 
     // Enable the lcd.
