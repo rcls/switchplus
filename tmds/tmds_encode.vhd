@@ -19,36 +19,26 @@ architecture tmds_encode_byte of tmds_encode_byte is
   signal C0e, C1e, DEe : std_logic;
 begin
   process
-    variable addend : unsigned(3 downto 0);
   begin
     wait until rising_edge(clk);
     encodings <= encode_rom(to_integer(D));
     C0e <= C0;
     C1e <= C1;
     DEe <= DE;
-    if DEe = '1' then
-      if count(3) = '1' then
-        count <= count + encodings(27 downto 24);
-        Q <= encodings(23 downto 14);
-      else
-        count <= count + encodings(13 downto 10);
-        Q <= encodings(9 downto 0);
-      end if;
-    else
-      if C1e = '0' then
-        if C0e = '0' then
-          Q <= "0010101011";
+    case unsigned'(DE, C1e, C0e) is
+      when "000" => Q <= "0010101011";
+      when "001" => Q <= "1101010100";
+      when "010" => Q <= "0010101010";
+      when "011" => Q <= "1101010101";
+      when others =>
+        if count(3) = '1' then
+          count <= count + encodings(27 downto 24);
+          Q <= encodings(23 downto 14);
         else
-          Q <= "1101010100";
+          count <= count + encodings(13 downto 10);
+          Q <= encodings(9 downto 0);
         end if;
-      else
-        if C0e = '0' then
-          Q <= "0010101010";
-        else
-          Q <= "1101010101";
-        end if;
-      end if;
-    end if;
+    end case;
   end process;
 end tmds_encode_byte;
 
