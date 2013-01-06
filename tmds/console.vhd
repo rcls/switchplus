@@ -29,7 +29,8 @@ architecture console of console is
   subtype fifo_address_t is unsigned (10 downto 0);
   type byte_2048_t is array (0 to 2047) of byte_t;
 
-  signal in_count, fifo_count : fifo_address_t;
+  signal in_count, in_gray : fifo_address_t;
+  signal in_gray_b, in_count_b, fifo_count : fifo_address_t;
   signal fifo : byte_2048_t;
 
   signal fifo_byte : byte_t;
@@ -146,32 +147,40 @@ architecture console of console is
     );
 
 begin
-  -- The spi input is driven of spi_clk; spi_sel is implemented as an async
-  -- reset.  So long as the main clk is at least an eighth of the spi_clk speed,
-  -- it will see every byte.
   process (spi_clk, spi_sel)
+    variable in_count_new : fifo_address_t;
   begin
     if spi_sel = '1' then
-      spi_bit_count(2 downto 0) <= "000";
+      spi_bit_count <= "0000";
     elsif rising_edge(spi_clk) then
+      spi_bit_count <= (spi_bit_count and "0111") + 1;
+    end if;
+    if rising_edge(spi_clk) then
       spi_byte <= spi_byte(6 downto 0) & spi_in;
-      spi_bit_count <= spi_bit_count + 1;
+    end if;
+    if falling_edge(spi_clk) then
+      if spi_bit_count(3) = '1' then
+        fifo(to_integer(in_count)) <= spi_byte;
+        in_count_new := in_count + 1;
+        in_count <= in_count_new;
+        in_gray <= in_count_new xor (in_count_new srl 1);
+      end if;
     end if;
   end process;
 
-  process -- fifo loading.
-    variable used : unsigned (10 downto 0);
+  process -- console fifo count handling.
+    variable used : fifo_address_t;
+    variable gray_to_binary : fifo_address_t;
   begin
     wait until rising_edge(clk);
-    in_flag <= spi_bit_count(3);
-    in_flag_prev <= in_flag;
+    in_gray_b <= in_gray;
+    gray_to_binary(10) := in_gray_b(10);
+    for i in 9 downto 0 loop
+      gray_to_binary(i) := gray_to_binary(i+1) xor in_gray_b(i);
+    end loop;
+    in_count_b <= gray_to_binary;
 
-    if in_flag /= in_flag_prev then
-      fifo(to_integer(in_count)) <= spi_byte;
-      in_count <= in_count + 1;
-    end if;
-
-    used := in_count - fifo_count;
+    used := in_count_b - fifo_count;
     spi_nearly_full <= used(10);
   end process;
 
@@ -255,7 +264,7 @@ begin
     console_state <= next_console_state;
     fifo_byte_valid <= false;
     fifo_byte <= "XXXXXXXX";
-    if next_console_state /= cs_clearing and in_count /= fifo_count then
+    if next_console_state /= cs_clearing and in_count_b /= fifo_count then
       fifo_byte_valid <= true;
       fifo_count <= fifo_count + 1;
       fifo_byte <= fifo(to_integer(fifo_count));
