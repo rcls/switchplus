@@ -1,11 +1,6 @@
 \#*#
 PCB.*.save
 /docs/
-*.bin
-*.boot
-*.elf
-*.flasher
-.deps/
 utils/addheader
 utils/decode_bitstream
 utils/runit

@@ -14,6 +14,7 @@ OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -flto -fwhole-program -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.deps/$@.d \
 	-fno-common -fdata-sections  -Wall -Werror
+UTILS=../utils
 
 -include .deps/*.d
 
@@ -38,7 +39,7 @@ main.sram.elf main.flashA.elf: liblpc.a
 	$(OBJCOPY) -O binary $< $@
 
 %.boot: %.bin
-	utils/addheader < $< > $@
+	$(UTILS)/addheader < $< > $@
 
 %.dfu: %
 	cp $< $@.tmp
@@ -46,8 +47,8 @@ main.sram.elf main.flashA.elf: liblpc.a
 	mv $@.tmp $@
 
 %.flasher: %.bin flash.zero.bin
-	utils/flasher flash.zero.bin $< > $@.tmp
-	utils/addheader < $@.tmp > $@.tmp2
+	$(UTILS)/flasher flash.zero.bin $< > $@.tmp
+	$(UTILS)/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
 	mv $@.tmp2 $@
 
