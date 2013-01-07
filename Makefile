@@ -51,7 +51,7 @@ main.sram.elf main.flashA.elf: liblpc.a
 	rm $@.tmp
 	mv $@.tmp2 $@
 
-LIBO=callback freq jtag lcd monkey sdram spirom switch usb
+LIBO=callback freq jtag lcd monkey sdram spirom square switch usb
 liblpc.a: $(LIBO:%=%.o)
 	ar cr $@ $+
 

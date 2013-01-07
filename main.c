@@ -8,6 +8,7 @@
 #include "registers.h"
 #include "sdram.h"
 #include "spirom.h"
+#include "square.h"
 #include "switch.h"
 #include "usb.h"
 
@@ -387,6 +388,9 @@ static void serial_byte (unsigned byte)
         return;
     case 'm':
         memtest();
+        return;
+    case 'p':
+        square_draw9();
         return;
     case 's':
         spirom_command();
@@ -898,6 +902,8 @@ void main (void)
     disable_clocks();
 
     usb_init();
+
+    square_draw9();     // Faster to do this before the LCD is banging memory...
 
     lcd_init();
 
