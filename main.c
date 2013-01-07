@@ -390,7 +390,7 @@ static void serial_byte (unsigned byte)
         memtest();
         return;
     case 'p':
-        square_draw9();
+        square_interact();
         return;
     case 's':
         spirom_command();

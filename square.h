@@ -2,5 +2,6 @@
 #define SQUARE_H_
 
 void square_draw9 (void);
+void square_interact (void);
 
 #endif
