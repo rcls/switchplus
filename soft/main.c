@@ -911,9 +911,9 @@ void main (void)
 
     usb_init();
 
-    square_draw9();     // Faster to do this before the LCD is banging memory...
-
     lcd_init();
+
+    square_draw9();
 
     // Enable the ethernet, usb and serial interrupts.
     NVIC_ISER[0] = 0x00000120;
