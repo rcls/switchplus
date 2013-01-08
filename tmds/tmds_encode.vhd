@@ -25,7 +25,7 @@ begin
     C0e <= C0;
     C1e <= C1;
     DEe <= DE;
-    case unsigned'(DE, C1e, C0e) is
+    case unsigned'(DEe, C1e, C0e) is
       when "000" => Q <= "0010101011";
       when "001" => Q <= "1101010100";
       when "010" => Q <= "0010101010";
