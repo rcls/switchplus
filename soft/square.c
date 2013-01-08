@@ -32,67 +32,99 @@ static const pixel_t colours[] = {
 };
 
 
-static pixel_t * square_draw1_right(pixel_t * start, int colour)
+typedef struct block16_t {
+    unsigned short offset;
+    short move;
+    unsigned short data[16];
+} block16_t;
+
+
+typedef struct block8_t {
+    unsigned short offset;
+    short move;
+    unsigned char data[8];
+} block8_t;
+
+
+static const block16_t block8[4] = {
+    // Right 8, offset = 3,7, move = 8,0
+    { 3 + 7 * 1024, 8, {
+            0x0ff8, 0x1bec, 0x394e, 0x79cf, 0x4001, 0x6003, 0x4001, 0x600b,
+            0x380e, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }},
+    // Up 8, offset = 7,11, move = 0,-8
+    { 7 + 11 * 1024, -8 * 1024, {
+            0x00f8, 0x01ac, 0x010e, 0x010f, 0x0001, 0x0003, 0x000f, 0x000b,
+            0x000f, 0x0003, 0x0001, 0x018f, 0x010e, 0x01ac, 0x00f8, 0x0000 }},
+    // Left 8, offset = 11,1, move = -8,0
+    { 11 + 1024, -8, {
+            0x380e, 0x6803, 0x4001, 0x6003, 0x4001, 0x79cf, 0x394e, 0x1bec,
+            0x0ff8, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }},
+    // Down 8, offset = 1,3, move = 0,8
+    { 1 + 3 * 1024, 8 * 1024, {
+            0x003e, 0x006b, 0x00e1, 0x01e3, 0x0100, 0x0180, 0x01e0, 0x01a0,
+            0x01e0, 0x0180, 0x0100, 0x01e1, 0x00e1, 0x006b, 0x003e, 0x0000 }},
+};
+
+
+static pixel_t * draw8 (pixel_t * s, const block16_t * b, int colour)
 {
-    start[0] = colour;
-    start[-1024] = colour;
-    start[-1024+1] = colour;
-    start[-1024+2] = colour;
-    return start+2;
+    pixel_t * r = s + b->move;
+    s -= b->offset;
+    const unsigned short * data = b->data;
+    unsigned short bits = *data++;
+    do {
+        pixel_t * p = s;
+        do {
+            if (bits & 15) {
+                if (bits & 1)
+                    p[0] = colour;
+                if (bits & 2)
+                    p[1] = colour;
+                if (bits & 4)
+                    p[2] = colour;
+                if (bits & 8)
+                    p[3] = colour;
+            }
+            p += 4;
+            bits >>= 4;
+        }
+        while (bits);
+        s += 1024;
+        bits = *data++;
+    }
+    while (bits);
+    return r;
 }
 
-static pixel_t * square_draw1_up(pixel_t * start, int colour)
-{
-    start[0] = colour;
-    start[-1] = colour;
-    start[-1-1024] = colour;
-    start[-1-2048] = colour;
-    return start - 2048;
-}
 
-
-static pixel_t * square_draw1_left(pixel_t * start, int colour)
-{
-    start[0] = colour;
-    start[1024] = colour;
-    start[1024-1] = colour;
-    start[1024-2] = colour;
-    return start - 2;
-}
-
-
-static pixel_t * square_draw1_down(pixel_t * start, int colour)
-{
-    start[0] = colour;
-    start[1] = colour;
-    start[1 + 1024] = colour;
-    start[1 + 2048] = colour;
-    return start + 2048;
-}
+static const short block1[4][4] = {
+    { -1024, -1024+1, -1024+2, 2 },
+    { -1, -1-1024, -1-2048, -2048 },
+    { 1024, 1024-1, 1024-2, -2 },
+    { 1, 1 + 1024, 1 + 2048, 2048 }
+};
 
 
 static pixel_t * square_draw (pixel_t * start, int dir, unsigned L, unsigned c)
 {
+    if (L == 4)
+        return draw8(start, block8 + (dir & 3), c);
+
     if (L == 1) {
-        if (dir & 2)
-            if (dir & 1)
-                return square_draw1_down(start, c); // 3 = down
-            else
-                return square_draw1_left(start, c); // 2 = left
-        else
-            if (dir & 1)
-                return square_draw1_up(start, c); // 1 = up
-            else
-                return square_draw1_right(start, c); // 0 = right
+        const short * p = block1[dir & 3];
+        *start = c;
+        start[*p++] = c;
+        start[*p++] = c;
+        start[*p++] = c;
+        return start + *p;
     }
-    else {
-        L >>= 1;
-        start = square_draw (start, dir + 1, L, c);
-        start = square_draw (start, dir, L, c);
-        start = square_draw (start, dir, L, c);
-        start = square_draw (start, dir - 1, L, c);
-        return start;
-    }
+
+    L >>= 1;
+    start = square_draw (start, dir + 1, L, c);
+    start = square_draw (start, dir, L, c);
+    start = square_draw (start, dir, L, c);
+    start = square_draw (start, dir - 1, L, c);
+    return start;
 }
 
 
@@ -136,7 +168,7 @@ static inline sq_context_t * plot (int x, int y, sq_context_t * c)
         c = square_##FIRST(c, L);                                       \
         c = square_##MAIN(c, L);                                        \
         c = square_##MAIN(c, L);                                        \
-       return square_##LAST(c, L);                                      \
+        return square_##LAST(c, L);                                     \
     }
 
 
