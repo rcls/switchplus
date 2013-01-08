@@ -260,39 +260,43 @@ typedef struct ssp_t {
 #define DYNAMICCONFIG3 (EMC + 88)
 #define DYNAMICRASCAS3 (EMC + 89)
 
-#define LCD ((v32*) 0x40008000)
+#define LCD_BASE ((v32*) 0x40008000)
 
-#define LCD_TIMH (LCD + 0)
-#define LCD_TIMV (LCD + 1)
-#define LCD_POL (LCD + 2)
-#define LCD_LE (LCD + 3)
-#define LCD_UPBASE (LCD + 4)
-#define LCD_LPBASE (LCD + 5)
-#define LCD_CTRL (LCD + 6)
-#define LCD_INTMSK (LCD + 7)
-#define LCD_INTRAW (LCD + 8)
-#define LCD_INTSTAT (LCD + 9)
-#define LCD_INTCLR (LCD + 10)
-#define LCD_UPCURR (LCD + 11)
-#define LCD_LPCURR (LCD + 12)
+typedef struct lcd_t {
+    unsigned timh;
+    unsigned timv;
+    unsigned pol;
+    unsigned le;
+    unsigned upbase;
+    unsigned lpbase;
+    unsigned ctrl;
+    unsigned intmsk;
+    unsigned intraw;
+    unsigned intstat;
+    unsigned intclr;
+    unsigned upcurr;
+    unsigned lpcurr;
+} lcd_t;
+#define LCD ((volatile lcd_t *) 0x40008000)
 
-#define LCD_PAL (LCD + 128)
+#define LCD_PAL (LCD_BASE + 128)
 
-#define CRSR_IMG (LCD + 512)
+#define CRSR_IMG (LCD_BASE + 512)
 
-#define CRSR (LCD + 768)
-
-#define CRSR_CTRL (CRSR + 0)
-#define CRSR_CFG (CRSR + 1)
-#define CRSR_PAL0 (CRSR + 2)
-#define CRSR_PAL1 (CRSR + 3)
-#define CRSR_XY (CRSR + 4)
-#define CRSR_CLIP (CRSR + 5)
-
-#define CRSR_INTMSK (CRSR + 8)
-#define CRSR_INTCLR (CRSR + 9)
-#define CRSR_INTRAW (CRSR + 10)
-#define CRSR_INTSTAT (CRSR + 11)
+typedef struct cursor_t {
+    unsigned ctrl;
+    unsigned cfg;
+    unsigned pal0;
+    unsigned pal1;
+    unsigned xy;
+    unsigned clip;
+    unsigned dummy[2];
+    unsigned intmsk;
+    unsigned intclr;
+    unsigned intraw;
+    unsigned intstat;
+} cursor_t;
+#define CRSR ((volatile cursor_t *) 0x40008c00)
 
 typedef struct i2c_t {
     unsigned conset;

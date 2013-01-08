@@ -47,12 +47,12 @@ void lcd_init (void)
     // horizontal 1024 48 32 80
     // vertical 1024 3 10 17
 
-    *LCD_TIMH = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
-    *LCD_TIMV = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
-    *LCD_POL = 0x07ff3020;
-    *LCD_UPBASE = (unsigned) FRAMEBUFFER;           // SDRAM.
-    *LCD_LPBASE = (unsigned) FRAMEBUFFER;
-    *LCD_CTRL = 0x1002c;                   // TFT, 16bpp, disabled, watermark=8.
+    LCD->timh = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
+    LCD->timv = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
+    LCD->pol = 0x07ff3020;
+    LCD->upbase = (unsigned) FRAMEBUFFER;           // SDRAM.
+    LCD->lpbase = (unsigned) FRAMEBUFFER;
+    LCD->ctrl = 0x1002c;                   // TFT, 16bpp, disabled, watermark=8.
 
     // Setup pins.
     static const unsigned pins[] = {
@@ -97,5 +97,5 @@ void lcd_init (void)
     }
 
     // Enable the lcd.
-    *LCD_CTRL = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.
+    LCD->ctrl = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.
 }
