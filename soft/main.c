@@ -396,10 +396,18 @@ static void serial_byte (unsigned byte)
         spirom_command();
         return;
     case 'r':
-        puts ("Reboot!\n");
+        puts ("Reset!\n");
         *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
         for (int i = 0; i != 100000; ++i)
             asm volatile ("");
+        while (1)
+            *CORTEX_M_AIRCR = 0x05fa0004;
+    case 'R':
+        puts ("Cold Reboot!\n");
+        *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
+        for (int i = 0; i != 100000; ++i)
+            asm volatile ("");
+        __interrupt_disable();
         while (1) {
             RESET_CTRL[1] = 0xffffffff;
             RESET_CTRL[0] = 0xffffffff;
