@@ -52,7 +52,7 @@ void lcd_init (void)
     *LCD_POL = 0x07ff3020;
     *LCD_UPBASE = (unsigned) FRAMEBUFFER;           // SDRAM.
     *LCD_LPBASE = (unsigned) FRAMEBUFFER;
-    *LCD_CTRL = 0x2c;                   // TFT, 16bpp, disabled.
+    *LCD_CTRL = 0x1002c;                   // TFT, 16bpp, disabled, watermark=8.
 
     // Setup pins.
     static const unsigned pins[] = {
@@ -97,5 +97,5 @@ void lcd_init (void)
     }
 
     // Enable the lcd.
-    *LCD_CTRL = 0x82d;                  // TFT, 16bpp, 565.
+    *LCD_CTRL = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.
 }
