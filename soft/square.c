@@ -1,17 +1,19 @@
 
+#include "lcd.h"
 #include "monkey.h"
 #include "registers.h"
 
 #include <stdbool.h>
 
-#define FRAME_BUFFER ((unsigned short *) 0x60000000)
-
 typedef unsigned short pixel_t;
+
+#define FRAME_BUFFER ((pixel_t *) 0x60000000)
 
 typedef struct sq_context_t {
     int x, y;
     unsigned colour, Lcolour;
     const pixel_t * next_colour;
+    pixel_t * frame_buffer;
 } sq_context_t;
 
 static sq_context_t * square_right(sq_context_t * restrict c, unsigned L);
@@ -151,7 +153,7 @@ static inline bool off (int x, int y, int right, int up, int left, int down)
 static inline sq_context_t * plot (int x, int y, sq_context_t * c)
 {
     if (x >= 0 && x < 1024 && y >= 0 && y < 1024)
-        FRAME_BUFFER[x + y * 1024] = c->colour;
+        c->frame_buffer[x + y * 1024] = c->colour;
     return c;
 }
 
@@ -161,7 +163,8 @@ static inline sq_context_t * plot (int x, int y, sq_context_t * c)
         c->colour = *c->next_colour++;                                  \
                                                                         \
     if (L <= c->Lcolour && fits (c->x, c->y, B_##MAIN))                 \
-        square_draw(FRAME_BUFFER + c->x + c->y * 1024, DIR, L, c->colour); \
+        square_draw(c->frame_buffer + c->x + c->y * 1024,               \
+                    DIR, L, c->colour);                                 \
                                                                         \
     else if (L > c->Lcolour || !off (c->x, c->y, B_##MAIN)) {           \
         L >>= 1;                                                        \
@@ -224,14 +227,14 @@ void square_draw9 (void)
 {
     verbose("Drawing squaral...");
     __memory_barrier();
-    pixel_t * origin = (pixel_t *) 0x60000000;
     for (int i = 0; i != 1048576; ++i)
-        origin[i] = 0x4208;
+        FRAME_BUFFER[i] = 0x4208;
     sq_context_t c;
     c.x = 256;
     c.y = 768;
     c.Lcolour = 256 / 8;
     c.next_colour = colours;
+    c.frame_buffer = FRAME_BUFFER;
     square_right(&c, 256);
     __memory_barrier();
     verbose(" done.\n");
@@ -240,11 +243,14 @@ void square_draw9 (void)
 
 void square_interact (void)
 {
-    // Clear out a frame.
+    // Clear out two frames.
+    pixel_t * current_frame = FRAME_BUFFER;
+    pixel_t * new_frame = FRAME_BUFFER + 1048576;
     __memory_barrier();
-    for (int i = 0; i != 1048576; ++i)
+    for (int i = 0; i != 2 * 1048576; ++i)
         FRAME_BUFFER[i] = 0x4208;
     __memory_barrier();
+    lcd_setframe_wait (current_frame);
 
     int lastX = -8;
     int lastY = -8;
@@ -259,25 +265,29 @@ void square_interact (void)
     while (true) {
         if (peekchar_nb() < 0 && (lastX != X || lastY != Y || lastL != L)) {
             __memory_barrier();
-            // Clear out the previous.
             sq_context_t c;
+            // Draw the new frame.
+            c.x = X;
+            c.y = Y;
+            c.Lcolour = L >> 3;
+            c.next_colour = colours;
+            c.frame_buffer = new_frame;
+            square_right(&c, L);
+            __memory_barrier();
+            lcd_setframe_wait (new_frame);
+            // Clear out the old one.
             c.x = lastX;
             c.y = lastY;
             c.Lcolour = 0xffffffff;
             c.colour = 0x4208;
             c.next_colour = colours;
+            c.frame_buffer = current_frame;
+            current_frame = new_frame;
+            new_frame = c.frame_buffer;
             square_right(&c, lastL);
-            // Now draw the new one.
-            c.x = X;
-            c.y = Y;
-
-            c.Lcolour = L >> 3;
-            c.next_colour = colours;
-            square_right(&c, L);
             lastX = X;
             lastY = Y;
             lastL = L;
-            __memory_barrier();
         }
         switch (getchar()) {
         case '\n':

@@ -924,5 +924,6 @@ void * start[64] = {
     [1] = main,
 
     [21] = eth_interrupt,
+    [23] = lcd_interrupt,
     [24] = usb_interrupt,
 };

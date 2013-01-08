@@ -8,6 +8,8 @@
 #define FRAMEBUFFER ((unsigned short *) 0x60000000)
 #define TEXT_LINES 64
 
+static volatile bool frame_flag;
+
 static inline unsigned pll_np_div (unsigned pdec, unsigned ndec)
 {
     return pdec + (ndec << 12);
@@ -98,4 +100,33 @@ void lcd_init (void)
 
     // Enable the lcd.
     LCD->ctrl = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.
+
+    // Enable the frame interrupt.
+    LCD->intmsk = 4;
+    NVIC_ISER[0] = 0x80;
+}
+
+
+void lcd_setframe_wait(const void * frame)
+{
+    LCD->upbase = (unsigned) frame;
+    frame_flag = false;
+    while (true) {
+        __interrupt_disable();
+        if (frame_flag)
+            break;
+        __interrupt_wait();
+        __interrupt_enable();
+    }
+    __interrupt_enable();
+
+}
+
+
+void lcd_interrupt(void)
+{
+    unsigned interrupts = LCD->intstat;
+    LCD->intclr = interrupts;
+    if (interrupts & 4)
+        frame_flag = true;
 }
