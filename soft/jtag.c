@@ -179,7 +179,7 @@ void jtag_cmd (void)
     jtag_reset();
 
     while (true) {
-        verbose ("JTAG: <R>eset, <I>d, <D>, <B>, <P>...");
+        verbose ("JTAG: <I>d, <B>oot, <P>program...");
         switch (getchar()) {
         case 'j':
             printf (CLR "Reset\n");
@@ -189,6 +189,7 @@ void jtag_cmd (void)
         case 'i':
             printf (CLR "Sent ID command, IR returns %02x\n",
                     jtag_ir(IDCODE));
+            printf ("32 DR bits %08x\n", jtag_dr_short(32, 0xdeadbeef));
             break;
 
         case 'b':
@@ -196,10 +197,6 @@ void jtag_cmd (void)
             jtag_tms(9,0xff);           // Reset, Run-test/idle.
             jtag_ir(JPROGRAM);
             jtag_tms(5,0x1f);
-            break;
-
-        case 'd':
-            printf (CLR "32 DR bits %08x\n", jtag_dr_short(32, 0xdeadbeef));
             break;
 
         case 'p':
