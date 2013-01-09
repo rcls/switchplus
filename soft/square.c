@@ -73,7 +73,7 @@ static pixel_t * draw8 (pixel_t * s, const block16_t * b, int colour)
     pixel_t * r = s + b->move;
     s -= b->offset;
     const unsigned short * data = b->data;
-    unsigned short bits = *data++;
+    unsigned bits = *data++;
     do {
         pixel_t * p = s;
         do {
@@ -149,16 +149,18 @@ static inline bool off (int x, int y, int right, int up, int left, int down)
 #define B_left  L - 1       , (L - 1) >> 1, (3 * L) - 1 , (2 * L) - 1
 #define B_down  (2 * L) - 1 , L - 1       , (L - 1) >> 1, (3 * L) - 1
 
-
-static inline sq_context_t * plot (int x, int y, sq_context_t * c)
-{
-    if (x >= 0 && x < 1024 && y >= 0 && y < 1024)
-        c->frame_buffer[x + y * 1024] = c->colour;
-    return c;
-}
-
+#define M_right(c,L) (c)->x += L
+#define M_up(c,L)    (c)->y -= L
+#define M_left(c,L)  (c)->x -= L
+#define M_down(c,L)  (c)->y += L
 
 #define SQUARE_BLK(MAIN,FIRST,LAST,DIR)                                 \
+    if (L == 0) {                                                       \
+        if (c->x >= 0 && c->x < 1024 && c->y >= 0 && c->y < 1024)       \
+            c->frame_buffer[c->x + c->y * 1024] = c->colour;            \
+        M_##MAIN(c,1);                                                  \
+        return c;                                                       \
+    }                                                                   \
     if (L == c->Lcolour)                                                \
         c->colour = *c->next_colour++;                                  \
                                                                         \
@@ -172,54 +174,32 @@ static inline sq_context_t * plot (int x, int y, sq_context_t * c)
         c = square_##MAIN(c, L);                                        \
         c = square_##MAIN(c, L);                                        \
         return square_##LAST(c, L);                                     \
-    }
-
+    }                                                                   \
+                                                                        \
+    M_##MAIN(c, 2*L);                                                   \
+    return c;                                                           \
 
 static sq_context_t * square_right (sq_context_t * restrict c, unsigned L)
 {
-    if (L == 0)
-        return plot(c->x++, c->y, c);
-
     SQUARE_BLK(right, up, down, 0);
-
-    c->x += 2 * L;
-    return c;
 }
 
 
 static sq_context_t * square_up (sq_context_t * restrict c, unsigned L)
 {
-    if (L == 0)
-        return plot(c->x, c->y--, c);
-
     SQUARE_BLK(up, left, right, 1);
-
-    c->y -= 2 * L;
-    return c;
 }
 
 
 static sq_context_t * square_left (sq_context_t * restrict c, unsigned L)
 {
-    if (L == 0)
-        return plot(c->x--, c->y, c);
-
     SQUARE_BLK(left, down, up, 2);
-
-    c->x -= 2 * L;
-    return c;
 }
 
 
 static sq_context_t * square_down (sq_context_t * restrict c, unsigned L)
 {
-    if (L == 0)
-        return plot(c->x, c->y++, c);
-
     SQUARE_BLK(down, right, left, 3);
-
-    c->y += 2 * L;
-    return c;
 }
 
 
@@ -264,7 +244,6 @@ void square_interact (void)
 
     while (true) {
         if (peekchar_nb() < 0 && (lastX != X || lastY != Y || lastL != L)) {
-            __memory_barrier();
             sq_context_t c;
             // Draw the new frame.
             c.x = X;
@@ -273,7 +252,6 @@ void square_interact (void)
             c.next_colour = colours;
             c.frame_buffer = new_frame;
             square_right(&c, L);
-            __memory_barrier();
             lcd_setframe_wait (new_frame);
             // Clear out the old one.
             c.x = lastX;

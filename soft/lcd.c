@@ -109,6 +109,7 @@ void lcd_init (void)
 
 void lcd_setframe_wait(const void * frame)
 {
+    __memory_barrier();
     LCD->upbase = (unsigned) frame;
     frame_flag = false;
     while (true) {
@@ -119,7 +120,7 @@ void lcd_setframe_wait(const void * frame)
         __interrupt_enable();
     }
     __interrupt_enable();
-
+    __memory_barrier();
 }
 
 
