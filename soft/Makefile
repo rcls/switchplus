@@ -12,8 +12,8 @@ LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -flto -fwhole-program -std=gnu11 -ffreestanding \
-	-mcpu=cortex-m4 -mthumb -MMD -MP -MF.deps/$@.d \
-	-fno-common -fdata-sections  -Wall -Werror
+	-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -MMD -MP -MF.deps/$@.d \
+	-fno-common -fdata-sections -Wall -Werror
 UTILS=../utils
 
 -include .deps/*.d
