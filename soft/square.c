@@ -4,6 +4,7 @@
 #include "registers.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef unsigned short pixel_t;
 
@@ -177,7 +178,7 @@ static inline bool off (int x, int y, int right, int up, int left, int down)
     }                                                                   \
                                                                         \
     M_##MAIN(c, 2*L);                                                   \
-    return c;                                                           \
+    return c;
 
 static sq_context_t * square_right (sq_context_t * restrict c, unsigned L)
 {
@@ -203,12 +204,54 @@ static sq_context_t * square_down (sq_context_t * restrict c, unsigned L)
 }
 
 
+static void dma_fill (void * p, unsigned pattern, unsigned n)
+{
+    * (v32 *) 0x40051440 = 1;
+
+    const volatile unsigned source = pattern;
+    volatile gpdma_channel_t * channel = &GPDMA->channel[7];
+    GPDMA->config = 1;
+    channel->config = 0;
+    channel->control = 0;
+    channel->srcaddr = &source;
+    channel->lli = NULL;
+
+    do {
+        channel->destaddr = p;
+
+        unsigned amount = n;
+        if (amount >= 4094)
+            amount = 4094;
+        // 2 : src & dst width = 32bits.
+        // 4 : src burst-size = 32 transfers.
+        // 0 : dst burst-size = 1 transfer.
+        // Destination increment.
+        // Privileged mode access, bufferable, configurable.
+        // FIXME - enable terminal count interrupt.
+        channel->control = (1 << 30) + (1 << 29) + (1 << 28) + (1 << 27)
+            + (2 << 21) + (2 << 18) + (0 << 15) + (4 << 12) + amount;
+
+        // Now kick it off.  FIXME - interrupt mask bits.
+        __memory_barrier();
+        channel->config = 1;
+
+        n -= amount;
+        p = (void*) (amount * 4 + (unsigned) p);
+
+        // FIXME - we should use interrupt instead of polling...
+        for (int i = 0; i != 100000; ++i)
+            if (!(channel->config & 1))
+                break;
+        __memory_barrier();
+    }
+    while (n);
+}
+
+
 void square_draw9 (void)
 {
     verbose("Drawing squaral...");
-    __memory_barrier();
-    for (int i = 0; i != 1048576; ++i)
-        FRAME_BUFFER[i] = 0x4208;
+    dma_fill (FRAME_BUFFER, 0x42084208, 524288);
     sq_context_t c;
     c.x = 256;
     c.y = 768;
@@ -226,10 +269,7 @@ void square_interact (void)
     // Clear out two frames.
     pixel_t * current_frame = FRAME_BUFFER;
     pixel_t * new_frame = FRAME_BUFFER + 1048576;
-    __memory_barrier();
-    for (int i = 0; i != 2 * 1048576; ++i)
-        FRAME_BUFFER[i] = 0x4208;
-    __memory_barrier();
+    dma_fill (FRAME_BUFFER, 0x42084208, 1048576);
     lcd_setframe_wait (current_frame);
 
     int lastX = -8;
@@ -253,16 +293,25 @@ void square_interact (void)
             c.frame_buffer = new_frame;
             square_right(&c, L);
             lcd_setframe_wait (new_frame);
-            // Clear out the old one.
-            c.x = lastX;
-            c.y = lastY;
-            c.Lcolour = 0xffffffff;
-            c.colour = 0x4208;
-            c.next_colour = colours;
-            c.frame_buffer = current_frame;
-            current_frame = new_frame;
-            new_frame = c.frame_buffer;
-            square_right(&c, lastL);
+            // Clear out the old one.  FIXME - record number of pixels so we can
+            // make a smart decision?
+            if (false) {
+                c.x = lastX;
+                c.y = lastY;
+                c.Lcolour = 0xffffffff;
+                c.colour = 0x4208;
+                c.next_colour = colours;
+                c.frame_buffer = current_frame;
+                current_frame = new_frame;
+                new_frame = c.frame_buffer;
+                square_right(&c, lastL);
+            }
+            else {
+                dma_fill(current_frame, 0x42084208, 524288);
+                pixel_t * temp = current_frame;
+                current_frame = new_frame;
+                new_frame = temp;
+            }
             lastX = X;
             lastY = Y;
             lastL = L;
@@ -299,7 +348,7 @@ void square_interact (void)
             }
             break;
         case '6':
-            if (L > 16) {
+            if (L > 8) {
                 L >>= 1;
                 fracX = fracX * 2 + (X & 1);
                 fracY = fracY * 2 + (Y & 1);
