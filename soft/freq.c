@@ -67,6 +67,14 @@ static const char * const clock_names[] = {
 };
 
 
+static const char * const output_names[] = {
+    "USB0", "PERIPH", "USB1", "M4", "SPIFI", "SPI", "PHY_RX", "PHY_TX",
+    "APB1", "APB3", "LCD", "VADC", "SDIO", "SSP0", "SSP1", "UART0",
+    "UART1", "UART2", "UART3", "OUT", "21", "22", "23", "24",
+    "OUT0", "OUT1"
+};
+
+
 static void * __attribute__ ((noinline)) bra (void)
 {
     return __builtin_return_address (0);
@@ -88,10 +96,27 @@ void clock_report (void)
         if (f >= 0)
             printf ("%s%s: %6u kHz\n", name, dots, f);
     }
-    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
-    if (base_m4 < sizeof clock_names / sizeof clock_names[0]
-        && clock_names[base_m4])
-        printf ("CPU is %s.\n", clock_names[base_m4]);
+
+    for (int i = 0; i != sizeof clock_names / sizeof clock_names[0]; ++i) {
+        const char * name = clock_names[i];
+        if (name == NULL)
+            continue;
+        bool first = true;
+
+        for (int j = 0; j != sizeof output_names /sizeof output_names[0]; ++j) {
+            unsigned source = * (j + (volatile unsigned *) 0x40050060);
+            if (source >> 24 != i || (source & 1))
+                continue;
+
+            if (first)
+                printf ("%s to", clock_names[i]);
+            first = false;
+
+            printf (" %s", output_names[j]);
+        }
+        if (!first)
+            printf ("\n");
+    }
 
     unsigned base = (unsigned) bra();
     if (base < 0x10000000) {
