@@ -319,4 +319,37 @@ typedef struct i2c_t {
 
 #define I2C0 ((volatile i2c_t *) 0x400a1000)
 
+typedef struct gpdma_channel_t {
+    const volatile void * srcaddr;
+    volatile void * destaddr;
+    void * lli;
+    unsigned control;
+    unsigned config;
+    unsigned dummy[3];
+} gpdma_channel_t;
+_Static_assert(sizeof(gpdma_channel_t) == 32, "gpdma_channel size");
+
+typedef struct gpdma_t {
+    const unsigned intstat;
+    const unsigned inttcstat;
+    unsigned intcclear;
+    const unsigned interrstat;
+    unsigned interrclr;
+    const unsigned rawinttcstat;
+    const unsigned rawinterrstat;
+    const unsigned enbldchns;
+    unsigned softbreq;
+    unsigned softsreq;
+    unsigned softlbreq;
+    unsigned softlsreq;
+    unsigned config;
+    unsigned sync;
+    unsigned dummy[50];
+
+    gpdma_channel_t channel[8];
+} gpdma_t;
+_Static_assert(sizeof(gpdma_t) == 512, "gpdma size");
+
+#define GPDMA ((volatile gpdma_t *) 0x40002000)
+
 #endif
