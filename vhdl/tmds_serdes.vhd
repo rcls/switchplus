@@ -34,9 +34,6 @@ architecture tmds_serdes of tmds_serdes is
   signal txt_hsync, txt_vsync, txt_de : std_logic;
   signal clk_raw, clk_bit, clk_nibble_raw, clk_console_raw, locked : std_logic;
   signal clk, clk_nibble, clk_console : std_logic;
-  signal blink : unsigned(25 downto 0);
-  signal fcount : byte_t;
-  signal lcount : unsigned(10 downto 0);
 
   attribute iob : string;
   attribute iob of R, G, B, hsync, vsync, de : signal is "TRUE";
@@ -49,32 +46,21 @@ architecture tmds_serdes of tmds_serdes is
   alias spirom_cs is lcd_le;
 
 begin
-  led(5 downto 4) <= "11";
-  led(2) <= fcount(5);
-  led(1) <= blink(25);
   led(0) <= locked;
 
-  led(7) <= not spartan_m1;
-  led(6) <= spartan_m0;
+  w_de : entity work.watchdog generic map (16) port map (de, led(1), clk);
+  w_vs : entity work.watchdog generic map (21) port map (vsync, led(2), clk);
+  w_hs : entity work.watchdog generic map (11) port map (hsync, led(3), clk);
 
-  led(3) <= spirom_cs;
+  led(4) <= spirom_cs;
+  led(5) <= '1';
+  led(6) <= spartan_m0;
+  led(7) <= not spartan_m1;
 
   flash_cs_inv <= spirom_cs;
   flash_sclk <= ssp1_sck when spirom_cs = '0' else 'Z';
   flash_si <= ssp1_mosi when spirom_cs = '0' else 'Z';
   ssp1_miso <= flash_so;
-
-  process
-  begin
-    wait until rising_edge(lcd_clk);
-    blink <= blink + 1;
-  end process;
-
-  process
-  begin
-    wait until rising_edge(lcd_vsync);
-    fcount <= fcount + 1;
-  end process;
 
   process
   begin
