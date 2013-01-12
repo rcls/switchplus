@@ -332,7 +332,7 @@ _Static_assert(sizeof(gpdma_channel_t) == 32, "gpdma_channel size");
 typedef struct gpdma_t {
     const unsigned intstat;
     const unsigned inttcstat;
-    unsigned intcclear;
+    unsigned inttcclear;
     const unsigned interrstat;
     unsigned interrclr;
     const unsigned rawinttcstat;

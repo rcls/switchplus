@@ -915,8 +915,8 @@ void main (void)
 
     square_draw9();
 
-    // Enable the ethernet, usb and serial interrupts.
-    NVIC_ISER[0] = 0x00000120;
+    // Enable the ethernet, usb and dma interrupts.
+    NVIC_ISER[0] = 0x00000124;
     *USBINTR = 0x00000041;              // Port change, reset, data.
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
@@ -931,6 +931,7 @@ void * start[64] = {
     [0] = (void*) 0x10089ff0,
     [1] = main,
 
+    [18] = gpdma_interrupt,
     [21] = eth_interrupt,
     [23] = lcd_interrupt,
     [24] = usb_interrupt,

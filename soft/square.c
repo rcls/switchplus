@@ -204,9 +204,16 @@ static sq_context_t * square_down (sq_context_t * restrict c, unsigned L)
 }
 
 
+void gpdma_interrupt (void)
+{
+    GPDMA->inttcclear = GPDMA->inttcstat;
+    GPDMA->interrclr = GPDMA->interrstat;
+}
+
+
 static void dma_fill (void * p, unsigned pattern, unsigned n)
 {
-    * (v32 *) 0x40051440 = 1;
+    * (v32 *) 0x40051440 = 1;           // Enabled clock.
 
     const volatile unsigned source = pattern;
     volatile gpdma_channel_t * channel = &GPDMA->channel[7];
@@ -225,24 +232,23 @@ static void dma_fill (void * p, unsigned pattern, unsigned n)
         // 2 : src & dst width = 32bits.
         // 4 : src burst-size = 32 transfers.
         // 0 : dst burst-size = 1 transfer.
-        // Destination increment.
-        // Privileged mode access, bufferable, configurable.
-        // FIXME - enable terminal count interrupt.
-        channel->control = (1 << 30) + (1 << 29) + (1 << 28) + (1 << 27)
+        // Destination increment.  Enable terminal count interrupt.
+        channel->control = (1 << 31) + (1 << 27)
             + (2 << 21) + (2 << 18) + (0 << 15) + (4 << 12) + amount;
 
-        // Now kick it off.  FIXME - interrupt mask bits.
-        __memory_barrier();
-        channel->config = 1;
+        // Now kick it off, unmasking interrupts.
+        channel->config = 0xc001;
 
         n -= amount;
         p = (void*) (amount * 4 + (unsigned) p);
 
-        // FIXME - we should use interrupt instead of polling...
-        for (int i = 0; i != 100000; ++i)
-            if (!(channel->config & 1))
-                break;
-        __memory_barrier();
+        __interrupt_disable();
+        while (channel->config & 1) {
+            __interrupt_wait();
+            __interrupt_enable();
+            __interrupt_disable();
+        }
+        __interrupt_enable();
     }
     while (n);
 }
