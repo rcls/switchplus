@@ -911,15 +911,16 @@ void main (void)
 
     usb_init();
 
-    lcd_init();
-
-    square_draw9();
-
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
     *USBINTR = 0x00000041;              // Port change, reset, data.
     *EDMA_STAT = 0x1ffff;
     *EDMA_INT_EN = 0x0001ffff;
+    __interrupt_enable();
+
+    lcd_init();
+
+    square_draw9();
 
     while (true)
         serial_byte (getchar());
