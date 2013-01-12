@@ -161,16 +161,15 @@ void jtag_program (void)
     }
 
     program_nibble (next, -1, &count, 1);
+    printf (CLR "Programmed %u bits\n", count * 4);
     jtag_clk (1, 1);                    // Update DR.
 
     jtag_clk(0,0);                      // Run-test idle.
     r = jtag_ir(JSTART);
-    verbose ("\nJSTART IR %02x\n", r);
+    verbose ("JSTART IR %02x\n", r);
     jtag_tms(16,0);                     // Run-test idle.
     jtag_tms(3,7);                      // Reset.
     jtag_clk(0,0);                      // Run-test idle.
-
-    printf (CLR "Programmed %u bits\n", count * 4);
 }
 
 

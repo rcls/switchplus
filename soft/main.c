@@ -836,7 +836,7 @@ static void usb_interrupt (void)
 
         *ENDPTCTRL0 = 0x00c000c0;
         *DEVICEADDR = 0;
-        puts ("Reset processed...\n");
+        puts ("USB Reset processed...\n");
     }
 }
 

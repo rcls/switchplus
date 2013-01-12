@@ -73,8 +73,13 @@ dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
     if (r == NULL) {
-        GPIO_BYTE[4][1] = 0;
-        puts ("Out of DTDs!!!\n");
+        static volatile bool reenter;
+        if (!reenter) {
+            reenter = true;
+            GPIO_DIR[4] |= 1 << 1;
+            GPIO_BYTE[4][1] = 0;
+            puts ("Out of DTDs!!!\n");
+        }
         while (1)
             __interrupt_wait();
     }
