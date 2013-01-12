@@ -213,8 +213,6 @@ void gpdma_interrupt (void)
 
 static void dma_fill (void * p, unsigned pattern, unsigned n)
 {
-    * (v32 *) 0x40051440 = 1;           // Enabled clock.
-
     const volatile unsigned source = pattern;
     volatile gpdma_channel_t * channel = &GPDMA->channel[7];
     GPDMA->config = 1;

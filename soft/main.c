@@ -268,7 +268,7 @@ static const unsigned ccu1_disable_mask[] = {
     CCU1_VALID_1 & ~0x1,
     CCU1_VALID_2 & ~0x1,
     CCU1_VALID_3 & ~0x0,
-    // M4 BUS, GPIO, LCD, Ethernet, USB0, EMC, DMA(?), M4 Core, EMC DIV,
+    // M4 BUS, GPIO, LCD, Ethernet, USB0, EMC, DMA, M4 Core, EMC DIV,
     // Flash A, Flash B,
     CCU1_VALID_4 & ~0x3837d,
     // SSP0, SCU, CREG
