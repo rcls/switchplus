@@ -225,7 +225,7 @@ static void dma_fill (void * p, unsigned pattern, unsigned n)
         channel->destaddr = p;
 
         unsigned amount = n;
-        if (amount >= 4094)
+        if (amount > 4094)
             amount = 4094;
         // 2 : src & dst width = 32bits.
         // 4 : src burst-size = 32 transfers.

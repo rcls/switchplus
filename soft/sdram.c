@@ -205,8 +205,7 @@ void memtest (void)
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
         if (v != e) {
-            printf ("Memtest: Bugger @ %06x expect %08x got %08x\n",
-                    i, e, v);
+            printf ("Memtest: Bugger @ %06x expect %08x got %08x\n", i, e, v);
             if (peekchar_nb() >= 0)
                 break;
         }
@@ -222,6 +221,15 @@ void memtest (void)
     for (int j = 0; j != sizeof patterns / sizeof patterns[0]; ++j)
         if (memtest1 (0, patterns[j], patterns[j]) >= 0)
             return;
+
+    for (unsigned bit = 1; bit < 65536; bit <<= 1) {
+        if (memtest1 (0, bit | 0xffff0000, bit | 0xffff0000) >= 0)
+            return;
+        if (memtest1 (0, ~bit & 0xffff, ~bit & 0xffff) >= 0)
+            return;
+        if (memtest1 (0, (bit * 65537) ^ 0xffff, (bit * 65537) ^ 0xffff) >= 0)
+            return;
+    }
 
     for (unsigned bit = 1; bit < size; bit <<= 1) {
         if (memtest1 (bit, 0, 0xffffffff) >= 0)
