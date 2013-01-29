@@ -1,5 +1,6 @@
 \#*#
 PCB.*.save
+.deps/
 /docs/
 utils/addheader
 utils/decode_bitstream
@@ -7,5 +8,5 @@ utils/runit
 utils/flasher
 utils/xbit
 utils/pbit
-tmds/ise/
-tmds/iseconfig/
+vhdl/ise/
+vhdl/iseconfig/

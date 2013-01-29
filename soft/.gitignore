@@ -2,4 +2,3 @@
 *.boot
 *.elf
 *.flasher
-.deps/
