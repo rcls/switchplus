@@ -75,9 +75,9 @@ void meminit (unsigned mhz)
 
     // Delays...
     if (mhz > 121)
-        *EMCDELAYCLK = 2;
+        *EMCDELAYCLK = 0x2222;
     else if (mhz > 97)
-        *EMCDELAYCLK = 1;
+        *EMCDELAYCLK = 0x1111;
     else
         *EMCDELAYCLK = 0;
 
