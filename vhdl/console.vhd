@@ -79,6 +79,7 @@ architecture console of console is
   type console_state_t is (cs_normal, cs_escape, cs_command, cs_clearing);
   signal console_state : console_state_t;
 
+  -- Character set stolen from unifont.
   constant char_gen : std_logic_vector (0 to 16383) := (
     x"00000000000000000000000000000000" & x"00000000000000000000000000000000" &
     x"00000000000000000000000000000000" & x"00000000000000000000000000000000" &
