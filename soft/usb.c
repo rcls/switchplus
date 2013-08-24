@@ -80,8 +80,14 @@ dTD_t * get_dtd (void)
             GPIO_BYTE[4][1] = 0;
             puts ("Out of DTDs!!!\n");
         }
-        while (1)
-            __interrupt_wait();
+        while (1) {
+            // Do a softreset.
+            *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
+            for (int i = 0; i != 100000; ++i)
+                asm volatile ("");
+            while (1)
+                *CORTEX_M_AIRCR = 0x05fa0004;
+        }
     }
     dtd_free_list = r->next;
     return r;
