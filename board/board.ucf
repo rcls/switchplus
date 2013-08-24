@@ -71,3 +71,6 @@ NET "spartan_m1" LOC = "P60" | IOSTANDARD = "LVCMOS33";
 
 NET "gpio7_24" LOC = "P12" | IOSTANDARD = "LVCMOS33";
 NET "gpio7_25" LOC = "P10" | IOSTANDARD = "LVCMOS33";
+
+NET "eth_rclk" LOC = "P46" | IOSTANDARD = "LVCMOS33";
+TIMESPEC TS_eth_rclk = PERIOD "eth_rclk" 20 ns HIGH 50%;
