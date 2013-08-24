@@ -496,10 +496,6 @@ static void start_network (void)
 
     *ENDPTCTRL2 = 0x00880088;
 
-    // Start ethernet & it's dma.
-    *MAC_CONFIG = 0xc90c;
-    *EDMA_OP_MODE = 0x2002;
-
     for (int i = 0; i != 4; ++i)
         schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, BUF_SIZE,
                          endpt_tx_complete);
@@ -512,10 +508,6 @@ static void stop_network (void)
         return;                         // Already stopped.
 
     puts ("Stopping network...\n");
-
-    // Stop ethernet & it's dma.
-    *EDMA_OP_MODE = 0;
-    *MAC_CONFIG = 0xc900;
 
     do {
         *ENDPTFLUSH = 0x40004;
@@ -792,8 +784,10 @@ static void init_ethernet (void)
 
     *EDMA_TRANS_DES_ADDR = (unsigned) tx_dma;
     *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
-    // Set dma recv/xmit bits.
-    //*EDMA_OP_MODE = 0x2002;
+
+    // Start ethernet & it's dma.
+    *MAC_CONFIG = 0xc90c;
+    *EDMA_OP_MODE = 0x2002;
 }
 
 
