@@ -682,23 +682,29 @@ static void process_setup (int i)
 }
 
 
-static void endpt_rx_complete (dTD_t * dtd)
+static void queue_rx_dma(void * buffer)
 {
-    // Re-queue the buffer for network data.
-    unsigned buffer = dtd->buffer_page[4];
-
     volatile EDMA_DESC_t * r = &rx_dma[rx_dma_insert++ & EDMA_MASK];
 
     if (rx_dma_insert & EDMA_MASK)
         r->count = BUF_SIZE;
     else
         r->count = 0x8000 + BUF_SIZE;
-    r->buffer1 = (void*) buffer;
+    r->buffer1 = buffer;
     r->buffer2 = 0;
 
     r->status = 0x80000000;
 
     *EDMA_REC_POLL_DEMAND = 0;
+}
+
+
+static void endpt_rx_complete (dTD_t * dtd)
+{
+    // Re-queue the buffer for network data.
+    unsigned buffer = dtd->buffer_page[4];
+
+    queue_rx_dma((void *) buffer);
 
     debugf("RX complete: %08x %08x\n",
            dtd->buffer_page[0], dtd->length_and_status);
@@ -709,7 +715,12 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
 {
     // FIXME - handle errors.
     // FIXME - handle overlength packets.
-    // Give the buffer to USB.... FIXME: handle shutdown races.
+    if (!(*ENDPTCTRL2 & 0x80)) {        // If usb not running, put back to eth.
+        queue_rx_dma(rx->buffer1);
+        return;
+    }
+
+    // Give the buffer to USB.
     unsigned status = rx->status;
     void * buffer = rx->buffer1;
     schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
