@@ -35,7 +35,7 @@ enum string_descs_t {
     sd_ralph,
     sd_switch,
     sd_0001,
-    sd_424242424242,
+    sd_eth_addr,
     sd_eth_mgmt,
     sd_eth_idle,
     sd_eth_showtime,
@@ -48,7 +48,7 @@ static const unsigned short string_lang[2] = u"\x0304\x0409";
 static const unsigned short string_ralph[6] = u"\x030c""Ralph";
 static const unsigned short string_switch[7] = u"\x030e""Switch";
 static const unsigned short string_0001[5] = u"\x030a""0001";
-static const unsigned short string_424242424242[13] = u"\x031a""424242424242";
+static const unsigned short string_eth_addr[13] = u"\x031a""42baffc46ee9";
 static const unsigned short string_eth_mgmt[20] =
     u"\x0328""Ethernet Management";
 static const unsigned short string_eth_idle[14] = u"\x031c""Ethernet Idle";
@@ -62,7 +62,7 @@ static const unsigned short * const string_descriptors[] = {
     [sd_ralph] = string_ralph,
     [sd_switch] = string_switch,
     [sd_0001] = string_0001,
-    [sd_424242424242] = string_424242424242,
+    [sd_eth_addr] = string_eth_addr,
     [sd_eth_mgmt] = string_eth_mgmt,
     [sd_eth_idle] = string_eth_idle,
     [sd_eth_showtime] = string_eth_showtime,
@@ -131,7 +131,7 @@ static const unsigned char config_descriptor[] = {
     13,
     0x24,                               // cs_interface,
     15,                                 // ethernet
-    sd_424242424242,                    // Mac address string.
+    sd_eth_addr,                        // Mac address string.
     0, 0, 0, 0,                         // Statistics bitmap.
     0, 7,                               // Max segment size.
     0, 0,                               // Multicast filters.
@@ -756,8 +756,8 @@ static void init_ethernet (void)
     *EDMA_BUS_MODE = 1;                 // Reset ethernet DMA.
     while (*EDMA_BUS_MODE & 1);
 
-    *MAC_ADDR0_LOW = 0x4242;
-    *MAC_ADDR0_HIGH = 0x42424242;
+    *MAC_ADDR0_LOW = 0xc4ffba42;
+    *MAC_ADDR0_HIGH = 0x8000e96e;
 
     // Set-up buffers and write descriptors....
     // *EDMA_REC_DES_ADDR = (unsigned) rdes;
