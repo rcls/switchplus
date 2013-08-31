@@ -377,8 +377,15 @@ static void serial_byte (unsigned byte)
         debug_flag = !debug_flag;
         puts (debug_flag ? "Debug on\n" : "Debug off\n");
         return;
+    case 'e':
+        mii_report();
+        return;
     case 'f':
         clock_report();
+        return;
+    case 'h': case '?':
+        puts("<d>ebug, <f>req, <j>tag, <l>cd, <m>emtest, <p>retty, <s>pi\n"
+             "<r>eset, <R>eboot, df<u>, <v>erbose\n");
         return;
     case 'j':
         jtag_cmd();
@@ -518,7 +525,6 @@ static void stop_network (void)
     // Cleanup any dtds.  FIXME - fix buffer handling.
     endpt_complete (0x02, false);
     endpt_complete (0x82, false);
-    // FIXME - stop ethernet.
 }
 
 
