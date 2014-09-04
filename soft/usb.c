@@ -191,35 +191,33 @@ static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
 }
 
 
-void endpt_complete (unsigned ep, bool reprime)
+void endpt_complete (unsigned ep, bool running)
 {
     dQH_t * qh = QH (ep);
-    unsigned mask = MASK (ep);
-
-    // Clean-up the DTDs...
-    if (qh->first == NULL)
-        return;
 
     // Successes...
     dTD_t * d = qh->first;
-    while (!(d->length_and_status & 0x80)) {
-        //ser_w_hex (d->length_and_status, 8, " ok length and status\n");
+    while (d) {
+        unsigned status = d->length_and_status & 0xff;
+        if (status == 0x80 && running)
+            break;                      // Still running.
+
+        if (status & 0x7f)
+            // Errored.
+            printf ("ERROR ep %02x length and status: %08x\n",
+                    ep, d->length_and_status);
+
         if (d->completion)
             d->completion (d);
         d = retire_dtd (d, qh);
-        if (d == NULL)
-            return;
+
+        if (d && (status & 0x80) && running) {
+            qh->next = d;
+            qh->length_and_status &= ~0xc0;
+            *ENDPTPRIME = MASK(ep);
+            break;
+        }
     }
-
-    if (!(d->length_and_status & 0x7f))
-        return;                         // Still going.
-
-    // FIXME - what do we actually want to do on errors?
-    printf ("ERROR length and status: %08x\n", d->length_and_status);
-    if (d->completion)
-        d->completion (d);
-    if (retire_dtd (d, qh) && reprime)
-        *ENDPTPRIME = mask;             // Reprime the endpoint.
 }
 
 
