@@ -18,7 +18,8 @@ UTILS=../utils
 
 -include .deps/*.d
 
-main.sram.elf main.flashA.elf: liblpc.a
+LIBO=callback freq jtag lcd monkey sdram spirom square switch usb
+main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
@@ -51,10 +52,6 @@ main.sram.elf main.flashA.elf: liblpc.a
 	$(UTILS)/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
 	mv $@.tmp2 $@
-
-LIBO=callback freq jtag lcd monkey sdram spirom square switch usb
-liblpc.a: $(LIBO:%=%.o)
-	ar cr $@ $+
 
 .PHONY: go
 # We don't really depend on the flasher.  But let's make it harder to
