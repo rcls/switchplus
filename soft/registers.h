@@ -169,21 +169,29 @@ _Static_assert(sizeof(mac_t) == 0x48, "mac size");
 
 #define MAC_TIMESTP_CTRL ((v32 *) (0x40010700))
 
-#define EDMA_BUS_MODE ((v32 *) (0x40011000))
-#define EDMA_TRANS_POLL_DEMAND ((v32 *) (0x40011000 + 4))
-#define EDMA_REC_POLL_DEMAND ((v32 *) (0x40011000 + 8))
-#define EDMA_REC_DES_ADDR ((v32 *) (0x40011000 + 12))
-#define EDMA_TRANS_DES_ADDR ((v32 *) (0x40011000 + 16))
-#define EDMA_STAT ((v32 *) (0x40011000 + 20))
-#define EDMA_OP_MODE ((v32 *) (0x40011000 + 24))
-#define EDMA_INT_EN ((v32 *) (0x40011000 + 28))
-#define EDMA_MFRM_BUFOF ((v32 *) (0x40011000 + 32))
-#define EDMA_REC_INT_WDT ((v32 *) (0x40011000 + 36))
+typedef struct edma_t {
+    unsigned bus_mode;
+    unsigned trans_poll_demand;
+    unsigned rec_poll_demand;
+    unsigned rec_des_addr;
+    unsigned trans_des_addr;
+    unsigned stat;
+    unsigned op_mode;
+    unsigned int_en;
+    unsigned mfrm_bufof;
+    unsigned rec_int_wdt;
 
-#define EDMA_CURHOST_TRANS_DES ((v32 *) (0x40011000 + 72))
-#define EDMA_CURHOST_REC_DES ((v32 *) (0x40011000 + 76))
-#define EDMA_CURHOST_TRANS_BUF ((v32 *) (0x40011000 + 80))
-#define EDMA_CURHOST_RECBUF ((v32 *) (0x40011000 + 84))
+    unsigned dummy[8];
+
+    unsigned curhost_trans_des;
+    unsigned curhost_rec_des;
+    unsigned curhost_trans_buf;
+    unsigned curhost_recbuf;
+} edma_t;
+
+_Static_assert(sizeof(edma_t) == 0x58, "edma size");
+
+#define EDMA ((volatile edma_t *) 0x40011000)
 
 #define USB0 0x40006000
 

@@ -477,7 +477,7 @@ static void endpt_tx_complete (dTD_t * dtd)
     else
         t->status = 0xf0200000;
 
-    *EDMA_TRANS_POLL_DEMAND = 0;
+    EDMA->trans_poll_demand = 0;
 
     debugf ("TX to MAC..: %08x %08x\n", dtd->buffer_page[0], status);
 }
@@ -693,7 +693,7 @@ static void queue_rx_dma(void * buffer)
 
     r->status = 0x80000000;
 
-    *EDMA_REC_POLL_DEMAND = 0;
+    EDMA->rec_poll_demand = 0;
 }
 
 
@@ -759,15 +759,15 @@ static void init_ethernet (void)
     RESET_CTRL[0] = 1 << 22;            // Reset ethernet.
     while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
 
-    *EDMA_BUS_MODE = 1;                 // Reset ethernet DMA.
-    while (*EDMA_BUS_MODE & 1);
+    EDMA->bus_mode = 1;                 // Reset ethernet DMA.
+    while (EDMA->bus_mode & 1);
 
     MAC->addr0_low = 0xc4ffba42;
     MAC->addr0_high = 0x8000e96e;
 
     // Set-up buffers and write descriptors....
-    // *EDMA_REC_DES_ADDR = (unsigned) rdes;
-    // *EDMA_TRANS_DES_ADDR = (unsigned) tdes;
+    // EDMA->rec_des_addr = (unsigned) rdes;
+    // EDMA->trans_des_addr = (unsigned) tdes;
 
     // Set filtering options.  Promiscuous / recv all.
     MAC->frame_filter = 0x80000001;
@@ -788,12 +788,12 @@ static void init_ethernet (void)
 
     rx_dma_insert = EDMA_COUNT;
 
-    *EDMA_TRANS_DES_ADDR = (unsigned) tx_dma;
-    *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
+    EDMA->trans_des_addr = (unsigned) tx_dma;
+    EDMA->rec_des_addr = (unsigned) rx_dma;
 
     // Start ethernet & it's dma.
     MAC->config = 0xc90c;
-    *EDMA_OP_MODE = 0x2002;
+    EDMA->op_mode = 0x2002;
 }
 
 
@@ -855,7 +855,7 @@ static void usb_interrupt (void)
 static void eth_interrupt (void)
 {
     debugf ("eth interrupt...\n");
-    *EDMA_STAT = 0x1ffff;               // Clear interrupts.
+    EDMA->stat = 0x1ffff;               // Clear interrupts.
 
     while (rx_dma_retire != rx_dma_insert
            && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
@@ -925,8 +925,8 @@ void main (void)
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
     *USBINTR = 0x00000041;              // Port change, reset, data.
-    *EDMA_STAT = 0x1ffff;
-    *EDMA_INT_EN = 0x0001ffff;
+    EDMA->stat = 0x1ffff;
+    EDMA->int_en = 0x0001ffff;
     __interrupt_enable();
 
     lcd_init();
