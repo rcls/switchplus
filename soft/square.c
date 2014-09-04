@@ -8,7 +8,7 @@
 
 typedef unsigned short pixel_t;
 
-#define FRAME_BUFFER ((pixel_t *) 0x60000000)
+static pixel_t FRAME_BUFFER[2097152] __aligned(8) __section("dram");
 
 typedef struct sq_context_t {
     int x, y;

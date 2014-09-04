@@ -5,6 +5,7 @@ MEMORY {
   ahb0 (W) : ORIGIN = 0x20000000, LENGTH = 32K
   ahb1 (W) : ORIGIN = 0x20008000, LENGTH = 16K
   ahb2 (W) : ORIGIN = 0x2000c000, LENGTH = 16K
+  dram (W) : ORIGIN = 0x60000000, LENGTH = 32M
 }
 
 SECTIONS
@@ -31,4 +32,7 @@ SECTIONS
   .ahb2 (NOLOAD) : {
      *(SORT_BY_ALIGNMENT(ahb2*))
   } > ahb2
+  .dram (NOLOAD) : {
+     *(SORT_BY_ALIGNMENT(dram*))
+  } > dram
 }
