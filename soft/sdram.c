@@ -197,7 +197,7 @@ void memtest (void)
     volatile unsigned * const sdram = (v32 *) 0x60000000;
 
     puts ("Memtest: basic.");
-    for (int i = 0; i != size; ++i)
+    for (unsigned i = 0; i != size; ++i)
         sdram[i] = i * 0x02030401;
 
     putchar ('\n');
