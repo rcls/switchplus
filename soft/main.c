@@ -27,6 +27,9 @@ static unsigned tx_dma_insert;
 static unsigned rx_dma_retire;
 static unsigned rx_dma_insert;
 
+// While the USB is idle, keep a linked list of the idle tx buffers.
+static void * idle_tx_buffers;
+
 extern unsigned char bss_start;
 extern unsigned char bss_end;
 
@@ -503,9 +506,11 @@ static void start_network (void)
 
     *ENDPTCTRL2 = 0x00880088;
 
-    for (int i = 0; i != 4; ++i)
-        schedule_buffer (2, (void *) tx_ring_buffer + 2048 * i, BUF_SIZE,
-                         endpt_tx_complete);
+    while (idle_tx_buffers) {
+        void * buffer = idle_tx_buffers;
+        idle_tx_buffers = * (void **) buffer;
+        schedule_buffer (2, buffer, BUF_SIZE, endpt_tx_complete);
+    }
 }
 
 
@@ -920,6 +925,14 @@ void main (void)
     *BASE_M4_CLK = 0x0c000800;
 
     disable_clocks();
+
+    // Build the linked list of idle tx buffers.
+    idle_tx_buffers = NULL;
+    for (int i = 0; i != 4; ++i) {
+        void * buffer = tx_ring_buffer + BUF_SIZE * i;
+        * (void **) buffer = idle_tx_buffers;
+        idle_tx_buffers = buffer;
+    }
 
     usb_init();
 
