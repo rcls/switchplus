@@ -762,17 +762,17 @@ static void init_ethernet (void)
     *EDMA_BUS_MODE = 1;                 // Reset ethernet DMA.
     while (*EDMA_BUS_MODE & 1);
 
-    *MAC_ADDR0_LOW = 0xc4ffba42;
-    *MAC_ADDR0_HIGH = 0x8000e96e;
+    MAC->addr0_low = 0xc4ffba42;
+    MAC->addr0_high = 0x8000e96e;
 
     // Set-up buffers and write descriptors....
     // *EDMA_REC_DES_ADDR = (unsigned) rdes;
     // *EDMA_TRANS_DES_ADDR = (unsigned) tdes;
 
     // Set filtering options.  Promiscuous / recv all.
-    *MAC_FRAME_FILTER = 0x80000001;
+    MAC->frame_filter = 0x80000001;
 
-    *MAC_CONFIG = 0xc900;
+    MAC->config = 0xc900;
 
     // Set-up the dma descs.
     for (int i = 0; i != EDMA_COUNT; ++i) {
@@ -792,7 +792,7 @@ static void init_ethernet (void)
     *EDMA_REC_DES_ADDR = (unsigned) rx_dma;
 
     // Start ethernet & it's dma.
-    *MAC_CONFIG = 0xc90c;
+    MAC->config = 0xc90c;
     *EDMA_OP_MODE = 0x2002;
 }
 

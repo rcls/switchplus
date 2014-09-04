@@ -41,9 +41,9 @@ static unsigned spi_reg_write (unsigned address, unsigned data)
 
 static unsigned miim_get(int port, int item)
 {
-    *MAC_MII_ADDR = (port << 11) + (item << 6) + (5 << 2) + 1;
-    while (*MAC_MII_ADDR & 1);          // Poll for result.
-    return *MAC_MII_DATA;
+    MAC->mii_addr = (port << 11) + (item << 6) + (5 << 2) + 1;
+    while (MAC->mii_addr & 1);          // Poll for result.
+    return MAC->mii_data;
 }
 
 

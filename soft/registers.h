@@ -141,41 +141,49 @@ typedef struct ssp_t {
 #define CREG6 ((v32 *) 0x4004312c)
 
 #define ENET 0x40010000
-#define MAC_CONFIG ((v32 *) ENET)
-#define MAC_FRAME_FILTER ((v32 *) (ENET + 4))
-#define MAC_HASHTABLE_HIGH ((v32 *) (ENET + 8))
-#define MAC_HASHTABLE_LOW ((v32 *) (ENET + 12))
-#define MAC_MII_ADDR ((v32 *) (ENET + 16))
-#define MAC_MII_DATA ((v32 *) (ENET + 20))
-#define MAC_FLOW_CTRL ((v32 *) (ENET + 24))
-#define MAC_VLAN_TAG ((v32 *) (ENET + 28))
 
-#define MAC_DEBUG ((v32 *) (ENET + 36))
-#define MAC_RWAKE_FRFLT ((v32 *) (ENET + 40))
-#define MAC_PMT_CTRL_STAT ((v32 *) (ENET + 44))
+typedef struct mac_t {
+    unsigned config;
+    unsigned frame_filter;
+    unsigned hashtable_high;
+    unsigned hashtable_low;
+    unsigned mii_addr;
+    unsigned mii_data;
+    unsigned flow_ctrl;
+    unsigned vlan_tag;
+    unsigned dummy1;
+    const unsigned debug;
+    unsigned rwake_frflt;
+    unsigned pmt_ctrl_stat;
+    unsigned dummy2;
+    unsigned dummy3;
+    const unsigned intr;
+    unsigned intr_mask;
+    unsigned addr0_high;
+    unsigned addr0_low;
+} mac_t;
 
-#define MAC_INTR ((v32 *) (ENET + 56))
-#define MAC_INTR_MASK ((v32 *) (ENET + 60))
-#define MAC_ADDR0_HIGH ((v32 *) (ENET + 64))
-#define MAC_ADDR0_LOW ((v32 *) (ENET + 68))
+#define MAC ((volatile mac_t *) 0x40010000)
 
-#define MAC_TIMESTP_CTRL ((v32 *) (ENET + 0x700))
+_Static_assert(sizeof(mac_t) == 0x48, "mac size");
 
-#define EDMA_BUS_MODE ((v32 *) (ENET + 0x1000))
-#define EDMA_TRANS_POLL_DEMAND ((v32 *) (ENET + 0x1000 + 4))
-#define EDMA_REC_POLL_DEMAND ((v32 *) (ENET + 0x1000 + 8))
-#define EDMA_REC_DES_ADDR ((v32 *) (ENET + 0x1000 + 12))
-#define EDMA_TRANS_DES_ADDR ((v32 *) (ENET + 0x1000 + 16))
-#define EDMA_STAT ((v32 *) (ENET + 0x1000 + 20))
-#define EDMA_OP_MODE ((v32 *) (ENET + 0x1000 + 24))
-#define EDMA_INT_EN ((v32 *) (ENET + 0x1000 + 28))
-#define EDMA_MFRM_BUFOF ((v32 *) (ENET + 0x1000 + 32))
-#define EDMA_REC_INT_WDT ((v32 *) (ENET + 0x1000 + 36))
+#define MAC_TIMESTP_CTRL ((v32 *) (0x40010700))
 
-#define EDMA_CURHOST_TRANS_DES ((v32 *) (ENET + 0x1000 + 72))
-#define EDMA_CURHOST_REC_DES ((v32 *) (ENET + 0x1000 + 76))
-#define EDMA_CURHOST_TRANS_BUF ((v32 *) (ENET + 0x1000 + 80))
-#define EDMA_CURHOST_RECBUF ((v32 *) (ENET + 0x1000 + 84))
+#define EDMA_BUS_MODE ((v32 *) (0x40011000))
+#define EDMA_TRANS_POLL_DEMAND ((v32 *) (0x40011000 + 4))
+#define EDMA_REC_POLL_DEMAND ((v32 *) (0x40011000 + 8))
+#define EDMA_REC_DES_ADDR ((v32 *) (0x40011000 + 12))
+#define EDMA_TRANS_DES_ADDR ((v32 *) (0x40011000 + 16))
+#define EDMA_STAT ((v32 *) (0x40011000 + 20))
+#define EDMA_OP_MODE ((v32 *) (0x40011000 + 24))
+#define EDMA_INT_EN ((v32 *) (0x40011000 + 28))
+#define EDMA_MFRM_BUFOF ((v32 *) (0x40011000 + 32))
+#define EDMA_REC_INT_WDT ((v32 *) (0x40011000 + 36))
+
+#define EDMA_CURHOST_TRANS_DES ((v32 *) (0x40011000 + 72))
+#define EDMA_CURHOST_REC_DES ((v32 *) (0x40011000 + 76))
+#define EDMA_CURHOST_TRANS_BUF ((v32 *) (0x40011000 + 80))
+#define EDMA_CURHOST_RECBUF ((v32 *) (0x40011000 + 84))
 
 #define USB0 0x40006000
 
