@@ -911,12 +911,13 @@ void main (void)
     // Switch back to IDIVC.
     *BASE_M4_CLK = 0x0e000800;
 
+    // Set the flash access time for 160MHz.
+    *FLASHCFGA = 0x8000703a;
+    *FLASHCFGB = 0x8000703a;
+
     // Now ramp to 160MHz.
     *IDIVA_CTRL = 0x07000808;
     *BASE_M4_CLK = 0x0c000800;
-
-    *FLASHCFGA = 0x8000703a;
-    *FLASHCFGB = 0x8000703a;
 
     disable_clocks();
 
