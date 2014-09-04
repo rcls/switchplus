@@ -42,13 +42,6 @@ typedef struct block16_t {
 } block16_t;
 
 
-typedef struct block8_t {
-    unsigned short offset;
-    short move;
-    unsigned char data[8];
-} block8_t;
-
-
 static const block16_t block8[4] = {
     // Right 8, offset = 3,7, move = 8,0
     { 3 + 7 * 1024, 8, {
@@ -111,10 +104,10 @@ static const short block1[4][4] = {
 static pixel_t * square_draw (pixel_t * start, int dir, unsigned L, unsigned c)
 {
     if (L == 4)
-        return draw8(start, block8 + (dir & 3), c);
+        return draw8(start, block8 + dir, c);
 
     if (L == 1) {
-        const short * p = block1[dir & 3];
+        const short * p = block1[dir];
         *start = c;
         start[*p++] = c;
         start[*p++] = c;
@@ -123,10 +116,10 @@ static pixel_t * square_draw (pixel_t * start, int dir, unsigned L, unsigned c)
     }
 
     L >>= 1;
-    start = square_draw (start, dir + 1, L, c);
+    start = square_draw (start, (dir + 1) & 3, L, c);
     start = square_draw (start, dir, L, c);
     start = square_draw (start, dir, L, c);
-    start = square_draw (start, dir - 1, L, c);
+    start = square_draw (start, (dir - 1) & 3, L, c);
     return start;
 }
 

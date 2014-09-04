@@ -858,11 +858,11 @@ static void eth_interrupt (void)
     *EDMA_STAT = 0x1ffff;               // Clear interrupts.
 
     while (rx_dma_retire != rx_dma_insert
-        && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
+           && !(rx_dma[rx_dma_retire & EDMA_MASK].status & 0x80000000))
         retire_rx_dma (&rx_dma[rx_dma_retire++ & EDMA_MASK]);
 
     while (tx_dma_retire != tx_dma_insert
-        && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
+           && !(tx_dma[tx_dma_retire & EDMA_MASK].status & 0x80000000))
         retire_tx_dma (&tx_dma[tx_dma_retire++ & EDMA_MASK]);
 }
 

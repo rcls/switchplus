@@ -37,6 +37,7 @@ architecture console of console is
   signal fifo_byte_valid : boolean;
 
   subtype text_address_t is unsigned (12 downto 0);
+  -- 7 bit ASCII, hi bit is transparency. 128 cols by 64 rows.
   type byte_8192_t is array (0 to 8191) of byte_t;
   signal text_buffer : byte_8192_t := (others => x"a0");
 
