@@ -163,7 +163,7 @@ bool schedule_buffer (unsigned ep, const void * data, unsigned length,
 {
     dTD_t * dtd = get_dtd();
 
-    // Set terminate & active bits.
+    // Set interrupt & active bits.
     dtd->length_and_status = (length << 16) + 0x8080;
     dtd->buffer_page[0] = (unsigned) data;
     dtd->buffer_page[1] = (0xfffff000 & (unsigned) data) + 4096;

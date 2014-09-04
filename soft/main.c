@@ -737,7 +737,13 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
     // FIXME - handle errors.
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
-    schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
+    if (*ENDPTCTRL2 & 0x80)
+        schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
+    else {
+        * (void **) buffer = idle_tx_buffers;
+        idle_tx_buffers = buffer;
+    }
+
     debugf ("TX Complete: %p %08x\n", buffer, tx->status);
 }
 
