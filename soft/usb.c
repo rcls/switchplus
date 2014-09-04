@@ -152,9 +152,6 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
     // 3. Prime endpoint by writing '1' to correct bit position in
     // ENDPTPRIME.
     *ENDPTPRIME = ep;
-    while (*ENDPTPRIME & ep);
-    if (!(*ENDPTSTAT & ep))
-        puts ("Oops, EPST\n");
 }
 
 
