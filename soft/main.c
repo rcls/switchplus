@@ -310,34 +310,6 @@ static void disable_clocks(void)
 }
 
 
-static void respond_to_setup (unsigned ep, unsigned setup1,
-                              const void * descriptor, unsigned length,
-                              dtd_completion_t * callback)
-{
-    if ((setup1 >> 16) < length)
-        length = setup1 >> 16;
-
-    // The DMA won't take this into account...
-    /* if (descriptor && (unsigned) descriptor < 0x10000000) */
-    /*     descriptor += * M4MEMMAP; */
-
-    schedule_buffer (ep + 0x80, descriptor, length,
-                     length == 0 ? callback : NULL);
-
-    if (*ENDPTSETUPSTAT & (1 << ep))
-        puts ("Oops, EPSS\n");
-
-    if (length == 0)
-        return;                         // No data so no ack...
-
-    // Now the status dtd...
-    schedule_buffer (ep, NULL, 0, callback);
-
-    if (*ENDPTSETUPSTAT & (1 << ep))
-        puts ("Oops, EPSS\n");
-}
-
-
 static void enter_dfu (void)
 {
     bool was_empty = monkey_is_empty();
@@ -570,7 +542,7 @@ static void stop_mgmt (void)
 }
 
 
-static void process_setup (int i)
+static void process_setup (void)
 {
     unsigned long long setup = get_0_setup();
     unsigned setup0 = setup;
@@ -693,8 +665,7 @@ static void process_setup (int i)
     }
 
     if (response_length >= 0) {
-        respond_to_setup (i, setup1,
-                          response_data, response_length, callback);
+        respond_to_setup (setup1, response_data, response_length, callback);
         debugf ("Setup %s: %08x %08x\n", "OK", setup0, setup1);
     }
     else {
@@ -852,7 +823,7 @@ static void usb_interrupt (void)
     unsigned setup = *ENDPTSETUPSTAT;
     *ENDPTSETUPSTAT = setup;
     if (setup & 1)
-        process_setup (0);
+        process_setup();
 
     if (!(status & 0x40))
         return;

@@ -225,6 +225,32 @@ void qh_init (unsigned ep, unsigned capabilities)
 }
 
 
+void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
+                       dtd_completion_t * callback)
+{
+    if ((setup1 >> 16) < length)
+        length = setup1 >> 16;
+
+    // The DMA won't take this into account...
+    /* if (descriptor && (unsigned) descriptor < 0x10000000) */
+    /*     descriptor += * M4MEMMAP; */
+
+    schedule_buffer (0x80, buffer, length, length == 0 ? callback : NULL);
+
+    if (*ENDPTSETUPSTAT & 1)
+        puts ("Oops, EPSS\n");
+
+    if (length == 0)
+        return;                         // No data so no ack...
+
+    // Now the status dtd...
+    schedule_buffer (0, NULL, 0, callback);
+
+    if (*ENDPTSETUPSTAT & 1)
+        puts ("Oops, EPSS\n");
+}
+
+
 unsigned long long get_0_setup (void)
 {
     unsigned setup0;
