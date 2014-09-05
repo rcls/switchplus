@@ -381,12 +381,14 @@ void ungetchar (int c)
 
 static void monkey_out_complete (dTD_t * dtd)
 {
+    unsigned length_and_status = dtd->length_and_status;
     unsigned char * buffer = (unsigned char *) dtd->buffer_page[4];
-    unsigned length = 512 - (dtd->length_and_status >> 16);
+    unsigned length = 512 - (length_and_status >> 16);
 
-    if (length == 0) {
+    if (length == 0 || (length_and_status & 0x80)) {
         // Reschedule immediately.
-        schedule_buffer (3, buffer, 512, monkey_out_complete);
+        if (*ENDPTCTRL3 & 0x80)
+            schedule_buffer (3, buffer, 512, monkey_out_complete);
         return;
     }
 
