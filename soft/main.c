@@ -46,6 +46,9 @@ enum string_descs_t {
     sd_dfu,
 };
 
+static void endpt_tx_complete (dTD_t * dtd);
+
+
 // String0 - lang. descs.
 static const unsigned short string_lang[2] = u"\x0304\x0409";
 static const unsigned short string_ralph[6] = u"\x030c""Ralph";
@@ -460,17 +463,32 @@ static void start_mgmt (void)
 }
 
 
+static void reuse_tx_buffer(void * buffer)
+{
+    if (*ENDPTCTRL2 & 0x80)
+        schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
+    else {
+        * (void **) buffer = idle_tx_buffers;
+        idle_tx_buffers = buffer;
+    }
+}
+
+
+// Completion called for buffers from the OUT endpoint.  Dispatch to the
+// ethernet.
 static void endpt_tx_complete (dTD_t * dtd)
 {
-    // Send the buffer off to the network...
-    unsigned buffer = dtd->buffer_page[4];
+    void * buffer = (void *) dtd->buffer_page[4];
     unsigned status = dtd->length_and_status;
-    // FIXME - detect errors and oversize packets.
+    if (status & 0xff) {                // Errored...
+        reuse_tx_buffer(buffer);
+        return;
+    }
 
     volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
 
     t->count = BUF_SIZE - (status >> 16);
-    t->buffer1 = (void *) buffer;
+    t->buffer1 = buffer;
     t->buffer2 = NULL;
 
     if (tx_dma_insert & EDMA_MASK)
@@ -730,17 +748,13 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
 }
 
 
+// Handle a completed TX entry from ethernet.
 static void retire_tx_dma (volatile EDMA_DESC_t * tx)
 {
     // FIXME - handle errors.
     // Give the buffer to USB...
     void * buffer = tx->buffer1;
-    if (*ENDPTCTRL2 & 0x80)
-        schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
-    else {
-        * (void **) buffer = idle_tx_buffers;
-        idle_tx_buffers = buffer;
-    }
+    reuse_tx_buffer(tx->buffer1);
 
     debugf ("TX Complete: %p %08x\n", buffer, tx->status);
 }
