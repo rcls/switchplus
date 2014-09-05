@@ -6,6 +6,19 @@
 
 #include <stdbool.h>
 
+typedef struct dTD_t dTD_t;
+
+typedef void dtd_completion_t (dTD_t * dtd);
+
+// USB transfer descriptor.
+struct dTD_t {
+    struct dTD_t * volatile next;
+    volatile unsigned length_and_status;
+    volatile unsigned buffer_page[5];
+
+    dtd_completion_t * completion;      // For our use...
+};
+
 void usb_init (void);
 void qh_init (unsigned ep, unsigned capabilities);
 

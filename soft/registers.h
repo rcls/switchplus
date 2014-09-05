@@ -14,20 +14,6 @@ typedef volatile unsigned v32;
 typedef v8 v8_32[32];
 typedef v32 v32_32[32];
 
-typedef struct dTD_t dTD_t;
-
-typedef void dtd_completion_t (dTD_t * dtd);
-
-// USB transfer descriptor.
-struct dTD_t {
-    struct dTD_t * volatile next;
-    volatile unsigned length_and_status;
-    volatile unsigned buffer_page[5];
-
-    dtd_completion_t * completion;      // For our use...
-};
-
-
 // Ethernet DMA descriptor (short form).
 typedef struct EDMA_DESC_t {
     unsigned status;
