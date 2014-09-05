@@ -504,9 +504,12 @@ static void endpt_tx_complete (dTD_t * dtd)
 
 static void notify_network_up (dTD_t * dtd)
 {
-    schedule_buffer (0x81, network_connected, sizeof network_connected, NULL);
-    schedule_buffer (0x81, speed_notification100, sizeof speed_notification100,
-                     NULL);
+    if (*ENDPTCTRL1 & 0x800000) {
+        schedule_buffer (
+            0x81, network_connected, sizeof network_connected, NULL);
+        schedule_buffer (
+            0x81, speed_notification100, sizeof speed_notification100, NULL);
+    }
 }
 
 
