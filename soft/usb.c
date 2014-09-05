@@ -155,7 +155,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
 }
 
 
-bool schedule_buffer (unsigned ep, const void * data, unsigned length,
+void schedule_buffer (unsigned ep, const void * data, unsigned length,
                       dtd_completion_t * cb)
 {
     dTD_t * dtd = get_dtd();
@@ -171,7 +171,6 @@ bool schedule_buffer (unsigned ep, const void * data, unsigned length,
     dtd->completion = cb;
 
     schedule_dtd (ep, dtd);
-    return true;
 }
 
 static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)

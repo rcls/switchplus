@@ -318,9 +318,8 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    if (!schedule_buffer (ep + 0x80, descriptor, length,
-                          length == 0 ? callback : NULL))
-        return;                         // Bugger.
+    schedule_buffer (ep + 0x80, descriptor, length,
+                     length == 0 ? callback : NULL);
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         puts ("Oops, EPSS\n");
@@ -329,8 +328,7 @@ static void respond_to_setup (unsigned ep, unsigned setup1,
         return;                         // No data so no ack...
 
     // Now the status dtd...
-    if (!schedule_buffer (ep, NULL, 0, callback))
-        return;
+    schedule_buffer (ep, NULL, 0, callback);
 
     if (*ENDPTSETUPSTAT & (1 << ep))
         puts ("Oops, EPSS\n");
@@ -775,10 +773,6 @@ static void init_ethernet (void)
 
     MAC->addr0_low = 0xc4ffba42;
     MAC->addr0_high = 0x8000e96e;
-
-    // Set-up buffers and write descriptors....
-    // EDMA->rec_des_addr = (unsigned) rdes;
-    // EDMA->trans_des_addr = (unsigned) tdes;
 
     // Set filtering options.  Promiscuous / recv all.
     MAC->frame_filter = 0x80000001;
