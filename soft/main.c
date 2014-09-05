@@ -854,23 +854,28 @@ static void usb_interrupt (void)
     if (setup & 1)
         process_setup (0);
 
-    // Reset.
-    if (status & 0x40) {
-        while (*ENDPTPRIME);
-        *ENDPTFLUSH = 0xffffffff;
+    if (!(status & 0x40))
+        return;
 
-        if (!(*PORTSC1 & 0x100))
-            puts ("BuggeR\n");
+    // Handle a bus reset.
+    while (*ENDPTPRIME);
+    *ENDPTFLUSH = 0xffffffff;
+    while (*ENDPTFLUSH);
 
-        stop_mgmt();
+    // Clean out any dtds.
+    endpt_complete (0x80, false);
+    endpt_complete (0x81, false);
+    endpt_complete (0x02, false);
+    endpt_complete (0x82, false);
+    endpt_complete (0x03, false);
+    endpt_complete (0x83, false);
 
-        *ENDPTNAK = 0xffffffff;
-        *ENDPTNAKEN = 1;
+    *ENDPTNAK = 0xffffffff;
+    *ENDPTNAKEN = 1;
 
-        *ENDPTCTRL0 = 0x00c000c0;
-        *DEVICEADDR = 0;
-        puts ("USB Reset processed...\n");
-    }
+    *DEVICEADDR = 0;
+
+    puts ("USB Reset processed...\n");
 }
 
 
