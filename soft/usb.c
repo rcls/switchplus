@@ -3,6 +3,28 @@
 
 #include <stddef.h>
 
+
+// USB queue head.
+typedef struct dQH_t {
+    // 48 byte queue head.
+    volatile unsigned capabilities;
+    dTD_t * volatile current;
+
+    dTD_t * volatile next;
+    volatile unsigned length_and_status;
+    volatile unsigned buffer_page[5];
+
+    volatile unsigned reserved;
+    volatile unsigned setup0;
+    volatile unsigned setup1;
+    // 16 bytes remaining for our use...
+    dTD_t * first;
+    dTD_t * last;
+    unsigned dummy2;
+    unsigned dummy3;
+} dQH_t;
+
+
 typedef struct qh_pair_t {
     dQH_t OUT;                          // OUT is host to device.
     dQH_t IN;                           // IN is device to host.
