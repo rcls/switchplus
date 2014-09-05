@@ -577,7 +577,7 @@ static void process_setup (int i)
     unsigned setup1 = setup >> 32;
 
     const void * response_data = NULL;
-    unsigned response_length = 0xffffffff;
+    int response_length = -1;
     dtd_completion_t * callback = NULL;
 
     switch (setup0 & 0xffff) {
@@ -692,14 +692,14 @@ static void process_setup (int i)
         break;
     }
 
-    if (response_length != 0xffffffff) {
+    if (response_length >= 0) {
         respond_to_setup (i, setup1,
                           response_data, response_length, callback);
-        debugf ("Setup: %08x %08x\n", setup0, setup1);
+        debugf ("Setup %s: %08x %08x\n", "OK", setup0, setup1);
     }
     else {
         *ENDPTCTRL0 = 0x810081;         // Stall....
-        printf ("Setup STALL: %08x %08x\n", setup0, setup1);
+        printf ("Setup %s: %08x %08x\n", "STALL", setup0, setup1);
     }
 }
 

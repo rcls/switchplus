@@ -54,6 +54,7 @@ void usb_init (void)
     // Start with just the control end-points.
     for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
         ((char *) &qh_and_dtd.QH)[i] = 0;
+
     qh_init (0x00, 0x20408000);
     qh_init (0x80, 0x20408000);
 
@@ -72,25 +73,24 @@ void usb_init (void)
 dTD_t * get_dtd (void)
 {
     dTD_t * r = dtd_free_list;
-    if (r == NULL) {
-        static volatile bool reenter;
-        if (!reenter) {
-            reenter = true;
-            GPIO_DIR[4] |= 1 << 1;
-            GPIO_BYTE[4][1] = 0;
-            puts ("Out of DTDs!!!\n");
-        }
-        while (1) {
-            // Do a softreset.
-            *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
-            for (int i = 0; i != 100000; ++i)
-                asm volatile ("");
-            while (1)
-                *CORTEX_M_AIRCR = 0x05fa0004;
-        }
+    if (r != NULL) {
+        dtd_free_list = r->next;
+        return r;
     }
-    dtd_free_list = r->next;
-    return r;
+
+    static volatile bool reenter;
+    if (!reenter) {
+        reenter = true;
+        GPIO_DIR[4] |= 1 << 1;
+        GPIO_BYTE[4][1] = 0;
+        puts ("Out of DTDs!!!\n");
+    }
+    // Do a softreset.
+    *BASE_M4_CLK = 0x0e000800;          // Back to IDIVC.
+    for (int i = 0; i != 100000; ++i)
+        asm volatile ("");
+    while (1)
+        *CORTEX_M_AIRCR = 0x05fa0004;
 }
 
 
@@ -208,7 +208,7 @@ void endpt_complete (unsigned ep, bool running)
         d = retire_dtd (d, qh);
 
         if (d && (status & 0x80) && running) {
-            qh->next = d;
+            qh->next = d;               // Restart the end-point.
             qh->length_and_status &= ~0xc0;
             *ENDPTPRIME = MASK(ep);
             break;

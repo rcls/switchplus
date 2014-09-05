@@ -36,7 +36,7 @@ struct dQH_t {
 
     dTD_t * volatile next;
     volatile unsigned length_and_status;
-    unsigned volatile buffer_page[5];
+    volatile unsigned buffer_page[5];
 
     volatile unsigned reserved;
     volatile unsigned setup0;
