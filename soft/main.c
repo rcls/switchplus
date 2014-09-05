@@ -520,7 +520,7 @@ static void start_network (void)
     qh_init (0x02, 0x02000000);
     qh_init (0x82, 0x02000000);
 
-    *ENDPTCTRL2 = 0x00880088;
+    *ENDPTCTRL2 = 0x00c800c8;
 
     while (idle_tx_buffers) {
         void * buffer = idle_tx_buffers;
