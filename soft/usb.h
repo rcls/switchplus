@@ -33,4 +33,10 @@ void endpt_complete (unsigned ep, bool running);
 
 unsigned get_0_setup (unsigned * setup1);
 
+static inline unsigned ep_mask (unsigned ep)
+{
+    return ep & 0x80 ? 0x10000 << (ep - 0x80) : 1 << ep;
+}
+
+
 #endif

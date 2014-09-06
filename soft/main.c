@@ -800,22 +800,11 @@ static void usb_interrupt (void)
     if (debug_flag && (!log_monkey || (complete != 0x80000)))
         puts ("usb interrupt...\n");
 
-    if (complete & 4)
-        endpt_complete (2, true);
-    if (complete & 0x40000)
-        endpt_complete (0x82, true);
-    if (complete & 0x20000)
-        endpt_complete (0x81, true);
-
-    if (complete & 1)
-        endpt_complete (0, true);
-    if (complete & 0x10000)
-        endpt_complete (0x80, true);
-
-    if (complete & 8)
-        endpt_complete (0x03, true);
-    if (complete & 0x80000)
-        endpt_complete (0x83, true);
+    static const unsigned char endpoints[] = {
+        2, 0x82, 0x81, 0x80, 0, 3, 0x83 };
+    for (int i = 0; i < sizeof endpoints; ++i)
+        if (complete & ep_mask(endpoints[i]))
+            endpt_complete(endpoints[i], true);
 
     // Check for setup on 0.  FIXME - will other set-ups interrupt?
     unsigned setup = *ENDPTSETUPSTAT;
@@ -832,12 +821,8 @@ static void usb_interrupt (void)
     while (*ENDPTFLUSH);
 
     // Clean out any dtds.
-    endpt_complete (0x80, false);
-    endpt_complete (0x81, false);
-    endpt_complete (0x02, false);
-    endpt_complete (0x82, false);
-    endpt_complete (0x03, false);
-    endpt_complete (0x83, false);
+    for (const unsigned char * p = endpoints; *p; ++p)
+        endpt_complete(*p, false);
 
     *ENDPTNAK = 0xffffffff;
     *ENDPTNAKEN = 1;

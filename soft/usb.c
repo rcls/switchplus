@@ -39,11 +39,6 @@ static struct qh_and_dtd_t {
 static dTD_t * dtd_free_list;
 
 
-static inline unsigned MASK (unsigned ep)
-{
-    return ep & 0x80 ? 0x10000 << (ep - 0x80) : 1 << ep;
-}
-
 static inline dQH_t * QH(int ep)
 {
     return ep & 0x80 ? &qh_and_dtd.QH[ep - 0x80].IN : &qh_and_dtd.QH[ep].OUT;
@@ -119,7 +114,7 @@ dTD_t * get_dtd (void)
 void schedule_dtd (unsigned ep, dTD_t * dtd)
 {
     dQH_t * qh = QH (ep);
-    ep = MASK (ep);
+    ep = ep_mask (ep);
 
     dtd->next = (dTD_t *) 1;
     if (qh->last != NULL) {
@@ -230,7 +225,7 @@ void endpt_complete (unsigned ep, bool running)
         if (d && (status & 0x80) && running) {
             qh->next = d;               // Restart the end-point.
             qh->length_and_status &= ~0xc0;
-            *ENDPTPRIME = MASK(ep);
+            *ENDPTPRIME = ep_mask(ep);
             break;
         }
     }
