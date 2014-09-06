@@ -334,4 +334,20 @@ _Static_assert(sizeof(gpdma_t) == 512, "gpdma size");
 
 #define GPDMA ((volatile gpdma_t *) 0x40002000)
 
+typedef struct event_router_t {
+    unsigned hilo;
+    unsigned edge;
+    unsigned dummy[0xfd0 / 4];
+    unsigned clr_en;
+    unsigned set_en;
+    const unsigned status;
+    const unsigned enable;
+    unsigned clr_stat;
+    unsigned set_stat;
+} event_router_t;
+
+_Static_assert(sizeof(event_router_t) == 0xff0, "event_router_t size");
+
+#define EVENT_ROUTER ((volatile event_router_t *) 0x40044000)
+
 #endif

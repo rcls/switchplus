@@ -354,7 +354,7 @@ static void serial_byte (unsigned byte)
         puts (debug_flag ? "Debug on\n" : "Debug off\n");
         return;
     case 'e':
-        mii_report();
+        mdio_report_all();
         return;
     case 'f':
         clock_report();
@@ -848,6 +848,13 @@ static void eth_interrupt (void)
 }
 
 
+static void switch_interrupt (void)
+{
+    mdio_report_changed();
+    EVENT_ROUTER->clr_stat = 1;
+}
+
+
 void main (void)
 {
     // Disable all interrupts for now...
@@ -914,9 +921,15 @@ void main (void)
 
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
+    NVIC_ISER[1] = 1 << 10;             // Enable event router interrupt.
     *USBINTR = 0x00000041;              // Port change, reset, data.
     EDMA->stat = 0x1ffff;
     EDMA->int_en = 0x0001ffff;
+
+    // Reset event-router WAKEUP0 & enable it (interrupt from switch).
+    EVENT_ROUTER->clr_stat = 1;
+    EVENT_ROUTER->set_en = 1;
+
     __interrupt_enable();
 
     lcd_init();
@@ -937,4 +950,5 @@ void * start[64] = {
     [21] = eth_interrupt,
     [23] = lcd_interrupt,
     [24] = usb_interrupt,
+    [58] = switch_interrupt,
 };

@@ -33,9 +33,15 @@ static unsigned spi_io (unsigned data, int num_bytes)
 }
 
 
-static unsigned spi_reg_write (unsigned address, unsigned data)
+static void spi_reg_write (unsigned address, unsigned data)
 {
-    return spi_io (0x20000 + ((address & 255) * 256) + data, 3) & 255;
+    spi_io (0x20000 + (address & 255) * 256 + data, 3);
+}
+
+
+static unsigned spi_reg_read (unsigned address)
+{
+    return spi_io (0x30000 + (address & 255) * 256, 3) & 255;
 }
 
 
@@ -47,7 +53,7 @@ static unsigned miim_get(int port, int item)
 }
 
 
-static void mii_report_word(const char * const * desc, unsigned word, int term)
+static void mdio_report_word(const char * const * desc, unsigned word)
 {
     for (int i = 0; i != 16; ++i, word >>= 1) {
         bool bit = word & 1;
@@ -77,26 +83,34 @@ static void mii_report_word(const char * const * desc, unsigned word, int term)
             printf(" %s%s", p, status);
         else
             printf(" Bit %i%s", i, status);
-        if (term)
-            putchar(term);
     }
 }
 
 
-void mii_report (void)
+void mdio_report_port(int port)
 {
     // Leading characters: ~ : invert bit", + : report 1 only, - : report
     // 1 as disabled only. 0 : report 0 as off only, ".": ignore.
     static const char * const desc0[16] = {
         "-LED", "-TX", "-Fault detect", "-Auto-MDI",
-        "Force MDI", "~+Micrel-MDI", "", "Collision Test",
-        "Force FD", "Restart AN", "Isolate", "Power Down",
-        "0AN", "Force 100", "Loopback", "Reset" };
+        "Force-MDI", "~+Micrel-MDI", "", "Collision-Test",
+        "Force-FD", "Restart-AN", "Isolate", "Power-Down",
+        "0AN", "Force-100", "Loopback", "Reset" };
+
+    printf("Port %i\nControl   :", port);
+    mdio_report_word(desc0, miim_get(port, 0));
+
     static const char * const desc4[16] = {
         "0", "", "", "",
-        "", "10 Half", "10 Full", "100 Half",
-        "100 Full", "", "Pause", "",
-        "", "Remote Fault", "LP Ack", "Next Page" };
+        "", "10-Half", "10-Full", "100-Half",
+        "100-Full", "", "Pause", "",
+        "", "Remote-Fault", "LP-Ack", "Next-Page" };
+
+    printf("\nLocal  Adv :");
+    mdio_report_word(desc4, miim_get(port, 4));
+    printf("\nRemote Adv :");
+    mdio_report_word(desc4, miim_get(port, 5));
+
     static const char * const desc1f[16] = {
         "", "Remote Loopback", "Power Save", "Force Link",
         "MDI-X", "Polarity Reverse", "", "",
@@ -104,20 +118,36 @@ void mii_report (void)
         "", "", "", "",
     };
     static const char * const mode[8] = {
-        "Reserved", "Auto-Neg", "10 Half", "100 Half",
-        "Reserved", "10 Full", "100 Full", "Isolate"
+        "Reserved", "Auto-Neg", "10-Half", "100-Half",
+        "Reserved", "10-Full", "100-Full", "Isolate"
     };
-    for (int i = 1; i <= 5; ++i) {
-        mii_report_word(desc0, miim_get(i, 0), '\n');
-        printf("Port %i Local  Adv", i);
-        mii_report_word(desc4, miim_get(i, 4), 0);
-        printf("\nPort %i Remote Adv", i);
-        mii_report_word(desc4, miim_get(i, 5), 0);
-        unsigned stat = miim_get(i, 0x1f);
-        printf("\nPort %i Control/Status %s", i, mode[(stat >> 8) & 7]);
-        mii_report_word(desc1f, stat, 0);
-        putchar('\n');
-    }
+
+    unsigned stat = miim_get(port, 0x1f);
+    printf("\nControl/Status: %s", mode[(stat >> 8) & 7]);
+    mdio_report_word(desc1f, stat);
+    putchar('\n');
+}
+
+
+void mdio_report_all (void)
+{
+    for (int i = 1; i <= 5; ++i)
+        mdio_report_port(i);
+
+    /* int isr = spi_reg_read(124) & 0xff; */
+    /* printf("Interrupt status: %02x\n", isr); */
+    /* printf("Interrupt enable: %02x\n", spi_reg_read(125) & 0xff); */
+    /* spi_reg_write(124, isr); */
+}
+
+
+void mdio_report_changed (void)
+{
+    int status = spi_reg_read(124);
+    spi_reg_write(124, status);
+    for (int i = 0; i < 5; ++i)
+        if (status & (1 << i))
+            mdio_report_port(i + 1);
 }
 
 
@@ -166,7 +196,10 @@ void init_switch (void)
     SFSP[3][7] = 5;
     SFSP[3][6] = 0x45; // Function 5, enable input buffer.
 
-    spi_reg_write (1, 1);         // Start switch.
+    // Write registers 0x7c, 0x7d to clear and enable interrupt generation.
+    spi_io(0x027c1f1f, 4);
+
+    spi_reg_write (1, 1);               // Start switch.
 
     puts ("Switch is running\n");
 }

@@ -3,6 +3,7 @@
 
 void init_switch (void);
 
-void mii_report (void);
+void mdio_report_all (void);
+void mdio_report_changed (void);
 
 #endif
