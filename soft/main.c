@@ -46,7 +46,7 @@ enum string_descs_t {
     sd_dfu,
 };
 
-static void endpt_tx_complete (dTD_t * dtd);
+static void endpt_tx_complete (dTD_t * dtd, unsigned status, unsigned remain);
 
 
 // String0 - lang. descs.
@@ -340,7 +340,7 @@ static void enter_dfu (void)
 }
 
 
-static void initiate_enter_dfu (dTD_t * dtd)
+static void initiate_enter_dfu (dTD_t * dtd, unsigned status, unsigned remain)
 {
     callback_simple (enter_dfu);
 }
@@ -448,18 +448,17 @@ static void reuse_tx_buffer(void * buffer)
 
 // Completion called for buffers from the OUT endpoint.  Dispatch to the
 // ethernet.
-static void endpt_tx_complete (dTD_t * dtd)
+static void endpt_tx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     void * buffer = (void *) dtd->buffer_page[4];
-    unsigned status = dtd->length_and_status;
-    if (status & 0xff) {                // Errored...
+    if (status) {                       // Errored...
         reuse_tx_buffer(buffer);
         return;
     }
 
     volatile EDMA_DESC_t * t = &tx_dma[tx_dma_insert++ & EDMA_MASK];
 
-    t->count = BUF_SIZE - (status >> 16);
+    t->count = BUF_SIZE - remain;
     t->buffer1 = buffer;
     t->buffer2 = NULL;
 
@@ -474,13 +473,13 @@ static void endpt_tx_complete (dTD_t * dtd)
 }
 
 
-static void notify_network_up (dTD_t * dtd)
+static void notify_network_up (dTD_t * dtd, unsigned status, unsigned remain)
 {
     if (*ENDPTCTRL1 & 0x800000) {
         schedule_buffer (
-            0x81, network_connected, sizeof network_connected, NULL);
-        schedule_buffer (
-            0x81, speed_notification100, sizeof speed_notification100, NULL);
+            0x81, (void*) network_connected, sizeof network_connected, NULL);
+        schedule_buffer (0x81, (void*) speed_notification100,
+                         sizeof speed_notification100, NULL);
     }
 }
 
@@ -692,7 +691,7 @@ static void queue_rx_dma(void * buffer)
 }
 
 
-static void endpt_rx_complete (dTD_t * dtd)
+static void endpt_rx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     // Re-queue the buffer for network data.
     unsigned buffer = dtd->buffer_page[4];

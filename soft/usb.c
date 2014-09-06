@@ -177,7 +177,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
 }
 
 
-void schedule_buffer (unsigned ep, const void * data, unsigned length,
+void schedule_buffer (unsigned ep, void * data, unsigned length,
                       dtd_completion_t * cb)
 {
     dTD_t * dtd = get_dtd();
@@ -216,17 +216,16 @@ void endpt_complete (unsigned ep, bool running)
     // Successes...
     dTD_t * d = qh->first;
     while (d) {
-        unsigned status = d->length_and_status & 0xff;
-        if (status == 0x80 && running)
+        unsigned status = d->length_and_status;
+        if ((status & 0xff) == 0x80 && running)
             break;                      // Still running.
 
         if (status & 0x7f)
             // Errored.
-            printf ("ERROR ep %02x length and status: %08x\n",
-                    ep, d->length_and_status);
+            printf ("ERROR ep %02x length and status: %08x\n", ep, status);
 
         if (d->completion)
-            d->completion (d);
+            d->completion (d, status & 0xff, status >> 16);
         d = retire_dtd (d, qh);
 
         if (d && (status & 0x80) && running) {
@@ -257,7 +256,8 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    schedule_buffer (0x80, buffer, length, length == 0 ? callback : NULL);
+    schedule_buffer (0x80, (void*) buffer, length,
+                     length == 0 ? callback : NULL);
 
     if (*ENDPTSETUPSTAT & 1)
         puts ("Oops, EPSS\n");

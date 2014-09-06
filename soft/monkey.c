@@ -33,8 +33,8 @@ static unsigned char monkey_buffer[4096] __aligned (4096)
 static unsigned char monkey_recv[1024] __aligned (512)
     __section ("ahb0.monkey_recv");
 
-static void monkey_in_complete (dTD_t * dtd);
-static void monkey_out_complete (dTD_t * dtd);
+static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain);
+static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain);
 
 bool debug_flag;
 bool verbose_flag;
@@ -191,7 +191,7 @@ bool monkey_is_empty (void)
 }
 
 
-static void monkey_in_complete (dTD_t * dtd)
+static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     // FIXME - distinguish between errors and sending a full page?
     monkey_pos.outstanding = false;
@@ -379,13 +379,12 @@ void ungetchar (int c)
 }
 
 
-static void monkey_out_complete (dTD_t * dtd)
+static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    unsigned length_and_status = dtd->length_and_status;
     unsigned char * buffer = (unsigned char *) dtd->buffer_page[4];
-    unsigned length = 512 - (length_and_status >> 16);
+    unsigned length = 512 - remain;
 
-    if (length == 0 || (length_and_status & 0x80)) {
+    if (length == 0 || status != 0) {
         // Reschedule immediately.
         if (*ENDPTCTRL3 & 0x80)
             schedule_buffer (3, buffer, 512, monkey_out_complete);

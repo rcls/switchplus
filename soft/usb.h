@@ -8,7 +8,7 @@
 
 typedef struct dTD_t dTD_t;
 
-typedef void dtd_completion_t (dTD_t * dtd);
+typedef void dtd_completion_t (dTD_t * dtd, unsigned status, unsigned remain);
 
 // USB transfer descriptor.
 struct dTD_t {
@@ -27,7 +27,7 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
 
 dTD_t * get_dtd (void);
 void schedule_dtd (unsigned ep, dTD_t * dtd);
-void schedule_buffer (unsigned ep, const void * data, unsigned length,
+void schedule_buffer (unsigned ep, void * data, unsigned length,
                       dtd_completion_t * cb);
 void endpt_complete (unsigned ep, bool running);
 
