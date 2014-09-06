@@ -214,8 +214,7 @@ void endpt_complete (unsigned ep, bool running)
     dQH_t * qh = QH (ep);
 
     // Successes...
-    dTD_t * d = qh->first;
-    while (d) {
+    for (dTD_t * d = qh->first; d; ) {
         unsigned status = d->length_and_status;
         if ((status & 0xff) == 0x80 && running)
             break;                      // Still running.
@@ -273,19 +272,18 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
 }
 
 
-unsigned long long get_0_setup (void)
+unsigned get_0_setup (unsigned * setup1)
 {
     unsigned setup0;
-    unsigned setup1;
     do {
         *USBCMD |= 1 << 13;             // Set tripwire.
         setup0 = QH(0)->setup0;
-        setup1 = QH(0)->setup1;
+        *setup1 = QH(0)->setup1;
     }
     while (!(*USBCMD & (1 << 13)));
     *USBCMD &= ~(1 << 13);
     while (*ENDPTSETUPSTAT & 1)
         *ENDPTSETUPSTAT = 1;
 
-    return setup1 * 0x100000000ull + setup0;
+    return setup0;
 }

@@ -166,10 +166,7 @@ void init_switch (void)
     SFSP[3][7] = 5;
     SFSP[3][6] = 0x45; // Function 5, enable input buffer.
 
-    /* ser_w_hex (spi_reg_read (0), 2, " reg0  "); */
-    /* ser_w_hex (spi_reg_read (1), 2, " reg1 "); */
     spi_reg_write (1, 1);         // Start switch.
-    /* ser_w_hex (spi_reg_read (1), 2, "\r\n"); */
 
     puts ("Switch is running\n");
 }

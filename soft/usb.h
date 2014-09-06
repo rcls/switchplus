@@ -31,6 +31,6 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
                       dtd_completion_t * cb);
 void endpt_complete (unsigned ep, bool running);
 
-unsigned long long get_0_setup (void);
+unsigned get_0_setup (unsigned * setup1);
 
 #endif

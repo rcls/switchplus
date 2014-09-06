@@ -509,7 +509,7 @@ static void stop_network (void)
     if (!(*ENDPTCTRL2 & 0x80))
         return;                         // Already stopped.
 
-    puts ("Stopping network...\n");
+    puts ("Stopping network.\n");
 
     do {
         *ENDPTFLUSH = 0x40004;
@@ -543,9 +543,8 @@ static void stop_mgmt (void)
 
 static void process_setup (void)
 {
-    unsigned long long setup = get_0_setup();
-    unsigned setup0 = setup;
-    unsigned setup1 = setup >> 32;
+    unsigned setup1;
+    unsigned setup0 = get_0_setup(&setup1);
 
     const void * response_data = NULL;
     int response_length = -1;
