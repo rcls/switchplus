@@ -57,12 +57,12 @@ void init_monkey_ssp (void)
     log_ssp = false;
     __memory_barrier();
 
-    *BASE_SSP1_CLK = 0x0c000800;        // Base clock is 160MHz.
+    *BASE_SSP1_CLK = 0x01000800;        // Base clock is 12MHz IRC for now.
 
     RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
     while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
 
-    SSP1->cpsr = 2;                    // Clock pre-scale: 160MHz / 2 = 80MHz.
+    SSP1->cpsr = 2;       // Clock pre-scale, will raise to: 160MHz / 2 = 80MHz.
     // 8-bit xfer, clock low between frames, capture on first (rising) edge of
     // frame (we'll output on falling edge).  No divide.
     SSP1->cr0 = 0x0007;

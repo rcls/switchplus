@@ -880,6 +880,12 @@ void main (void)
 
     __memory_barrier();
 
+    init_monkey_ssp();
+
+    puts ("***********************************\n");
+    puts ("**          Supa Switch          **\n");
+    puts ("***********************************\n");
+
     init_switch();
     init_ethernet();
 
@@ -907,11 +913,7 @@ void main (void)
 
     disable_clocks();
 
-    init_monkey_ssp();
-
-    puts ("***********************************\n");
-    puts ("**          Supa Switch          **\n");
-    puts ("***********************************\n");
+    *BASE_SSP1_CLK = 0x0c000800;        // Take monkey SSP to 80Mb/s.
 
     // Build the linked list of idle tx buffers.
     idle_tx_buffers = NULL;
