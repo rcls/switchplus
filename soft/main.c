@@ -318,6 +318,7 @@ static void enter_dfu (void)
         for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
 
     NVIC_ICER[0] = 0xffffffff;
+    NVIC_ICER[1] = 0xffffffff;
 
     // Switch back to IDIVC.
     *BASE_M4_CLK = 0x0e000800;
