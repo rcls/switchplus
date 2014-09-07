@@ -882,11 +882,6 @@ void main (void)
 
     init_switch();
     init_ethernet();
-    init_monkey_ssp();
-
-    puts ("***********************************\n");
-    puts ("**          Supa Switch          **\n");
-    puts ("***********************************\n");
 
     // 50 MHz in from eth_tx_clk
     // Configure the clock to USB.
@@ -911,6 +906,12 @@ void main (void)
     *BASE_M4_CLK = 0x0c000800;
 
     disable_clocks();
+
+    init_monkey_ssp();
+
+    puts ("***********************************\n");
+    puts ("**          Supa Switch          **\n");
+    puts ("***********************************\n");
 
     // Build the linked list of idle tx buffers.
     idle_tx_buffers = NULL;
