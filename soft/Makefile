@@ -5,7 +5,7 @@ all: main.sram.boot main.flashA.flasher dfu.sram.bin
 .SECONDARY:
 
 clean:
-	-rm *.elf *.bin *.flasher *.boot *.o *.a *.s .deps/*.d
+	-rm -f *.elf *.bin *.flasher *.boot *.o *.a *.s .deps/*.d
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)
