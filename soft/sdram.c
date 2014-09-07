@@ -1,6 +1,7 @@
 
 #include "freq.h"
 #include "monkey.h"
+#include "pin.h"
 #include "registers.h"
 #include "sdram.h"
 
@@ -10,61 +11,54 @@ void meminit (unsigned mhz)
 
     // Setup pins.
     static const unsigned pins[] = {
-#define pin_in(a,b,f) (a * 32 * 65536 + b * 65536 + 0xe0 + f)
-#define pin_out(a,b,f) (a * 32 * 65536 + b * 65536 + 0x20 + f)
-        pin_in (1, 7, 3),               // T5  EMC_D0
-        pin_in (1, 8, 3),               // R7  EMC_D1
-        pin_in (1, 9, 3),               // T7  EMC_D2
-        pin_in (1,10, 3),               // R8  EMC_D3
-        pin_in (1,11, 3),               // T9  EMC_D4
-        pin_in (1,12, 3),               // R9  EMC_D5
-        pin_in (1,13, 3),               // R10 EMC_D6
-        pin_in (1,14, 3),               // R11 EMC_D7
-        pin_in (5, 4, 2),               // P9  EMC_D8
-        pin_in (5, 5, 2),               // P10 EMC_D9
-        pin_in (5, 6, 2),               // T13 EMC_D10
-        pin_in (5, 7, 2),               // R12 EMC_D11
-        pin_in (5, 0, 2),               // N3  EMC_D12
-        pin_in (5, 1, 2),               // P3  EMC_D13
-        pin_in (5, 2, 2),               // R4  EMC_D14
-        pin_in (5, 3, 2),               // T8  EMC_D15
+        PIN_IO_FAST(1, 7, 3),           // T5  EMC_D0
+        PIN_IO_FAST(1, 8, 3),           // R7  EMC_D1
+        PIN_IO_FAST(1, 9, 3),           // T7  EMC_D2
+        PIN_IO_FAST(1,10, 3),           // R8  EMC_D3
+        PIN_IO_FAST(1,11, 3),           // T9  EMC_D4
+        PIN_IO_FAST(1,12, 3),           // R9  EMC_D5
+        PIN_IO_FAST(1,13, 3),           // R10 EMC_D6
+        PIN_IO_FAST(1,14, 3),           // R11 EMC_D7
+        PIN_IO_FAST(5, 4, 2),           // P9  EMC_D8
+        PIN_IO_FAST(5, 5, 2),           // P10 EMC_D9
+        PIN_IO_FAST(5, 6, 2),           // T13 EMC_D10
+        PIN_IO_FAST(5, 7, 2),           // R12 EMC_D11
+        PIN_IO_FAST(5, 0, 2),           // N3  EMC_D12
+        PIN_IO_FAST(5, 1, 2),           // P3  EMC_D13
+        PIN_IO_FAST(5, 2, 2),           // R4  EMC_D14
+        PIN_IO_FAST(5, 3, 2),           // T8  EMC_D15
 
-        pin_out (2, 9, 3),              // H16 EMC_A0
-        pin_out (2,10, 3),              // G16 EMC_A1
-        pin_out (2,11, 3),              // F16 EMC_A2
-        pin_out (2,12, 3),              // E15 EMC_A3
-        pin_out (2,13, 3),              // C16 EMC_A4
-        pin_out (1, 0, 2),              // P2  EMC_A5
-        pin_out (1, 1, 2),              // R2  EMC_A6
-        pin_out (1, 2, 2),              // R3  EMC_A7
-        pin_out (2, 8, 3),              // J16 EMC_A8
-        pin_out (2, 7, 3),              // H14 EMC_A9
-        pin_out (2, 6, 2),              // K16 EMC_A10
-        pin_out (2, 2, 2),              // M15 EMC_A11
-        pin_out (2, 1, 2),              // N15 EMC_A12
-        pin_out (2, 0, 2),              // T16 EMC_A13
-        pin_out (6, 8, 1),              // H13 EMC_A14
+        PIN_OUT_FAST(2, 9, 3),          // H16 EMC_A0
+        PIN_OUT_FAST(2,10, 3),          // G16 EMC_A1
+        PIN_OUT_FAST(2,11, 3),          // F16 EMC_A2
+        PIN_OUT_FAST(2,12, 3),          // E15 EMC_A3
+        PIN_OUT_FAST(2,13, 3),          // C16 EMC_A4
+        PIN_OUT_FAST(1, 0, 2),          // P2  EMC_A5
+        PIN_OUT_FAST(1, 1, 2),          // R2  EMC_A6
+        PIN_OUT_FAST(1, 2, 2),          // R3  EMC_A7
+        PIN_OUT_FAST(2, 8, 3),          // J16 EMC_A8
+        PIN_OUT_FAST(2, 7, 3),          // H14 EMC_A9
+        PIN_OUT_FAST(2, 6, 2),          // K16 EMC_A10
+        PIN_OUT_FAST(2, 2, 2),          // M15 EMC_A11
+        PIN_OUT_FAST(2, 1, 2),          // N15 EMC_A12
+        PIN_OUT_FAST(2, 0, 2),          // T16 EMC_A13
+        PIN_OUT_FAST(6, 8, 1),          // H13 EMC_A14
 
-        pin_out (6,12, 3),              // G15 EMC_DQMOUT0
-        pin_out (6,10, 3),              // H15 EMC_DQMOUT1
+        PIN_OUT_FAST(6,12, 3),          // G15 EMC_DQMOUT0
+        PIN_OUT_FAST(6,10, 3),          // H15 EMC_DQMOUT1
 
-        pin_out (6, 5, 3),              // P16 EMC_RAS
-        pin_out (6, 4, 3),              // R16 EMC_CAS
+        PIN_OUT_FAST(6, 5, 3),              // P16 EMC_RAS
+        PIN_OUT_FAST(6, 4, 3),              // R16 EMC_CAS
 
-        pin_out (13, 1, 2),             // P1 EMC_CKEOUT2
-        pin_out (13,14, 2),             // R13 EMC_DYCS2
+        PIN_OUT_FAST(13, 1, 2),             // P1 EMC_CKEOUT2
+        PIN_OUT_FAST(13,14, 2),             // R13 EMC_DYCS2
 
-        pin_out (1, 6, 3),              // T4 EMC_WE
+        PIN_OUT_FAST(1, 6, 3),              // T4 EMC_WE
     };
 
     RESET_CTRL[0] = 1 << 21;
 
-    for (int i = 0; i != sizeof pins / sizeof pins[0]; ++i) {
-        unsigned pin = pins[i] >> 16;
-        unsigned config = pins[i] & 0xffff;
-        SFSP[0][pin] = config;
-        //SFSP[pin >> 5][pin & 31] = config;
-    }
+    config_pins(pins, sizeof pins / sizeof pins[0]);
 
     // The datasheet says all clocks and allow input.
     SFSCLK[0] = 0xe0;                   // N5, function 0

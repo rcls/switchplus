@@ -5,6 +5,7 @@
 #include "jtag.h"
 #include "lcd.h"
 #include "monkey.h"
+#include "pin.h"
 #include "registers.h"
 #include "sdram.h"
 #include "spirom.h"
@@ -735,16 +736,7 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
 
 static void init_ethernet (void)
 {
-    SFSP[1][19] = 0xc0;       // TX_CLK (M11, P1_19, func 0) input; no deglitch.
-    SFSP[1][17] = 0x63;       // MDIO (M8, P1_17, func 3) input.
-    SFSP[1][15] = 0xc3;       // RXD0 (T12, P1_15, func 3) input; no deglitch.
-    SFSP[0][0] = 0xc2;        // RXD1 (L3, P0_0, func 2) input; no deglitch.
-    SFSP[12][8] = 0xc3;       // RX_DV (N4, PC_8, func 3) input; no deglitch.
-
-    SFSP[12][1] = 3;                    // MDC (E4, PC_1, func 3).
-    SFSP[1][18] = 3;                    // TXD0, N12, P1_18, func 3.
-    SFSP[1][20] = 3;                    // TXD1, M10, P1_20, func 3.
-    SFSP[0][1] = 6;                     // TX_EN, M2, P0_1, func 6.
+    // Pins are set-up in init-switch.
 
     // Set the PHY clocks.
     *BASE_PHY_TX_CLK = 0x03000800;

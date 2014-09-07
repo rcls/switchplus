@@ -1,5 +1,6 @@
 
 #include "monkey.h"
+#include "pin.h"
 #include "registers.h"
 #include "usb.h"
 
@@ -82,11 +83,6 @@ static unsigned jtag_dr_short(int n, unsigned d)
 static void jtag_reset(void)
 {
     // Set the jtag pins to be GPIO.
-    // TCK is GPIO6[13] PC_14 func 4 ball N1
-    // TDO is GPIO5[3] P2_3 func 4 ball J12
-    // TDI is GPIO6[12] PC_13 func 4 ball M1
-    // TMS is GPIO5[4] P2_4 func 4 ball K11
-
     GPIO_DIR[6] |= 0x3000;
     GPIO_DIR[5] = (GPIO_DIR[5] & ~8) | 0x10;
 
@@ -94,10 +90,14 @@ static void jtag_reset(void)
     TDI = 1;
     TMS = 1;
 
-    SFSP[12][14] = 4;
-    SFSP[2][3]   = 0x44;
-    SFSP[12][13] = 4;
-    SFSP[2][4]   = 4;
+    static const unsigned pins[] = {
+        PIN_OUT(12,14,4),               // TCK is GPIO6[13] PC_14 func 4 ball N1
+        PIN_IN(2,3,4),                  // TDO is GPIO5[3] P2_3 func 4 ball J12
+        PIN_OUT(12,13,4),               // TDI is GPIO6[12] PC_13 func 4 ball M1
+        PIN_OUT(2,4,4),                 // TMS is GPIO5[4] P2_4 func 4 ball K11
+    };
+
+    config_pins(pins, sizeof pins / sizeof pins[0]);
 
     // Reset jtag, land in run test/idle.
     jtag_tms(9,0xff);

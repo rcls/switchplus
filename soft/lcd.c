@@ -1,6 +1,7 @@
 
 #include "freq.h"
 #include "lcd.h"
+#include "pin.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
@@ -52,45 +53,39 @@ void lcd_init (void)
 
     // Setup pins.
     static const unsigned pins[] = {
-#define pin_out(a,b,f) (a * 32 * 65536 + b * 65536 + 0x20 + f)
-
-        pin_out(12,0,4),                // D4  LCD_DCLK
-        pin_out(4,6,2),                 // C1  LCD_ENAB/LCDM
-        pin_out(4,5,2),                 // D2  LCD_FP
-        //pin_out(,,), // B16 LCD_LE
-        pin_out(7,6,3),                 // C7  LCD_LP
-        //pin_out(,,), // B6  LCD_PWR
-        pin_out(4,1,2),                 // A1  LCD_VD0
-        pin_out(4,4,2),                 // B1  LCD_VD1
-        pin_out(4,3,2),                 // C2  LCD_VD2
-        pin_out(4,2,2),                 // D3  LCD_VD3
-        pin_out(8,7,3),                 // K1  LCD_VD4
-        pin_out(8,6,3),                 // K3  LCD_VD5
-        pin_out(8,5,3),                 // J1  LCD_VD6
-        pin_out(7,1,4),                 // C14 LCD_VD7
-        pin_out(7,5,3),                 // A7  LCD_VD8
-        pin_out(4,8,2),                 // E2  LCD_VD9
-        pin_out(4,10,2),                // M3  LCD_VD10
-        pin_out(4,9,2),                 // L2  LCD_VD11
-        pin_out(3,5,7),                 // C12 LCD_VD12
-        pin_out(3,4,7),                 // A15 LCD_VD13
-        pin_out(11,5,2),                // A12 LCD_VD14
-        pin_out(11,4,2),                // B11 LCD_VD15
-        pin_out(7,4,3),                 // C8  LCD_VD16
-        pin_out(7,3,3),                 // C13 LCD_VD17
-        pin_out(7,2,3),                 // A16 LCD_VD18
-        pin_out(11,6,6),                // A6  LCD_VD19
-        pin_out(11,3,2),                // A13 LCD_VD20
-        pin_out(11,2,2),                // B12 LCD_VD21
-        pin_out(11,1,2),                // A14 LCD_VD22
-        pin_out(11,0,2),                // B15 LCD_VD23
+        PIN_OUT_FAST(12,0,4),           // D4  LCD_DCLK
+        PIN_OUT_FAST(4,6,2),            // C1  LCD_ENAB/LCDM
+        PIN_OUT_FAST(4,5,2),            // D2  LCD_FP
+        //PIN_OUT_FAST(,,), // B16 LCD_LE
+        PIN_OUT_FAST(7,6,3),            // C7  LCD_LP
+        //PIN_OUT_FAST(,,), // B6  LCD_PWR
+        PIN_OUT_FAST(4,1,2),            // A1  LCD_VD0
+        PIN_OUT_FAST(4,4,2),            // B1  LCD_VD1
+        PIN_OUT_FAST(4,3,2),            // C2  LCD_VD2
+        PIN_OUT_FAST(4,2,2),            // D3  LCD_VD3
+        PIN_OUT_FAST(8,7,3),            // K1  LCD_VD4
+        PIN_OUT_FAST(8,6,3),            // K3  LCD_VD5
+        PIN_OUT_FAST(8,5,3),            // J1  LCD_VD6
+        PIN_OUT_FAST(7,1,4),            // C14 LCD_VD7
+        PIN_OUT_FAST(7,5,3),            // A7  LCD_VD8
+        PIN_OUT_FAST(4,8,2),            // E2  LCD_VD9
+        PIN_OUT_FAST(4,10,2),           // M3  LCD_VD10
+        PIN_OUT_FAST(4,9,2),            // L2  LCD_VD11
+        PIN_OUT_FAST(3,5,7),            // C12 LCD_VD12
+        PIN_OUT_FAST(3,4,7),            // A15 LCD_VD13
+        PIN_OUT_FAST(11,5,2),           // A12 LCD_VD14
+        PIN_OUT_FAST(11,4,2),           // B11 LCD_VD15
+        PIN_OUT_FAST(7,4,3),            // C8  LCD_VD16
+        PIN_OUT_FAST(7,3,3),            // C13 LCD_VD17
+        PIN_OUT_FAST(7,2,3),            // A16 LCD_VD18
+        PIN_OUT_FAST(11,6,6),           // A6  LCD_VD19
+        PIN_OUT_FAST(11,3,2),           // A13 LCD_VD20
+        PIN_OUT_FAST(11,2,2),           // B12 LCD_VD21
+        PIN_OUT_FAST(11,1,2),           // A14 LCD_VD22
+        PIN_OUT_FAST(11,0,2),           // B15 LCD_VD23
     };
 
-    for (int i = 0; i != sizeof pins / sizeof pins[0]; ++i) {
-        unsigned pin = pins[i] >> 16;
-        unsigned config = pins[i] & 0xffff;
-        SFSP[0][pin] = config;
-    }
+    config_pins(pins, sizeof pins / sizeof pins[0]);
 
     // Enable the lcd.
     LCD->ctrl = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.

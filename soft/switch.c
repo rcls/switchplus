@@ -1,8 +1,10 @@
 #include "monkey.h"
+#include "pin.h"
 #include "registers.h"
 #include "switch.h"
 
-// data is big endian, lsb align.
+
+// Data is big endian, LSB aligned.
 static unsigned spi_io (unsigned data, int num_bytes)
 {
     // Wait for idle.
@@ -11,8 +13,7 @@ static unsigned spi_io (unsigned data, int num_bytes)
     while (SSP0->sr & 4)
         SSP0->dr;
 
-    // Take the SSEL GPIO low.
-    GPIO_BYTE[7][16] = 0;
+    GPIO_BYTE[7][16] = 0;               // Take the SSEL GPIO low.
 
     for (int i = 0; i < num_bytes; ++i)
         SSP0->dr = (data >> (num_bytes - i - 1) * 8) & 255;
@@ -20,8 +21,7 @@ static unsigned spi_io (unsigned data, int num_bytes)
     // Wait for idle.
     while (SSP0->sr & 16);
 
-    // Take the SSEL GPIO high again.
-    GPIO_BYTE[7][16] = 1;
+    GPIO_BYTE[7][16] = 1;               // Take the SSEL GPIO high again.
 
     unsigned result = 0;
     for (int i = 0; i < num_bytes; ++i) {
@@ -153,33 +153,7 @@ void mdio_report_changed (void)
 
 void init_switch (void)
 {
-    // SMRXD0 - ENET_RXD0 - T12 - P1_15
-    // SMRXD1 - ENET_RXD1 - L3 - P0_0
-    SFSP[0][0] |= 24; // Disable pull-up, enable pull-down.
-    SFSP[1][15] |= 24;
-
-    // Switch reset is E16, GPIO7[9], PE_9.
-    GPIO_BYTE[7][9] = 0;
-    GPIO_DIR[7] |= 1 << 9;
-    SFSP[14][9] = 4;                    // GPIO is function 4....
-    // Out of reset...
-    GPIO_BYTE[7][9] = 1;
-
-    // Wait milliseconds (docs say ~ 100us).
-    for (int i = 0; i < 96000; ++i)
-        asm volatile ("");
-
-    // Switch SPI is on SSP0.
-    // SPIS is SSP0_SSEL on E11, PF_1 - use as GPIO7[16], function 4.
-    // SPIC is SSP0_SCK on B14, P3_3, function 2.
-    // SPID is SSP0_MOSI on C11, P3_7, function 5.
-    // SPIQ is SSP0_MISO on B13, P3_6, function 5.
-
-    // Set SPIS output hi.
-    GPIO_BYTE[7][16] = 1;
-    GPIO_DIR[7] |= 1 << 16;
-    SFSP[15][1] = 4;                    // GPIO is function 4.
-
+    // Configure SSP0...
     *BASE_SSP0_CLK = 0x03000800;        // Base clock is 50MHz.
 
     // Set the prescaler to divide by 8.
@@ -193,10 +167,44 @@ void init_switch (void)
     // Enable SSP0.
     SSP0->cr1 = 0x00000002;
 
+    // Set SPIS output hi.
+    GPIO_BYTE[7][16] = 1;
+    GPIO_DIR[7] |= 1 << 16;
+
+    // Switch reset is E16, GPIO7[9], PE_9.
+    GPIO_BYTE[7][9] = 0;
+    GPIO_DIR[7] |= 1 << 9;
+
     // Set up the pins.
-    SFSP[3][3] = 2; // Clock pin, has high drive but we don't want that.
-    SFSP[3][7] = 5;
-    SFSP[3][6] = 0x45; // Function 5, enable input buffer.
+#define PULL_DOWN 0x18
+    static const unsigned pins[] = {
+        PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
+
+        PIN_OUT(15,1,4),                // SPIS, E11, GPIO7[16], function 4.
+        PIN_OUT(3,3,2),                 // SPIC, B14, SSP0 Clock.
+        PIN_OUT(3,7,5),                 // SPID, C11, SSP0 MOSI.
+        PIN_IN(3,6,5),                  // SPIQ, B13, SSP0 MISO.
+
+        PIN_IO(1,17,3),                 // MDIO (M8, P1_17, func 3)
+        PIN_OUT(12,1,3),                // MDC (E4, PC_1, func 3).
+
+        PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
+        PIN_IN_FAST(1,15,PULL_DOWN | 3), // RXD0 (T12, P1_15, func 3)
+        PIN_IN_FAST(0,0,PULL_DOWN | 2), // RXD1 (L3, P0_0, func 2)
+        PIN_IN_FAST(12,8,3),            // RX_DV (N4, PC_8, func 3)
+
+        PIN_OUT(1,18,3),                // TXD0, N12, P1_18, func 3.
+        PIN_OUT(1,20,3),                // TXD1, M10, P1_20, func 3.
+        PIN_OUT(0,1,6),                 // TX_EN, M2, P0_1, func 6.
+    };
+    config_pins(pins, sizeof pins / sizeof pins[0]);
+
+    // Out of reset...
+    GPIO_BYTE[7][9] = 1;
+
+    // Wait milliseconds (docs say ~ 100us).
+    for (int i = 0; i < 96000; ++i)
+        asm volatile ("");
 
     // Take SPI to high speed.
     //spi_reg_write(12, 0x64);

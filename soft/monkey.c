@@ -1,6 +1,7 @@
 
 #include "callback.h"
 #include "monkey.h"
+#include "pin.h"
 #include "registers.h"
 #include "usb.h"
 
@@ -67,14 +68,18 @@ void init_monkey_ssp (void)
     // frame (we'll output on falling edge).  No divide.
     SSP1->cr0 = 0x0007;
     SSP1->cr1 = 2;                      // Enable master.
+
     // Setup pins; make CS a GPIO output, pulse it high for a bit.
     GPIO_DIR[7] |= 1 << 19;
     *CONSOLE_CS = 1;
 
-    SFSP[15][4] = 0x20;                 // SCK is D10, PF_4 func 0.
-    SFSP[15][5] = 0x24;                 // SSEL is E9, PF_5, GPIO7[19] func 4.
-    SFSP[15][6] = 0xe2;                 // MISO is E7, PF_6 func 2.
-    SFSP[15][7] = 0x22;                 // MOSI is B7, PF_7 func 2.
+    static const unsigned pins[] = {
+        PIN_OUT_FAST(15,4,0),           // SCK is D10, PF_4 func 0.
+        PIN_OUT_FAST(15,5,4),           // SSEL is E9, PF_5, GPIO7[19] func 4.
+        PIN_IO_FAST (15,6,2),           // MISO is E7, PF_6 func 2.
+        PIN_OUT_FAST(15,7,2),           // MOSI is B7, PF_7 func 2.
+    };
+    config_pins(pins, sizeof pins / sizeof pins[0]);
 
     // Leave CS low.
     *CONSOLE_CS = 0;
