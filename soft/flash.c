@@ -103,7 +103,7 @@ static unsigned frequency (unsigned clock)
 
 static int cpu_frequency(void)
 {
-    unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
+    unsigned base_m4 = *BASE_M4_CLK >> 24;
     return frequency (base_m4);
 }
 
