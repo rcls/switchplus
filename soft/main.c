@@ -859,6 +859,17 @@ void main (void)
 {
     // Disable all interrupts for now...
     __interrupt_disable();
+
+    // Soft reset doesn't restore clocking.  Switch to IRC.
+    *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
+
+    // Restore PLL1 & IDIVC to 96MHz off IRC, just in case of soft reset.
+    *PLL1_CTRL = 0x01170940;
+    *IDIVC_CTRL = 0x09000808;
+    while (!(*PLL1_STAT & 1));
+
+    *BASE_M4_CLK = 0x0e000800;          // Switch back to 96MHz IDIVC.
+
     NVIC_ICER[0] = 0xffffffff;
     NVIC_ICER[1] = 0xffffffff;
 
@@ -888,16 +899,8 @@ void main (void)
     *PLL0USB_NP_DIV = 5 << 12;
     *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
 
-    // Resets don't always seem to restore PLL1 & BASE_M4_CLK.  Do that now.
-    *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
-    *PLL1_CTRL = 0x01170940;
-    *IDIVC_CTRL = 0x09000808;
     // Wait for locks.
     while (!(*PLL0USB_STAT & 1));
-    while (!(*PLL1_STAT & 1));
-    // Get DIVC to output PLL1 / 3.
-    // Switch back to IDIVC.
-    *BASE_M4_CLK = 0x0e000800;
 
     // Set the flash access time for 160MHz.
     *FLASHCFGA = 0x8000703a;
