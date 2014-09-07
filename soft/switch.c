@@ -165,8 +165,8 @@ void init_switch (void)
     // Out of reset...
     GPIO_BYTE[7][9] = 1;
 
-    // Wait ~ 100us.
-    for (int i = 0; i < 160000; ++i)
+    // Wait milliseconds (docs say ~ 100us).
+    for (int i = 0; i < 96000; ++i)
         asm volatile ("");
 
     // Switch SPI is on SSP0.
@@ -180,13 +180,15 @@ void init_switch (void)
     GPIO_DIR[7] |= 1 << 16;
     SFSP[15][1] = 4;                    // GPIO is function 4.
 
-    // Set the prescaler to divide by 2.
-    SSP0->cpsr = 2;
+    *BASE_SSP0_CLK = 0x03000800;        // Base clock is 50MHz.
+
+    // Set the prescaler to divide by 8.
+    SSP0->cpsr = 8;
 
     // Keep clock HI while idle, CPOL=1,CPHA=1
     // Output data on falling edge.  Read data on rising edge.
-    // Divide clock by 30.
-    SSP0->cr0 = 0x00001dc7;
+    // No clock divide (6.25MHz).
+    SSP0->cr0 = 0x000000c7;
 
     // Enable SSP0.
     SSP0->cr1 = 0x00000002;
@@ -195,6 +197,9 @@ void init_switch (void)
     SFSP[3][3] = 2; // Clock pin, has high drive but we don't want that.
     SFSP[3][7] = 5;
     SFSP[3][6] = 0x45; // Function 5, enable input buffer.
+
+    // Take SPI to high speed.
+    //spi_reg_write(12, 0x64);
 
     // Write registers 0x7c, 0x7d to clear and enable interrupt generation.
     spi_io(0x027c1f1f, 4);

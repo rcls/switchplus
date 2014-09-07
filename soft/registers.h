@@ -67,6 +67,7 @@ typedef struct EDMA_DESC_t {
 #define BASE_PHY_RX_CLK ((v32 *) (CGU + 0x78))
 #define BASE_PHY_TX_CLK ((v32 *) (CGU + 0x7c))
 #define BASE_LCD_CLK ((v32 *) (CGU + 0x88))
+#define BASE_SSP0_CLK ((v32 *) (CGU + 0x94))
 #define BASE_SSP1_CLK ((v32 *) (CGU + 0x98))
 #define BASE_UART3_CLK ((v32 *) (CGU + 0xa8))
 
