@@ -950,7 +950,7 @@ void main (void)
 
 void * start[64] __attribute__ ((section (".start"), externally_visible));
 void * start[64] = {
-    [0] = (void*) 0x10089ff0,
+    [0] = (void*) 0x10089fe0,
     [1] = main,
 
     [18] = gpdma_interrupt,
