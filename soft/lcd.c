@@ -6,26 +6,20 @@
 #include "sdram.h"
 
 #define FRAMEBUFFER ((unsigned short *) 0x60000000)
-#define TEXT_LINES 64
 
 static volatile bool frame_flag;
 
-static inline unsigned pll_np_div (unsigned pdec, unsigned ndec)
-{
-    return pdec + (ndec << 12);
-}
-
 void lcd_init (void)
 {
-    // Setup the PLL0AUDIO to give 52.25MHz off 50MHz ethernet clock.
-    // ndec=5, mdec=32426, pdec=5
-    // selr=0, seli=28, selp=14
-    // pllfract = 26.125,0x0d1000
-    // pre-divider=5, feedback div=26, post-div=5
-    // fcco=522.5MHz, fout=52.25MHz.
+    // Setup the PLL0AUDIO to give 74.75MHz off 50MHz ethernet clock.
+    // ndec=122, mdec=13107, pdec=66
+    // selr=0, seli=48, selp=24
+    // pllfract = 47.839996,0x17eb85
+    // pre-divider=16, feedback div=47, post-div=2
+    // fcco=299MHz, fout=74.749994MHz.
     *PLL0AUDIO_CTRL = 0x03001811;
     *PLL0AUDIO_MDIV = 13107;
-    *PLL0AUDIO_NP_DIV = pll_np_div(66, 122);
+    *PLL0AUDIO_NP_DIV = 66 + (122 << 12);
     *PLL0AUDIO_FRAC = 0x17eb85;
 
     *PLL0AUDIO_CTRL = 0x03001810;
