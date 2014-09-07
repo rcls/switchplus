@@ -311,37 +311,6 @@ static void disable_clocks(void)
 }
 
 
-static void enter_dfu (void)
-{
-    bool was_empty = monkey_is_empty();
-    verbose ("Enter DFU\n");
-    if (was_empty && log_monkey)
-        for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
-
-    NVIC_ICER[0] = 0xffffffff;
-    NVIC_ICER[1] = 0xffffffff;
-
-    // Switch back to IDIVC.
-    *BASE_M4_CLK = 0x0e000800;
-
-    *USBCMD = 2;                       // Reset USB.
-    while (*USBCMD & 2);
-
-    unsigned fakeotp[64];
-    for (int i = 0; i != 64; ++i)
-        fakeotp[i] = OTP[i];
-
-    fakeotp[12] = (6 << 25) + (1 << 23); // Boot mode; use custom usb ids.
-    fakeotp[13] = 0x524cf055;           // Product id / vendor id.
-
-    typedef unsigned F (void*);
-    ((F*) 0x1040158d) (fakeotp);
-
-    puts ("Bugger.\n");
-    while (1);
-}
-
-
 static void initiate_enter_dfu (dTD_t * dtd, unsigned status, unsigned remain)
 {
     callback_simple (enter_dfu);
@@ -853,7 +822,7 @@ void main (void)
     // Disable all interrupts for now...
     __interrupt_disable();
 
-    // Soft reset doesn't restore clocking.  Switch to IRC.
+    // Soft reset doesn't restore clocking.  So do it ourselves.
     *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
 
     // Restore PLL1 & IDIVC to 96MHz off IRC, just in case of soft reset.
@@ -872,6 +841,8 @@ void main (void)
         *p = 0;
 
     __memory_barrier();
+
+    check_for_early_dfu();
 
     init_monkey_ssp();
 

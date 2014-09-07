@@ -16,4 +16,7 @@
 
 void config_pins(const unsigned * pins, int count);
 
+void enter_dfu(void);
+void check_for_early_dfu(void);
+
 #endif
