@@ -394,12 +394,12 @@ static void start_mgmt (void)
     puts ("Starting mgmt...\n");
 
     qh_init (0x81, 0x20400000);
-    // FIXME - default mgmt packets?
-    *ENDPTCTRL1 = 0xcc0000;
-
     // No 0-size-frame on the monkey.
     qh_init (0x03, 0x22000000);
     qh_init (0x83, 0x22000000);
+
+    // FIXME - default mgmt packets?
+    *ENDPTCTRL1 = 0x00cc0000;
     *ENDPTCTRL3 = 0x00c800c8;
 
     init_monkey_usb();
@@ -502,13 +502,18 @@ static void stop_mgmt (void)
         return;                         // Already stopped.
 
     *ENDPTCTRL1 = 0;
+    *ENDPTCTRL3 = 0;
     do {
-        *ENDPTFLUSH = 0x20000;
-        while (*ENDPTFLUSH & 0x20000);
+        *ENDPTFLUSH = 0xa0008;
+        while (*ENDPTFLUSH & 0xa0008);
     }
-    while (*ENDPTSTAT & 0x20000);
+    while (*ENDPTSTAT & 0xa0008);
     // Cleanup any dtds.  FIXME - fix buffer handling.
     endpt_complete (0x81, false);
+    endpt_complete (3, false);
+    endpt_complete (0x83, false);
+
+    puts("Stopped mgmt.\n");
 }
 
 
@@ -783,8 +788,8 @@ static void usb_interrupt (void)
     while (*ENDPTFLUSH);
 
     // Clean out any dtds.
-    for (const unsigned char * p = endpoints; *p; ++p)
-        endpt_complete(*p, false);
+    for (int i = 0; i < sizeof endpoints; ++i)
+        endpt_complete(endpoints[i], false);
 
     *ENDPTNAK = 0xffffffff;
     *ENDPTNAKEN = 1;

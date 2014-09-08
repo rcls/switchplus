@@ -49,6 +49,11 @@ void init_monkey_usb (void)
 
     schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
     schedule_buffer (3, monkey_recv + 512, 512, monkey_out_complete);
+
+    monkey_recv_pos[0].next = 0;
+    monkey_recv_pos[0].end  = 0;
+    monkey_recv_pos[1].next = 0;
+    monkey_recv_pos[1].end  = 0;
     monkey_in_next = -1;
 }
 
