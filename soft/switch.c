@@ -53,8 +53,10 @@ static unsigned miim_get(int port, int item)
 }
 
 
-static void mdio_report_word(const char * const * desc, unsigned word)
+static void mdio_report_word(const char * tag,
+                             const char * const * desc, unsigned word)
 {
+    printf("\n  %s:", tag);
     for (int i = 0; i != 16; ++i, word >>= 1) {
         bool bit = word & 1;
         const char * p = desc[i];
@@ -97,8 +99,8 @@ void mdio_report_port(int port)
         "Force-FD", "Restart-AN", "Isolate", "Power-Down",
         "0AN", "Force-100", "Loopback", "Reset" };
 
-    printf("Port %i\nControl   :", port);
-    mdio_report_word(desc0, miim_get(port, 0));
+    printf("Port %i", port);
+    mdio_report_word("Control    ", desc0, miim_get(port, 0));
 
     static const char * const desc4[16] = {
         "0", "", "", "",
@@ -106,10 +108,8 @@ void mdio_report_port(int port)
         "100-Full", "", "Pause", "",
         "", "Remote-Fault", "LP-Ack", "Next-Page" };
 
-    printf("\nLocal  Adv :");
-    mdio_report_word(desc4, miim_get(port, 4));
-    printf("\nRemote Adv :");
-    mdio_report_word(desc4, miim_get(port, 5));
+    mdio_report_word("Local  Adv ", desc4, miim_get(port, 4));
+    mdio_report_word("Remote Adv ", desc4, miim_get(port, 5));
 
     static const char * const desc1f[16] = {
         "", "Remote Loopback", "Power Save", "Force Link",
@@ -123,9 +123,8 @@ void mdio_report_port(int port)
     };
 
     unsigned stat = miim_get(port, 0x1f);
-    printf("\nControl/Status: %s", mode[(stat >> 8) & 7]);
-    mdio_report_word(desc1f, stat);
-    putchar('\n');
+    mdio_report_word("Status     ", desc1f, stat);
+    printf(" ** %s **\n", mode[(stat >> 8) & 7]);
 }
 
 
