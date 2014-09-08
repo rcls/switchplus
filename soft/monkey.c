@@ -270,66 +270,62 @@ void printf (const char * restrict f, ...)
     unsigned l = enter_monkey();
     va_list args;
     va_start (args, f);
-    const unsigned char * s;
 
-    for (s = (const unsigned char *) f; *s; ++s) {
-        switch (*s) {
-        case '%': {
-            ++s;
-            unsigned char fill = ' ';
-            if (*s == '0')
-                fill = '0';
-
-            unsigned width = 0;
-            for (; *s >= '0' && *s <= '9'; ++s)
-                width = width * 10 + *s - '0';
-            unsigned base = 0;
-            unsigned lower = 0;
-            bool sgn = false;
-            unsigned lng = 0;
-            for (; *s == 'l'; ++s)
-                ++lng;
-            switch (*s) {
-            case 'x':
-                lower = 0x20;
-            case 'X':
-                base = 16;
-                break;
-            case 'i':
-            case 'd':
-                sgn = true;
-            case 'u':
-                base = 10;
-                break;
-            case 'o':
-                base = 8;
-                break;
-            case 'p': {
-                void * value = va_arg (args, void *);
-                if (width == 0)
-                    width = 8;
-                format_number ((unsigned) value, 16, 32, false, width, '0');
-                break;
-            }
-            case 's':
-                format_string (va_arg (args, const char *), width, fill);
-                break;
-            }
-            if (base != 0) {
-                unsigned long value;
-                if (lng)
-                    value = va_arg (args, unsigned long);
-                else if (sgn)
-                    value = va_arg (args, int);
-                else
-                    value = va_arg (args, unsigned);
-                format_number (value, base, lower, sgn, width, fill);
-            }
-            break;
+    for (const unsigned char * s = (const unsigned char *) f; *s; ++s) {
+        if (*s != '%') {
+            write_byte(*s);
+            continue;
         }
 
-        default:
-            write_byte (*s);
+        ++s;
+        unsigned char fill = ' ';
+        if (*s == '0')
+            fill = '0';
+
+        unsigned width = 0;
+        for (; *s >= '0' && *s <= '9'; ++s)
+            width = width * 10 + *s - '0';
+        unsigned base = 0;
+        unsigned lower = 0;
+        bool sgn = false;
+        unsigned lng = 0;
+        for (; *s == 'l'; ++s)
+            ++lng;
+        switch (*s) {
+        case 'x':
+            lower = 0x20;
+        case 'X':
+            base = 16;
+            break;
+        case 'i':
+        case 'd':
+            sgn = true;
+        case 'u':
+            base = 10;
+            break;
+        case 'o':
+            base = 8;
+            break;
+        case 'p': {
+            void * value = va_arg (args, void *);
+            if (width == 0)
+                width = 8;
+            format_number ((unsigned) value, 16, 32, false, width, '0');
+            break;
+        }
+        case 's':
+            format_string (va_arg (args, const char *), width, fill);
+            break;
+        }
+        if (base != 0) {
+            unsigned long value;
+            if (lng)
+                value = va_arg (args, unsigned long);
+            else if (sgn)
+                value = va_arg (args, int);
+            else
+                value = va_arg (args, unsigned);
+            format_number (value, base, lower, sgn, width, fill);
         }
     }
 
