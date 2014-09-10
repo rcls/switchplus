@@ -71,20 +71,20 @@ static void mdio_report_word(const char * tag,
             if (bit)
                 continue;
             ++p;
-            status = " off";
+            status = "-off";
         }
         else if (*p == '-') {
             if (!bit)
                 continue;
             ++p;
-            status = " disabled";
+            status = "-disabled";
         }
         else if (!bit)
             continue;
         if (*p)
             printf(" %s%s", p, status);
         else
-            printf(" Bit %i%s", i, status);
+            printf(" Bit-%i%s", i, status);
     }
 }
 
@@ -97,10 +97,18 @@ void mdio_report_port(int port)
         "-LED", "-TX", "-Fault detect", "-Auto-MDI",
         "Force-MDI", "~+Micrel-MDI", "", "Collision-Test",
         "Force-FD", "Restart-AN", "Isolate", "Power-Down",
-        "0AN", "Force-100", "Loopback", "Reset" };
+        "0AutoNeg", "Force-100", "Loopback", "Reset" };
 
     printf("Port %i", port);
     mdio_report_word("Control    ", desc0, miim_get(port, 0));
+
+    static const char * const desc1[16] = {
+        "+Ext.-Capable", "+Jabber-Test", "Link-Up", "0Auto-Neg",
+        "Fault", "Auto-Neg-Done", "1Preamble", "",
+        "", "", "", "010-Half",
+        "010-Full", "0100-Half", "0100-Full", "T4-Capable"
+    };
+    mdio_report_word("Status     ", desc1, miim_get(port, 1));
 
     static const char * const desc4[16] = {
         "0", "", "", "",
@@ -112,8 +120,8 @@ void mdio_report_port(int port)
     mdio_report_word("Remote Adv ", desc4, miim_get(port, 5));
 
     static const char * const desc1f[16] = {
-        "", "Remote Loopback", "Power Save", "Force Link",
-        "MDI-X", "Polarity Reverse", "", "",
+        "", "Remote-Loopback", "Power-Save", "Force-Link",
+        "MDI-X", "Polarity-Reverse", "", "",
         ".", ".", ".", "",
         "", "", "", "",
     };
@@ -123,7 +131,7 @@ void mdio_report_port(int port)
     };
 
     unsigned stat = miim_get(port, 0x1f);
-    mdio_report_word("Status     ", desc1f, stat);
+    mdio_report_word("Special    ", desc1f, stat);
     printf(" ** %s **\n", mode[(stat >> 8) & 7]);
 }
 
