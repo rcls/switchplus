@@ -177,7 +177,7 @@ void monkey_kick (void)
     // If the dTD is in-flight, or there is no data, or the monkey end-point is
     // not in use, then nothing to do.
     if (!log_monkey || monkey_pos.outstanding
-        || monkey_pos.limit == NULL || !(*ENDPTCTRL3 & 0x800000))
+        || monkey_pos.limit == NULL || !(endpt->ctrl[3] & 0x800000))
         return;
 
     // FIXME - we should do something to get stuff out on out-of-dtds.
@@ -392,7 +392,7 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
 
     if (length == 0 || status != 0) {
         // Reschedule immediately.
-        if (*ENDPTCTRL3 & 0x80)
+        if (endpt->ctrl[3] & 0x80)
             schedule_buffer (3, buffer, 512, monkey_out_complete);
         return;
     }

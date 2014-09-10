@@ -388,7 +388,7 @@ static void serial_byte (unsigned byte)
 
 static void start_mgmt (void)
 {
-    if (*ENDPTCTRL1 & 0x800000)
+    if (endpt->ctrl[1] & 0x800000)
         return;                         // Already running.
 
     puts ("Starting mgmt...\n");
@@ -399,8 +399,8 @@ static void start_mgmt (void)
     qh_init (0x83, 0x22000000);
 
     // FIXME - default mgmt packets?
-    *ENDPTCTRL1 = 0x00cc0000;
-    *ENDPTCTRL3 = 0x00c800c8;
+    endpt->ctrl[1] = 0x00cc0000;
+    endpt->ctrl[3] = 0x00c800c8;
 
     init_monkey_usb();
 }
@@ -408,7 +408,7 @@ static void start_mgmt (void)
 
 static void reuse_tx_buffer(void * buffer)
 {
-    if (*ENDPTCTRL2 & 0x80)
+    if (endpt->ctrl[2] & 0x80)
         schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
     else {
         * (void **) buffer = idle_tx_buffers;
@@ -446,7 +446,7 @@ static void endpt_tx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 
 static void notify_network_up (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    if (*ENDPTCTRL1 & 0x800000) {
+    if (endpt->ctrl[1] & 0x800000) {
         schedule_buffer (
             0x81, (void*) network_connected, sizeof network_connected, NULL);
         schedule_buffer (0x81, (void*) speed_notification100,
@@ -457,7 +457,7 @@ static void notify_network_up (dTD_t * dtd, unsigned status, unsigned remain)
 
 static void start_network (void)
 {
-    if (*ENDPTCTRL2 & 0x80)
+    if (endpt->ctrl[2] & 0x80)
         return;                         // Already running.
 
     puts ("Starting network...\n");
@@ -465,7 +465,7 @@ static void start_network (void)
     qh_init (0x02, 0x02000000);
     qh_init (0x82, 0x02000000);
 
-    *ENDPTCTRL2 = 0x00c800c8;
+    endpt->ctrl[2] = 0x00c800c8;
 
     while (idle_tx_buffers) {
         void * buffer = idle_tx_buffers;
@@ -477,17 +477,17 @@ static void start_network (void)
 
 static void stop_network (void)
 {
-    if (!(*ENDPTCTRL2 & 0x80))
+    if (!(endpt->ctrl[2] & 0x80))
         return;                         // Already stopped.
 
     puts ("Stopping network.\n");
 
     do {
-        *ENDPTFLUSH = 0x40004;
-        while (*ENDPTFLUSH & 0x40004);
+        endpt->flush = 0x40004;
+        while (endpt->flush & 0x40004);
     }
-    while (*ENDPTSTAT & 0x40004);
-    *ENDPTCTRL2 = 0;
+    while (endpt->stat & 0x40004);
+    endpt->ctrl[2] = 0;
     // Cleanup any dtds.
     endpt_clear(0x02);
     endpt_clear(0x82);
@@ -498,16 +498,16 @@ static void stop_mgmt (void)
 {
     stop_network();
 
-    if (!(*ENDPTCTRL1 & 0x800000))
+    if (!(endpt->ctrl[1] & 0x800000))
         return;                         // Already stopped.
 
-    *ENDPTCTRL1 = 0;
-    *ENDPTCTRL3 = 0;
+    endpt->ctrl[1] = 0;
+    endpt->ctrl[3] = 0;
     do {
-        *ENDPTFLUSH = 0xa0008;
-        while (*ENDPTFLUSH & 0xa0008);
+        endpt->flush = 0xa0008;
+        while (endpt->flush & 0xa0008);
     }
-    while (*ENDPTSTAT & 0xa0008);
+    while (endpt->stat & 0xa0008);
     // Cleanup any dtds.
     endpt_clear(0x81);
     endpt_clear(3);
@@ -643,7 +643,7 @@ static void process_setup (void)
         debugf ("Setup %s: %08x %08x\n", "OK", setup0, setup1);
     }
     else {
-        *ENDPTCTRL0 = 0x810081;         // Stall....
+        endpt->ctrl[0] = 0x810081;      // Stall....
         printf ("Setup %s: %08x %08x\n", "STALL", setup0, setup1);
     }
 }
@@ -682,7 +682,7 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
 {
     // FIXME - handle errors.
     // FIXME - handle overlength packets.
-    if (!(*ENDPTCTRL2 & 0x80)) {        // If usb not running, put back to eth.
+    if (!(endpt->ctrl[2] & 0x80)) {     // If usb not running, put back to eth.
         queue_rx_dma(rx->buffer1);
         return;
     }
@@ -760,8 +760,8 @@ static void usb_interrupt (void)
     unsigned status = *USBSTS;
     *USBSTS = status;                   // Clear interrupts.
 
-    unsigned complete = *ENDPTCOMPLETE;
-    *ENDPTCOMPLETE = complete;
+    unsigned complete = endpt->complete;
+    endpt->complete = complete;
 
     // Don't log interrupts that look like they're monkey completions.
     if (debug_flag && (!log_monkey || (complete != 0x80000)))
@@ -774,8 +774,8 @@ static void usb_interrupt (void)
             endpt_complete(endpoints[i]);
 
     // Check for setup on 0.  FIXME - will other set-ups interrupt?
-    unsigned setup = *ENDPTSETUPSTAT;
-    *ENDPTSETUPSTAT = setup;
+    unsigned setup = endpt->setupstat;
+    endpt->setupstat = setup;
     if (setup & 1)
         process_setup();
 
@@ -783,9 +783,9 @@ static void usb_interrupt (void)
         return;
 
     // Handle a bus reset.
-    while (*ENDPTPRIME);
-    *ENDPTFLUSH = 0xffffffff;
-    while (*ENDPTFLUSH);
+    while (endpt->prime);
+    endpt->flush = 0xffffffff;
+    while (endpt->flush);
 
     // Clean out any dtds.
     for (int i = 0; i < sizeof endpoints; ++i)

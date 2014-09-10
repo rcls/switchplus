@@ -64,8 +64,8 @@ void usb_init (void)
     for (int i = 0; i != NUM_DTDS; ++i)
         put_dtd (&qh_and_dtd.DTD[i]);
 
-    *USBMODE = 0xa;                     // Device.  Tripwire.
-    *OTGSC = 9;
+    endpt->usbmode = 0xa;               // Device.  Tripwire.
+    endpt->otgsc = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
 
     // Start with just the control end-points.
@@ -123,7 +123,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
         qh->last = dtd;
 
         // 2. Read correct prime bit in ENDPTPRIME - if '1' DONE.
-        if (*ENDPTPRIME & ep)
+        if (endpt->prime & ep)
             return;
 
         unsigned eps;
@@ -133,7 +133,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
 
             // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
             // for later).
-            eps = *ENDPTSTAT;
+            eps = endpt->stat;
 
             // 5. Read ATDTW bit in USBCMD register.
             // - If '0' go to step 3.
@@ -168,7 +168,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
 
     // 3. Prime endpoint by writing '1' to correct bit position in
     // ENDPTPRIME.
-    *ENDPTPRIME = ep;
+    endpt->prime = ep;
 }
 
 
@@ -224,7 +224,7 @@ void endpt_complete (unsigned ep)
         if (d && (status & 0x80)) {
             qh->next = d;               // Restart the end-point.
             qh->length_and_status &= ~0xc0;
-            *ENDPTPRIME = ep_mask(ep);
+            endpt->prime = ep_mask(ep);
             break;
         }
     }
@@ -266,7 +266,7 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
     schedule_buffer (0x80, (void*) buffer, length,
                      length == 0 ? callback : NULL);
 
-    if (*ENDPTSETUPSTAT & 1)
+    if (endpt->setupstat & 1)
         puts ("Oops, EPSS\n");
 
     if (length == 0)
@@ -275,7 +275,7 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
     // Now the status dtd...
     schedule_buffer (0, NULL, 0, callback);
 
-    if (*ENDPTSETUPSTAT & 1)
+    if (endpt->setupstat & 1)
         puts ("Oops, EPSS\n");
 }
 
@@ -290,8 +290,8 @@ unsigned get_0_setup (unsigned * setup1)
     }
     while (!(*USBCMD & (1 << 13)));
     *USBCMD &= ~(1 << 13);
-    while (*ENDPTSETUPSTAT & 1)
-        *ENDPTSETUPSTAT = 1;
+    while (endpt->setupstat & 1)
+        endpt->setupstat = 1;
 
     return setup0;
 }

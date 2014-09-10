@@ -186,20 +186,22 @@ _Static_assert(sizeof(edma_t) == 0x58, "edma size");
 #define ENDPTNAK ((v32*) (USB0 + 0x178))
 #define ENDPTNAKEN ((v32*) (USB0 + 0x17c))
 #define PORTSC1 ((v32*) (USB0 + 0x184))
-#define OTGSC ((v32*) (USB0 + 0x1a4))
-#define USBMODE ((v32*) (USB0 + 0x1a8))
 
-#define ENDPTSETUPSTAT ((v32*) (USB0 + 0x1ac))
-#define ENDPTPRIME ((v32*) (USB0 + 0x1b0))
-#define ENDPTFLUSH ((v32*) (USB0 + 0x1b4))
-#define ENDPTSTAT ((v32*) (USB0 + 0x1b8))
-#define ENDPTCOMPLETE ((v32*) (USB0 + 0x1bc))
-#define ENDPTCTRL0 ((v32*) (USB0 + 0x1c0))
-#define ENDPTCTRL1 ((v32*) (USB0 + 0x1c4))
-#define ENDPTCTRL2 ((v32*) (USB0 + 0x1c8))
-#define ENDPTCTRL3 ((v32*) (USB0 + 0x1cc))
-#define ENDPTCTRL4 ((v32*) (USB0 + 0x1d0))
-#define ENDPTCTRL5 ((v32*) (USB0 + 0x1d4))
+typedef struct usb_endpoints_t {
+    unsigned dummy;
+    unsigned otgsc;
+    unsigned usbmode;
+
+    unsigned setupstat;
+    unsigned prime;
+    unsigned flush;
+    unsigned stat;
+    unsigned complete;
+    unsigned ctrl[6];
+} usb_endpoints_t;
+_Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
+#define endpt ((volatile usb_endpoints_t *) 0x400061a0)
+
 
 #define NVIC ((v32*) 0xE000E000)
 #define NVIC_ISER (NVIC + 64)
