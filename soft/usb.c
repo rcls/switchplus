@@ -35,6 +35,7 @@ static struct qh_and_dtd_t {
     qh_pair_t QH[6];
     dTD_t DTD[NUM_DTDS];
 } qh_and_dtd __aligned (2048) __section ("ahb0.qh_and_dtd");
+_Static_assert(sizeof(qh_and_dtd) % 2048 == 0, "qh_and_dtd size");
 
 static dTD_t * dtd_free_list;
 
