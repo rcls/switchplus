@@ -30,7 +30,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd);
 void schedule_buffer (unsigned ep, void * data, unsigned length,
                       dtd_completion_t * cb);
 
-void endpt_complete(unsigned ep);       // Deal with finished dtds.
+bool endpt_complete(unsigned ep);       // Deal with finished dtds.
 void endpt_clear(unsigned ep);          // Clear out stopped end-point.
 
 unsigned get_0_setup (unsigned * setup1);
