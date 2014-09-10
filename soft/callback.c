@@ -33,9 +33,7 @@ void callback_schedule (callback_function_t * function,
 void callback_wait (void)
 {
     if (next_callback == NULL) {
-        __interrupt_wait();
-        __interrupt_enable();
-        __interrupt_disable();
+        __interrupt_wait_go();
         return;
     }
     callback_record_t * callback = next_callback;
