@@ -204,29 +204,42 @@ static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh)
 }
 
 
-void endpt_complete (unsigned ep, bool running)
+void endpt_complete (unsigned ep)
 {
     dQH_t * qh = QH (ep);
 
     // Successes...
     for (dTD_t * d = qh->first; d; ) {
         unsigned status = d->length_and_status;
-        if ((status & 0xff) == 0x80 && running)
+        if ((status & 0xff) == 0x80)
             break;                      // Still running.
 
-        if (status & 0x7f)
-            // Errored.
+        if (status & 0x7f)              // Errored.
             printf ("ERROR ep %02x length and status: %08x\n", ep, status);
 
         if (d->completion)
             d->completion (d, status & 0xff, status >> 16);
         d = retire_dtd (d, qh);
 
-        if (d && (status & 0x80) && running) {
+        if (d && (status & 0x80)) {
             qh->next = d;               // Restart the end-point.
             qh->length_and_status &= ~0xc0;
             *ENDPTPRIME = ep_mask(ep);
             break;
+        }
+    }
+}
+
+
+void endpt_clear(unsigned ep)
+{
+    // Endpt is stopped; clear it out.
+    dQH_t * qh = QH (ep);
+
+    for (dTD_t * d = qh->first; d; d = retire_dtd(d, qh)) {
+        if (d->completion) {
+            unsigned status = d->length_and_status;
+            d->completion (d, status & 0xff, status >> 16);
         }
     }
 }

@@ -488,9 +488,9 @@ static void stop_network (void)
     }
     while (*ENDPTSTAT & 0x40004);
     *ENDPTCTRL2 = 0;
-    // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0x02, false);
-    endpt_complete (0x82, false);
+    // Cleanup any dtds.
+    endpt_clear(0x02);
+    endpt_clear(0x82);
 }
 
 
@@ -508,10 +508,10 @@ static void stop_mgmt (void)
         while (*ENDPTFLUSH & 0xa0008);
     }
     while (*ENDPTSTAT & 0xa0008);
-    // Cleanup any dtds.  FIXME - fix buffer handling.
-    endpt_complete (0x81, false);
-    endpt_complete (3, false);
-    endpt_complete (0x83, false);
+    // Cleanup any dtds.
+    endpt_clear(0x81);
+    endpt_clear(3);
+    endpt_clear(0x83);
 
     puts("Stopped mgmt.\n");
 }
@@ -771,7 +771,7 @@ static void usb_interrupt (void)
         2, 0x82, 0x81, 0x80, 0, 3, 0x83 };
     for (int i = 0; i < sizeof endpoints; ++i)
         if (complete & ep_mask(endpoints[i]))
-            endpt_complete(endpoints[i], true);
+            endpt_complete(endpoints[i]);
 
     // Check for setup on 0.  FIXME - will other set-ups interrupt?
     unsigned setup = *ENDPTSETUPSTAT;
@@ -789,7 +789,7 @@ static void usb_interrupt (void)
 
     // Clean out any dtds.
     for (int i = 0; i < sizeof endpoints; ++i)
-        endpt_complete(endpoints[i], false);
+        endpt_clear(endpoints[i]);
 
     *ENDPTNAK = 0xffffffff;
     *ENDPTNAKEN = 1;
