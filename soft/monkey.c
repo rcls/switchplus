@@ -13,14 +13,14 @@
 // Ring-buffer descriptor.  insert==limit implies the buffer is full; we set
 // insert=beginning, limit=NULL when empty.  The area from insert to limit is
 // either in-flight or waiting to be sent.
-static struct {
-    unsigned char * insert;             // Where to insert new characters.
-    unsigned char * limit;              // End of insertion region.
-    bool outstanding;                   // Do we have a USB xmit outstanding?
-} monkey_pos;
 
+static unsigned char * insert_pos;      // Position for inserting characters.
+static unsigned char * limit_pos;       // Limit for inserting characters.
 
-static int monkey_in_next;
+static unsigned char * usb_flight_pos;  // First in-flight over USB.
+static unsigned char * usb_send_pos;    // Next to send to USB.
+
+static int monkey_in_next;              // For ungetc.
 static struct {
     unsigned char * next;
     unsigned char * end;
@@ -60,9 +60,6 @@ void init_monkey_usb (void)
 
 void init_monkey_ssp (void)
 {
-    log_ssp = false;
-    __memory_barrier();
-
     *BASE_SSP1_CLK = 0x0c000800;        // Base clock is 160MHz.
 
     RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
@@ -89,7 +86,6 @@ void init_monkey_ssp (void)
     // Leave CS low.
     *CONSOLE_CS = 0;
 
-    __memory_barrier();
     log_ssp = true;
 }
 
@@ -119,6 +115,74 @@ static inline void leave_monkey (unsigned r)
         __interrupt_enable();
 }
 
+static inline int min(int x, int y)
+{
+    return x < y ? x : y;
+}
+
+
+static inline int buffer_gap(unsigned char * low, unsigned char * high)
+{
+    return (high - low) & 4095;
+}
+
+
+static unsigned char * advance(unsigned char * p, int amount)
+{
+    return monkey_buffer + ((amount + (int) p) & 4095);
+}
+
+
+static int free_monkey_space_usb(void)
+{
+    if (current_irs() == 0) {
+        int allowed;
+        do {                            // Running at low priority : wait.
+            __interrupt_wait_go();
+            allowed = buffer_gap(insert_pos + 1, usb_flight_pos);
+        }
+        while (allowed == 0);
+        return allowed;
+    }
+
+    // Running at high priority : discard.
+    endpt_complete_one(0x83);
+    int allowed = buffer_gap(insert_pos + 1, usb_flight_pos);
+    if (!allowed) {
+        // Last resort - just bump the pointer.
+        usb_flight_pos = advance(usb_flight_pos, 512);
+        allowed = buffer_gap(insert_pos + 1, usb_flight_pos);
+    }
+    return allowed;
+}
+
+
+static void free_monkey_space(void)
+{
+    if (insert_pos == NULL) {           // Initialisation.
+        insert_pos = monkey_buffer;
+        usb_flight_pos = monkey_buffer;
+        usb_send_pos = monkey_buffer;
+        limit_pos = monkey_buffer + 512;
+        return;
+    }
+
+    monkey_kick();
+
+    // Recalculate buffer positions...
+    if (insert_pos == monkey_buffer_end)
+        insert_pos = monkey_buffer;
+
+    int allowed = buffer_gap(insert_pos + 1, usb_flight_pos);
+    if (!allowed)
+        allowed = free_monkey_space_usb();
+
+    allowed = min(allowed, monkey_buffer_end - insert_pos);
+    allowed = min(allowed, 512);
+
+    limit_pos = insert_pos + allowed;
+}
+
 
 static void write_byte (int byte)
 {
@@ -131,27 +195,10 @@ static void write_byte (int byte)
     if (!log_monkey)
         return;
 
-    if (monkey_pos.limit == NULL) {
-        monkey_pos.limit = monkey_buffer;
-        monkey_pos.insert = monkey_buffer;
-        *monkey_pos.insert++ = byte;
-        return;
-    }
+    if (insert_pos == limit_pos)
+        free_monkey_space();
 
-    while (monkey_pos.insert == monkey_pos.limit) {
-        // If we're in an interrupt handler, or there is nothing outstanding,
-        // drop the data.
-        monkey_kick();
-        if (!monkey_pos.outstanding || current_irs() != 0)
-            return;                     // Full
-        __interrupt_wait();
-        __interrupt_enable();
-        __interrupt_disable();
-    }
-
-    *monkey_pos.insert++ = byte;
-    if (monkey_pos.insert == monkey_buffer_end)
-        monkey_pos.insert = monkey_buffer;
+    *insert_pos++ = byte;
 }
 
 
@@ -174,43 +221,46 @@ void puts (const char * s)
 
 void monkey_kick (void)
 {
-    // If the dTD is in-flight, or there is no data, or the monkey end-point is
-    // not in use, then nothing to do.
-    if (!log_monkey || monkey_pos.outstanding
-        || monkey_pos.limit == NULL || !(endpt->ctrl[3] & 0x800000))
+    // Short circuit if not active.
+    if (!log_monkey || !(endpt->ctrl[3] & 0x800000))
         return;
 
-    // FIXME - we should do something to get stuff out on out-of-dtds.
-    dTD_t * dtd = get_dtd();
-    dtd->buffer_page[0] = (unsigned) monkey_pos.limit;
-    dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
-    int length = monkey_pos.insert - monkey_pos.limit;
-    if (length <= 0)
-        length += 4096;
-    dtd->length_and_status = length * 65536 + 0x8080;
-    dtd->completion = monkey_in_complete;
-    schedule_dtd (0x83, dtd);
-    monkey_pos.outstanding = true;
+    while (1) {
+        int avail = buffer_gap(usb_send_pos, insert_pos);
+        if (avail >= 512)
+            avail = 512;
+        else if (!avail || usb_flight_pos != usb_send_pos)
+            return;
+
+        dTD_t * dtd = get_dtd();
+        dtd->buffer_page[0] = (unsigned) usb_send_pos;
+        dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
+
+        usb_send_pos = advance(usb_send_pos, avail);
+        dtd->buffer_page[4] = (unsigned) usb_send_pos;
+
+        dtd->length_and_status = avail * 65536 + 0x8080;
+        dtd->completion = monkey_in_complete;
+        schedule_dtd (0x83, dtd);
+    }
 }
 
 
 bool monkey_is_empty (void)
 {
-    unsigned char * volatile * p = &monkey_pos.limit;
-    return *p == NULL;
+    __memory_barrier();                 // Called without interrupts disabled...
+    return usb_flight_pos == usb_send_pos;
 }
 
 
 static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    // FIXME - distinguish between errors and sending a full page?
-    monkey_pos.outstanding = false;
-    monkey_pos.limit = (unsigned char *) dtd->buffer_page[0];
-    if (monkey_pos.limit == monkey_pos.insert)
-        // We're idle.  Reset the pointers.
-        monkey_pos.limit = NULL;
-    else
-        monkey_kick();
+    // An error that doesn't kill USB assume that we want to drop the data.
+    // Also, if the buffer is full, then drop the data.
+    if (status != 0x80 || buffer_gap(insert_pos + 1, usb_flight_pos) == 0)
+        usb_flight_pos = (unsigned char *) dtd->buffer_page[4];
+
+    monkey_kick();
 }
 
 

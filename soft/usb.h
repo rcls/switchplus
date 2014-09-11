@@ -32,6 +32,7 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
 
 bool endpt_complete(unsigned ep);       // Deal with finished dtds.
 void endpt_clear(unsigned ep);          // Clear out stopped end-point.
+void endpt_complete_one(unsigned ep);   // Force progress.
 
 unsigned get_0_setup (unsigned * setup1);
 

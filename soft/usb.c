@@ -242,6 +242,32 @@ void endpt_clear(unsigned ep)
 }
 
 
+void endpt_complete_one(unsigned ep)
+{
+    unsigned mask = ep_mask(ep);
+    endpt->flush = mask;
+    while (endpt->flush & mask);
+
+    // Pick up the first dtd and complete it.
+    dQH_t * qh = QH(ep);
+    dTD_t * d = qh->first;
+    if (d == NULL)
+        return;
+
+    unsigned status = d->length_and_status;
+
+    while ((d = retire_dtd(d, qh, status))) {
+        status = d->length_and_status;
+        if ((status & 0xff) == 0x80) {
+            qh->next = d;               // Restart the end-point.
+            qh->length_and_status &= ~0xc0;
+            endpt->prime = mask;
+            return;
+        }
+    }
+}
+
+
 void qh_init (unsigned ep, unsigned capabilities)
 {
     dQH_t * qh = QH (ep);
