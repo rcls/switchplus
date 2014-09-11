@@ -98,21 +98,17 @@ static inline unsigned current_irs (void)
 }
 
 
-static inline unsigned enter_monkey (void)
+static inline void enter_monkey(void)
 {
-    unsigned r = current_irs();
-    if (!r)
-        __interrupt_disable();
-    return r;
+    __interrupt_disable();
 }
 
 
-static inline void leave_monkey (unsigned r)
+static inline void leave_monkey(void)
 {
     if (log_monkey)
         monkey_kick();
-    if (!r)
-        __interrupt_enable();
+    __interrupt_enable();
 }
 
 static inline int min(int x, int y)
@@ -204,18 +200,18 @@ static void write_byte (int byte)
 
 void putchar (int byte)
 {
-    unsigned l = enter_monkey();
+    enter_monkey();
     write_byte (byte);
-    leave_monkey (l);
+    leave_monkey();
 }
 
 
 void puts (const char * s)
 {
-    unsigned l = enter_monkey();
+    enter_monkey();
     for (; *s; s++)
         write_byte (*s);
-    leave_monkey (l);
+    leave_monkey();
 }
 
 
@@ -317,7 +313,7 @@ static void format_number (unsigned long value, unsigned base, unsigned lower,
 
 void printf (const char * restrict f, ...)
 {
-    unsigned l = enter_monkey();
+    enter_monkey();
     va_list args;
     va_start (args, f);
 
@@ -381,7 +377,7 @@ void printf (const char * restrict f, ...)
 
     va_end (args);
 
-    leave_monkey (l);
+    leave_monkey();
 }
 
 
