@@ -8,17 +8,20 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+// The chip-select to the console, we configure as a GPIO.
 #define CONSOLE_CS (&GPIO_BYTE[7][19])
 
-// Ring-buffer descriptor.  insert==limit implies the buffer is full; we set
-// insert=beginning, limit=NULL when empty.  The area from insert to limit is
-// either in-flight or waiting to be sent.
+// Ring-buffer descriptor.  We keep at least one byte free, so that
+// insert==limit implies the buffer is empty.
 
 static unsigned char * insert_pos;      // Position for inserting characters.
 static unsigned char * limit_pos;       // Limit for inserting characters.
 
 static unsigned char * usb_flight_pos;  // First in-flight over USB.
 static unsigned char * usb_send_pos;    // Next to send to USB.
+
+static unsigned char * ssp_flight_pos;
+static unsigned char * ssp_send_pos;
 
 static int monkey_in_next;              // For ungetc.
 static struct {
@@ -39,13 +42,12 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain);
 
 bool debug_flag;
 bool verbose_flag;
-bool log_ssp;
+static bool log_ssp;
 
 
 void init_monkey_usb (void)
 {
-    if (log_monkey)
-        monkey_kick();
+    monkey_kick();
 
     schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
     schedule_buffer (3, monkey_recv + 512, 512, monkey_out_complete);
@@ -71,6 +73,8 @@ void init_monkey_ssp (void)
     SSP1->cr0 = 0x0007;
     SSP1->cr1 = 2;                      // Enable master.
 
+    SSP1->dmacr = 2;                    // TX DMA enabled.
+
     // Setup pins; make CS a GPIO output, pulse it high for a bit.
     GPIO_DIR[7] |= 1 << 19;
     *CONSOLE_CS = 1;
@@ -86,7 +90,41 @@ void init_monkey_ssp (void)
     // Leave CS low.
     *CONSOLE_CS = 0;
 
+    GPDMA->config = 1;                  // Enable.
+
+    ssp_send_pos = monkey_buffer;
+    ssp_flight_pos = monkey_buffer;
+
     log_ssp = true;
+
+    monkey_kick();
+}
+
+
+void monkey_ssp_off(void)
+{
+    __interrupt_disable();
+    while (ssp_send_pos != ssp_flight_pos)
+        __interrupt_wait_go();
+    log_ssp = false;
+    __interrupt_enable();
+
+    // Wait for idle & clear out the fifo..
+    while (SSP1->sr & 20)
+        SSP1->dr;
+
+    *CONSOLE_CS = 1;
+}
+
+
+void monkey_ssp_on(void)
+{
+    *CONSOLE_CS = 0;
+
+    __interrupt_disable();
+    log_ssp = true;
+    monkey_kick();
+    __interrupt_enable();
 }
 
 
@@ -106,12 +144,11 @@ static inline void enter_monkey(void)
 
 static inline void leave_monkey(void)
 {
-    if (log_monkey)
-        monkey_kick();
+    monkey_kick();
     __interrupt_enable();
 }
 
-static inline int min(int x, int y)
+static inline unsigned min(unsigned x, unsigned y)
 {
     return x < y ? x : y;
 }
@@ -153,6 +190,30 @@ static int free_monkey_space_usb(void)
 }
 
 
+static unsigned free_monkey_space_ssp(void)
+{
+    // We just did a kick, so if the buffer pointers are equal, that is
+    // because ssp is off.  In that case, just advance pointers.
+    if (ssp_flight_pos == ssp_send_pos) {
+        ssp_send_pos = advance(insert_pos, 512);
+        ssp_flight_pos = ssp_send_pos;
+        return buffer_gap(insert_pos + 1, ssp_flight_pos);
+    }
+
+    // We could just make the GPDMA interrupt higher priority?
+    unsigned allowed;
+    do {
+        if (current_irs() == 0)
+            __interrupt_wait_go();
+        else
+            gpdma_interrupt();
+        allowed = buffer_gap(insert_pos + 1, ssp_flight_pos);
+    }
+    while (allowed == 0);
+    return allowed;
+}
+
+
 static void free_monkey_space(void)
 {
     if (insert_pos == NULL) {           // Initialisation.
@@ -166,12 +227,16 @@ static void free_monkey_space(void)
     monkey_kick();
 
     // Recalculate buffer positions...
-    if (insert_pos == monkey_buffer_end)
-        insert_pos = monkey_buffer;
+    unsigned allowed_usb = buffer_gap(insert_pos + 1, usb_flight_pos);
+    if (!allowed_usb)
+        allowed_usb = free_monkey_space_usb();
 
-    int allowed = buffer_gap(insert_pos + 1, usb_flight_pos);
-    if (!allowed)
-        allowed = free_monkey_space_usb();
+    unsigned allowed_ssp = buffer_gap(insert_pos + 1, ssp_flight_pos);
+    if (!allowed_ssp)
+        allowed_ssp = free_monkey_space_ssp();
+
+    unsigned allowed = 512;
+    allowed = min(allowed, allowed_usb);
 
     allowed = min(allowed, monkey_buffer_end - insert_pos);
     allowed = min(allowed, 512);
@@ -182,16 +247,7 @@ static void free_monkey_space(void)
 
 static void write_byte (int byte)
 {
-    if (log_ssp) {
-        // FIXME - also poll the gpio used for overflow.
-        while (!(SSP1->sr & 2));
-        SSP1->dr = byte;
-    }
-
-    if (!log_monkey)
-        return;
-
-    if (insert_pos == limit_pos)
+    if (__builtin_expect(insert_pos == limit_pos, 0))
         free_monkey_space();
 
     *insert_pos++ = byte;
@@ -215,14 +271,67 @@ void puts (const char * s)
 }
 
 
-void monkey_kick (void)
+void monkey_start_ssp(void)
 {
-    // Short circuit if not active.
-    if (!log_monkey || !(endpt->ctrl[3] & 0x800000))
+    // We have one of two states; DMA running or idle.... we should only be
+    // called on DMA idle.
+    unsigned amount = 512;
+    // FIXME - check that insert_pos gets reset also...
+    amount = min(amount, insert_pos - ssp_send_pos);
+    amount = min(amount, monkey_buffer_end - ssp_send_pos);
+
+    if (amount == 0)
+        return;
+
+    // With mux option 0, SSP1 TX is peripheral 12.
+    volatile gpdma_channel_t * channel = &GPDMA->channel[0];
+    channel->srcaddr = ssp_send_pos;
+    channel->destaddr = &SSP1->dr;
+    channel->lli = NULL;
+    // Bit 12..14 : Src burst size 1 = 4 bytes.
+    // Bit 15..17 : Dst burst size 1 = 4 bytes.
+    // Bit 18..20 : Swidth 0/1/2 = 8/16/32 bit
+    // Bit 21..22 : Dwidth 0/1/2 = 8/16/32 bit
+    // Bit 24 : src on master1.
+    // Bit 25 : dest on master1; only master1 can access peripherals.
+    // Bit 26 : source address increment.
+    // Bit 28 : priviledged mode.
+    // Bit 31 : terminal count interrupt.
+    channel->control
+        = (1<<31) + (1<<28) + (1<<26) + (1<<25) + (1<<15) + (1<<12) + amount;
+    // Bit 0 : Enable.
+    // Bits 10..6 : Dest periph = 12.
+    // Bits 13..11 : Flow control = 1, mem to perip, DMA control.
+    // Bit 14 : Error interrupt enable.
+    // Bit 15 : Terminal interrupt enable.
+    channel->config = (1 << 15) + (1 << 14) + (1 << 11) + (12 << 6) + 1;
+
+    ssp_send_pos = advance(ssp_send_pos, amount);
+}
+
+
+void gpdma_interrupt(void)
+{
+    // FIXME - don't forget global initialisation.
+    unsigned tcstat = GPDMA->inttcstat;
+    GPDMA->inttcclear = tcstat;
+    unsigned tcerr = GPDMA->interrstat;
+    GPDMA->interrclr = tcerr;
+
+    if ((tcstat | tcerr) & 1) {         // Channel just finished.
+        ssp_flight_pos = ssp_send_pos;
+        monkey_start_ssp();
+    }
+}
+
+
+static void monkey_kick_usb(void)
+{
+    if (!(endpt->ctrl[3] & 0x800000))   // Short circuit if not active.
         return;
 
     while (1) {
-        int avail = buffer_gap(usb_send_pos, insert_pos);
+        unsigned avail = buffer_gap(usb_send_pos, insert_pos);
         if (avail >= 512)
             avail = 512;
         else if (!avail || usb_flight_pos != usb_send_pos)
@@ -239,6 +348,18 @@ void monkey_kick (void)
         dtd->completion = monkey_in_complete;
         schedule_dtd (0x83, dtd);
     }
+}
+
+
+void monkey_kick(void)
+{
+    if (insert_pos == monkey_buffer_end)
+        insert_pos = monkey_buffer;
+
+    if (log_ssp && ssp_flight_pos == ssp_send_pos)
+        monkey_start_ssp();
+
+    monkey_kick_usb();
 }
 
 

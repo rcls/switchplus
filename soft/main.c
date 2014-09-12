@@ -764,7 +764,7 @@ static void usb_interrupt (void)
     endpt->complete = complete;
 
     // Don't log interrupts that look like they're monkey completions.
-    if (debug_flag && (!log_monkey || (complete != 0x80000)))
+    if (debug_flag && (complete != 0x80000))
         puts ("usb interrupt...\n");
 
     static const unsigned char endpoints[] = {

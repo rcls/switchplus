@@ -3,6 +3,5 @@
 
 void square_draw9 (void);
 void square_interact (void);
-void gpdma_interrupt (void);
 
 #endif

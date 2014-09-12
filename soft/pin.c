@@ -47,7 +47,7 @@ void enter_dfu(void)
 {
     bool was_empty = monkey_is_empty();
     verbose ("Enter DFU\n");
-    if (was_empty && log_monkey)
+    if (was_empty)
         for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
 
     enter_dfu_go();

@@ -16,14 +16,8 @@ static bool buffer_select;
 static void spi_start (volatile ssp_t * ssp, volatile unsigned char * cs,
                        unsigned op)
 {
-    log_ssp = false;
-    __memory_barrier();
+    monkey_ssp_off();
 
-    // Wait for idle & clear out the fifo..
-    while (ssp->sr & 20)
-        ssp->dr;
-
-    *CONSOLE_CS = 1;
     SSP1->cr0 = 0x4f07;                 // divide-by-80 (1MHz), 8 bits.
 
     *cs = 0;
@@ -33,13 +27,12 @@ static void spi_start (volatile ssp_t * ssp, volatile unsigned char * cs,
 
 static void spi_end (volatile ssp_t * ssp, volatile unsigned char * cs)
 {
-    while (ssp->sr & 16);              // Wait for idle.
+    while (ssp->sr & 16);               // Wait for idle.
     *cs = 1;
 
     SSP1->cr0 = 0x0007;                 // divide-by-1.
-    *CONSOLE_CS = 0;
-    __memory_barrier();
-    log_ssp = true;
+
+    monkey_ssp_on();
 }
 
 

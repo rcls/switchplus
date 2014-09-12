@@ -4,9 +4,6 @@
 
 #include <stdbool.h>
 
-#define log_monkey true
-extern bool log_ssp;
-
 extern bool debug_flag;
 extern bool verbose_flag;
 
@@ -24,6 +21,11 @@ void printf (const char * __restrict__ format, ...)
 int getchar (void);
 void ungetchar (int c);
 int peekchar_nb (void);
+
+void gpdma_interrupt (void);
+
+void monkey_ssp_on(void);
+void monkey_ssp_off(void);
 
 #define debugf !debug_flag ? (void)0 : printf
 #define verbose !verbose_flag ? (void)0 : printf

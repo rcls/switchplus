@@ -197,18 +197,11 @@ static sq_context_t * square_down (sq_context_t * restrict c, unsigned L)
 }
 
 
-void gpdma_interrupt (void)
-{
-    GPDMA->inttcclear = GPDMA->inttcstat;
-    GPDMA->interrclr = GPDMA->interrstat;
-}
-
-
 static void dma_fill (void * p, unsigned pattern, unsigned n)
 {
     const volatile unsigned source = pattern;
     volatile gpdma_channel_t * channel = &GPDMA->channel[7];
-    GPDMA->config = 1;
+    GPDMA->config = 1;                  // Duplicates monkey...
     channel->config = 0;
     channel->control = 0;
     channel->srcaddr = &source;
