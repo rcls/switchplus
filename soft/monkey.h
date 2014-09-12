@@ -27,7 +27,7 @@ void gpdma_interrupt (void);
 void monkey_ssp_on(void);
 void monkey_ssp_off(void);
 
-#define debugf !debug_flag ? (void)0 : printf
-#define verbose !verbose_flag ? (void)0 : printf
+#define debugf __builtin_expect(!debug_flag, 1) ? (void)0 : printf
+#define verbose __builtin_expect(!verbose_flag, 1) ? (void)0 : printf
 
 #endif
