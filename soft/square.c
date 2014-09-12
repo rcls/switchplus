@@ -224,14 +224,12 @@ static void dma_fill (void * p, unsigned pattern, unsigned n)
         channel->config = 0xc001;
 
         n -= amount;
-        p = (void*) (amount * 4 + (unsigned) p);
+        p += amount * 4;
 
         __interrupt_disable();
-        while (channel->config & 1) {
-            __interrupt_wait();
-            __interrupt_enable();
-            __interrupt_disable();
-        }
+        while (channel->config & 1)
+            __interrupt_wait_go();
+
         __interrupt_enable();
     }
     while (n);

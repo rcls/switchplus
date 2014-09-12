@@ -5,9 +5,11 @@
 #define __interrupt_disable() asm volatile ("cpsid i\n" ::: "memory");
 #define __interrupt_enable() asm volatile ("cpsie i\n" ::: "memory");
 #define __interrupt_wait() asm volatile ("wfi\n");
-#define __interrupt_wait_go() asm volatile (    \
-        "wfi\n" "cpsie i\n" "cpsid i\n" ::: "memory")
-
+#define __interrupt_wait_go() do {              \
+        __interrupt_wait();                     \
+        __interrupt_enable();                   \
+        __interrupt_disable();                  \
+    } while (0)
 
 #define __section(s) __attribute__ ((section (s)))
 #define __aligned(s) __attribute__ ((aligned (s)))
@@ -248,15 +250,13 @@ _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
 #define DYNAMICCONFIG3 (EMC + 88)
 #define DYNAMICRASCAS3 (EMC + 89)
 
-#define LCD_BASE ((v32*) 0x40008000)
-
 typedef struct lcd_t {
     unsigned timh;
     unsigned timv;
     unsigned pol;
     unsigned le;
-    unsigned upbase;
-    unsigned lpbase;
+    const void * upbase;
+    const void * lpbase;
     unsigned ctrl;
     unsigned intmsk;
     unsigned intraw;
@@ -267,9 +267,9 @@ typedef struct lcd_t {
 } lcd_t;
 #define LCD ((volatile lcd_t *) 0x40008000)
 
-#define LCD_PAL (LCD_BASE + 128)
+#define LCD_PAL ((v32*) 0x400008200)
 
-#define CRSR_IMG (LCD_BASE + 512)
+#define CRSR_IMG ((v32*) 0x40008800)
 
 typedef struct cursor_t {
     unsigned ctrl;

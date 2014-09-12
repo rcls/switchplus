@@ -47,9 +47,9 @@ void lcd_init (void)
     LCD->timh = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
     LCD->timv = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
     LCD->pol = 0x07ff3020;
-    LCD->upbase = (unsigned) FRAMEBUFFER;           // SDRAM.
-    LCD->lpbase = (unsigned) FRAMEBUFFER;
-    LCD->ctrl = 0x1002c;                   // TFT, 16bpp, disabled, watermark=8.
+    LCD->upbase = FRAMEBUFFER;          // SDRAM.
+    LCD->lpbase = FRAMEBUFFER;
+    LCD->ctrl = 0x1002c;                // TFT, 16bpp, disabled, watermark=8.
 
     // Setup pins.
     static const unsigned pins[] = {
@@ -98,18 +98,13 @@ void lcd_init (void)
 
 void lcd_setframe_wait(const void * frame)
 {
-    __memory_barrier();
-    LCD->upbase = (unsigned) frame;
+    LCD->upbase = frame;
     frame_flag = false;
-    while (true) {
-        __interrupt_disable();
-        if (frame_flag)
-            break;
-        __interrupt_wait();
-        __interrupt_enable();
-    }
+
+    __interrupt_disable();
+    while (!frame_flag)
+        __interrupt_wait_go();
     __interrupt_enable();
-    __memory_barrier();
 }
 
 
