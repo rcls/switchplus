@@ -15,13 +15,13 @@ SECTIONS
   .text : {
      KEEP(*(.start))
      *(.text*)
-     *(.rodata*)
+     *(SORT_BY_ALIGNMENT(.rodata*))
      . = NEXT(4);
   } > flashA
   /* The linker puts initialised data into flash and we copy to sram2.  */
   .data : {
      rw_data_start = .;
-     *(.data*)
+     *(SORT_BY_ALIGNMENT(.data*))
      rw_data_end = .;
   } > sram2 AT>flashA
   .bss (NOLOAD) : {
