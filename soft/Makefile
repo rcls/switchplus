@@ -57,4 +57,4 @@ main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 # We don't really depend on the flasher.  But let's make it harder to
 # accidentally program an older version into the flash.
 go:	main.sram.boot main.flashA.flasher
-	sudo dfu-util -D main.sram.boot
+	dfu-util -D main.sram.boot

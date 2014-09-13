@@ -33,6 +33,9 @@ static void * idle_tx_buffers;
 
 extern unsigned char bss_start;
 extern unsigned char bss_end;
+extern unsigned char rw_data_start;
+extern unsigned char rw_data_end;
+extern const unsigned char rw_data_load;
 
 enum string_descs_t {
     sd_lang,
@@ -840,14 +843,18 @@ void main (void)
     NVIC_ICER[0] = 0xffffffff;
     NVIC_ICER[1] = 0xffffffff;
 
+    check_for_early_dfu();
+
     __memory_barrier();
 
     for (unsigned char * p = &bss_start; p != &bss_end; ++p)
         *p = 0;
 
-    __memory_barrier();
+    const unsigned char * q = &rw_data_load;
+    for (unsigned char * p = &rw_data_start; p != &rw_data_end; ++p)
+        *p = *q++;
 
-    check_for_early_dfu();
+    __memory_barrier();
 
     init_monkey_ssp();
 

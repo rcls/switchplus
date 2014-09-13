@@ -2,6 +2,9 @@
 #include "pin.h"
 #include "registers.h"
 
+// Everything in this file can get run before globals are initialised (because
+// of check-for-early-DFU).
+
 void config_pins(const unsigned * pins, int count)
 {
     volatile unsigned * sfsp = (volatile unsigned *) 0x40086000;

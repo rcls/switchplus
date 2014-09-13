@@ -11,31 +11,39 @@
 // The chip-select to the console, we configure as a GPIO.
 #define CONSOLE_CS (&GPIO_BYTE[7][19])
 
+
+// Buffer for log text.
+static unsigned char monkey_buffer[4096] __aligned (4096)
+    __section ("ahb0.monkey_buffer");
+#define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
+
+// Buffer for incoming characters.
+static unsigned char monkey_recv[1024] __aligned (512)
+    __section ("ahb0.monkey_recv");
+
+
 // Ring-buffer descriptor.  We keep at least one byte free, so that
 // insert==limit implies the buffer is empty.
 
-static unsigned char * insert_pos;      // Position for inserting characters.
-static unsigned char * limit_pos;       // Limit for inserting characters.
+// Position for inserting characters.
+static unsigned char * insert_pos = monkey_buffer;
+// Limit for inserting characters.
+static unsigned char * limit_pos = monkey_buffer;
 
-static unsigned char * usb_flight_pos;  // First in-flight over USB.
-static unsigned char * usb_send_pos;    // Next to send to USB.
+// First in-flight and next-to-queue over USB.
+static unsigned char * usb_flight_pos = monkey_buffer;
+static unsigned char * usb_send_pos = monkey_buffer;
 
-static unsigned char * ssp_flight_pos;
-static unsigned char * ssp_send_pos;
+// First in-flight and next-to-queue over SSP.
+static unsigned char * ssp_flight_pos = monkey_buffer;
+static unsigned char * ssp_send_pos = monkey_buffer;
 
-static int monkey_in_next;              // For ungetc.
+static int monkey_in_next = -1;         // For ungetc.
 static struct {
     unsigned char * next;
     unsigned char * end;
 } monkey_recv_pos[2];
 
-
-static unsigned char monkey_buffer[4096] __aligned (4096)
-    __section ("ahb0.monkey_buffer");
-#define monkey_buffer_end (monkey_buffer + sizeof monkey_buffer)
-
-static unsigned char monkey_recv[1024] __aligned (512)
-    __section ("ahb0.monkey_recv");
 
 static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain);
 static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain);
@@ -56,7 +64,6 @@ void init_monkey_usb (void)
     monkey_recv_pos[0].end  = 0;
     monkey_recv_pos[1].next = 0;
     monkey_recv_pos[1].end  = 0;
-    monkey_in_next = -1;
 }
 
 
@@ -206,14 +213,6 @@ static void free_monkey_space_ssp(void)
 
 static void free_monkey_space(void)
 {
-    if (insert_pos == NULL) {           // Initialisation.
-        insert_pos = monkey_buffer;
-        usb_flight_pos = monkey_buffer;
-        usb_send_pos = monkey_buffer;
-        limit_pos = monkey_buffer + 512;
-        return;
-    }
-
     monkey_kick();
 
     // Recalculate buffer positions...  Note that both the free... functions
