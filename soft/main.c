@@ -111,7 +111,7 @@ enum usb_interfaces_t {
 
 
 #define CONFIG_DESCRIPTOR_SIZE (9 + 9 + 5 + 13 + 5 + 7 + 9 + 9 + 7 + 7 + 9 + 7 + 7 + 9 + 7)
-static const unsigned char config_descriptor[] = {
+static unsigned char config_descriptor[] = {
     // Config.
     9,                                  // length.
     2,                                  // type: config.
@@ -398,8 +398,8 @@ static void start_mgmt (void)
 
     qh_init (0x81, 0x20400000);
     // No 0-size-frame on the monkey.
-    qh_init (0x03, 0x22000000);
-    qh_init (0x83, 0x22000000);
+    qh_init (0x03, 0x20000000);
+    qh_init (0x83, 0x20000000);
 
     // FIXME - default mgmt packets?
     endpt->ctrl[1] = 0x00cc0000;
@@ -465,8 +465,8 @@ static void start_network (void)
 
     puts ("Starting network...\n");
 
-    qh_init (0x02, 0x02000000);
-    qh_init (0x82, 0x02000000);
+    qh_init (0x02, 0);
+    qh_init (0x82, 0);
 
     endpt->ctrl[2] = 0x00c800c8;
 
@@ -520,6 +520,21 @@ static void stop_mgmt (void)
 }
 
 
+static void munge_usb_config(unsigned char * config,
+                             unsigned length,
+                             unsigned type,
+                             unsigned bulk_size)
+{
+    config[1] = type;
+    for (int i = 0; i < length; i += config[i])
+        if (config[i + 1] == 5          // Endpoint.
+            && config[i + 3] ==  2) {
+            config[i + 4] = bulk_size;
+            config[i + 5] = bulk_size >> 8;
+        }
+}
+
+
 static void process_setup (void)
 {
     unsigned setup1;
@@ -559,6 +574,10 @@ static void process_setup (void)
             response_length = DEVICE_DESCRIPTOR_SIZE;
             break;
         case 2:                         // Configuration.
+            munge_usb_config(config_descriptor,
+                             CONFIG_DESCRIPTOR_SIZE,
+                             2,         // type = config,
+                             is_high_speed() ? 512 : 64);
             response_data = config_descriptor;
             response_length = CONFIG_DESCRIPTOR_SIZE;
             break;

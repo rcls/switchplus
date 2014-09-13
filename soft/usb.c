@@ -271,6 +271,10 @@ void endpt_complete_one(unsigned ep)
 void qh_init (unsigned ep, unsigned capabilities)
 {
     dQH_t * qh = QH (ep);
+    // If no transfer size given, then assume it's a bulk end-point.
+    if ((capabilities & 0x07ff0000) == 0)
+        capabilities += is_high_speed() ? 0x02000000 : 0x00400000;
+
     qh->capabilities = capabilities;
     qh->next = (void *) 1;
 }

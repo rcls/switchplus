@@ -41,5 +41,9 @@ static inline unsigned ep_mask (unsigned ep)
     return ep & 0x80 ? 0x10000 << (ep - 0x80) : 1 << ep;
 }
 
+static inline bool is_high_speed(void)
+{
+    return *PORTSC1 & (1<<9);
+}
 
 #endif
