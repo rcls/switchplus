@@ -1,5 +1,5 @@
 
-SUBDIRS=utils soft module
+SUBDIRS=utils soft #module
 SD_TARGETS= $(SUBDIRS:%=%-subdir)
 
 all: $(SD_TARGETS)

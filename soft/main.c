@@ -761,7 +761,7 @@ static void init_ethernet (void)
 
         rx_dma[i].status = 0x80000000;
         rx_dma[i].count = BUF_SIZE;     // Status bits?
-        rx_dma[i].buffer1 = rx_ring_buffer + 2048 * i;
+        rx_dma[i].buffer1 = rx_ring_buffer + BUF_SIZE * i;
         rx_dma[i].buffer2 = 0;
     }
 
