@@ -55,16 +55,16 @@ static bool log_ssp;
 
 void init_monkey_usb (void)
 {
-    qh_init (0x03, 0x20000000);         // No 0-size-frame on the monkey.
-    qh_init (0x83, 0x20000000);
+    qh_init (EP_03, 0x20000000);        // No 0-size-frame on the monkey.
+    qh_init (EP_83, 0x20000000);
     endpt->ctrl[3] = 0x00c800c8;
 
     usb_send_pos = usb_flight_pos;
 
     monkey_kick();
 
-    schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
-    schedule_buffer (3, monkey_recv + 512, 512, monkey_out_complete);
+    schedule_buffer (EP_03, monkey_recv, 512, monkey_out_complete);
+    schedule_buffer (EP_03, monkey_recv + 512, 512, monkey_out_complete);
 
     monkey_recv_pos[0].next = 0;
     monkey_recv_pos[0].end  = 0;
@@ -182,7 +182,7 @@ static unsigned char * advance(unsigned char * p, int amount)
 static unsigned free_monkey_space_usb(void)
 {
     // Running at high priority : discard.
-    endpt_complete_one(0x83);
+    endpt_complete_one(EP_83);
     int allowed = headroom(usb_flight_pos);
     if (allowed != 0)
         return allowed;
@@ -351,7 +351,7 @@ static void monkey_kick_usb(void)
 
         dtd->length_and_status = avail * 65536 + 0x8080;
         dtd->completion = monkey_in_complete;
-        schedule_dtd (0x83, dtd);
+        schedule_dtd (EP_83, dtd);
     }
 }
 
@@ -376,7 +376,7 @@ static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     // On any completion except for shutdown, assume that we want to drop the
     // data.  Also, if the buffer is full, then drop the data.
-    if (status != 0x80 || headroom(usb_flight_pos) == 0)
+    if (status != EP_80 || headroom(usb_flight_pos) == 0)
         usb_flight_pos = dtd->buffer_page[4];
 
     monkey_kick_usb();
@@ -529,7 +529,7 @@ int getchar (void)
 
     __interrupt_disable();
     unsigned offset = (511 & ((long) monkey_recv_pos->end - 1)) + 1;
-    schedule_buffer (3, monkey_recv_pos->end - offset, 512,
+    schedule_buffer (EP_03, monkey_recv_pos->end - offset, 512,
                      monkey_out_complete);
     monkey_recv_pos[0] = monkey_recv_pos[1];
     monkey_recv_pos[1].next = NULL;
@@ -562,7 +562,7 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
     if (length == 0 || status != 0) {
         // Reschedule immediately.
         if (endpt->ctrl[3] & 0x80)
-            schedule_buffer (3, buffer, 512, monkey_out_complete);
+            schedule_buffer (EP_03, buffer, 512, monkey_out_complete);
         return;
     }
 

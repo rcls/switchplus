@@ -66,8 +66,8 @@ void usb_init (void)
     for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
         ((char *) &qh_and_dtd.QH)[i] = 0;
 
-    qh_init (0x00, 0x20408000);
-    qh_init (0x80, 0x20408000);
+    qh_init (EP_00, 0x20408000);
+    qh_init (EP_80, 0x20408000);
 
     // Set the endpoint list pointer.
     *ENDPOINTLISTADDR = (unsigned) &qh_and_dtd.QH;
@@ -273,7 +273,7 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
     /* if (descriptor && (unsigned) descriptor < 0x10000000) */
     /*     descriptor += * M4MEMMAP; */
 
-    schedule_buffer (0x80, (void*) buffer, length,
+    schedule_buffer (EP_80, (void*) buffer, length,
                      length == 0 ? callback : NULL);
 
     if (endpt->setupstat & 1)
@@ -283,7 +283,7 @@ void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
         return;                         // No data so no ack...
 
     // Now the status dtd...
-    schedule_buffer (0, NULL, 0, callback);
+    schedule_buffer (EP_00, NULL, 0, callback);
 
     if (endpt->setupstat & 1)
         puts ("Oops, EPSS\n");
@@ -295,8 +295,8 @@ unsigned get_0_setup (unsigned * setup1)
     unsigned setup0;
     do {
         *USBCMD |= 1 << 13;             // Set tripwire.
-        setup0 = QH(0)->setup0;
-        *setup1 = QH(0)->setup1;
+        setup0 = QH(EP_00)->setup0;
+        *setup1 = QH(EP_00)->setup1;
     }
     while (!(*USBCMD & (1 << 13)));
     *USBCMD &= ~(1 << 13);

@@ -396,7 +396,7 @@ static void start_mgmt (void)
 
     puts ("Starting mgmt...\n");
 
-    qh_init (0x81, 0x20400000);         // Interrupt, 64-bytes is heaps.
+    qh_init (EP_81, 0x20400000);        // Interrupt, 64-bytes is heaps.
 
     // FIXME - default mgmt packets?
     endpt->ctrl[1] = 0x00cc0000;
@@ -408,7 +408,7 @@ static void start_mgmt (void)
 static void reuse_tx_buffer(void * buffer)
 {
     if (endpt->ctrl[2] & 0x80)
-        schedule_buffer (0x02, buffer, BUF_SIZE, endpt_tx_complete);
+        schedule_buffer (EP_02, buffer, BUF_SIZE, endpt_tx_complete);
     else {
         * (void **) buffer = idle_tx_buffers;
         idle_tx_buffers = buffer;
@@ -447,8 +447,8 @@ static void notify_network_up (dTD_t * dtd, unsigned status, unsigned remain)
 {
     if (endpt->ctrl[1] & 0x800000) {
         schedule_buffer (
-            0x81, (void*) network_connected, sizeof network_connected, NULL);
-        schedule_buffer (0x81, (void*) speed_notification100,
+            EP_81, (void*) network_connected, sizeof network_connected, NULL);
+        schedule_buffer (EP_81, (void*) speed_notification100,
                          sizeof speed_notification100, NULL);
     }
 }
@@ -461,15 +461,15 @@ static void start_network (void)
 
     puts ("Starting network...\n");
 
-    qh_init (0x02, 0);
-    qh_init (0x82, 0);
+    qh_init (EP_02, 0);
+    qh_init (EP_82, 0);
 
     endpt->ctrl[2] = 0x00c800c8;
 
     while (idle_tx_buffers) {
         void * buffer = idle_tx_buffers;
         idle_tx_buffers = * (void **) buffer;
-        schedule_buffer (2, buffer, BUF_SIZE, endpt_tx_complete);
+        schedule_buffer (EP_02, buffer, BUF_SIZE, endpt_tx_complete);
     }
 }
 
@@ -488,8 +488,8 @@ static void stop_network (void)
     while (endpt->stat & 0x40004);
     endpt->ctrl[2] = 0;
     // Cleanup any dtds.
-    endpt_clear(0x02);
-    endpt_clear(0x82);
+    endpt_clear(EP_02);
+    endpt_clear(EP_82);
 }
 
 
@@ -508,9 +508,9 @@ static void stop_mgmt (void)
     }
     while (endpt->stat & 0xa0008);
     // Cleanup any dtds.
-    endpt_clear(0x81);
-    endpt_clear(3);
-    endpt_clear(0x83);
+    endpt_clear(EP_81);
+    endpt_clear(EP_03);
+    endpt_clear(EP_83);
 
     puts("Stopped mgmt.\n");
 }
@@ -707,7 +707,7 @@ static void retire_rx_dma (volatile EDMA_DESC_t * rx)
     // Give the buffer to USB.
     unsigned status = rx->status;
     void * buffer = rx->buffer1;
-    schedule_buffer (0x82, buffer, (status >> 16) & 0x7ff,
+    schedule_buffer (EP_82, buffer, (status >> 16) & 0x7ff,
                      endpt_rx_complete);
     debugf ("RX to usb..: %p %08x\n", buffer, status);
 }
@@ -785,7 +785,7 @@ static void usb_interrupt (void)
         puts ("usb interrupt...\n");
 
     static const unsigned char endpoints[] = {
-        2, 0x82, 0x81, 0x80, 0, 3, 0x83 };
+        EP_02, EP_82, EP_81, EP_80, EP_00, EP_03, EP_83 };
     for (int i = 0; i < sizeof endpoints; ++i)
         if (complete & ep_mask(endpoints[i]))
             endpt_complete(endpoints[i]);

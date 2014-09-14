@@ -6,6 +6,11 @@
 
 #include <stdbool.h>
 
+enum {
+    EP_00 =    0, EP_01, EP_02, EP_03, EP_04, EP_05,
+    EP_80 = 0x80, EP_81, EP_82, EP_83, EP_84, EP_85,
+};
+
 typedef struct dTD_t dTD_t;
 
 typedef void dtd_completion_t (dTD_t * dtd, unsigned status, unsigned remain);
