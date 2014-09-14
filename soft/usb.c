@@ -12,7 +12,7 @@ typedef struct dQH_t {
 
     dTD_t * volatile next;
     volatile unsigned length_and_status;
-    volatile unsigned buffer_page[5];
+    void * volatile buffer_page[5];
 
     volatile unsigned reserved;
     volatile unsigned setup0;
@@ -177,12 +177,12 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
 
     // Set interrupt & active bits.
     dtd->length_and_status = (length << 16) + 0x8080;
-    dtd->buffer_page[0] = (unsigned) data;
-    dtd->buffer_page[1] = (0xfffff000 & (unsigned) data) + 4096;
-    dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
-    dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
+    dtd->buffer_page[0] = data;
+    dtd->buffer_page[1] = (void *) (0xfffff000 & (unsigned) data) + 4096;
+    //dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
+    //dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
     // We don't do anything this big; just save original address.
-    dtd->buffer_page[4] = (unsigned) data;
+    dtd->buffer_page[4] = data;
     dtd->completion = cb;
 
     schedule_dtd (ep, dtd);

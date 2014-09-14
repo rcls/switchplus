@@ -14,7 +14,7 @@ typedef void dtd_completion_t (dTD_t * dtd, unsigned status, unsigned remain);
 struct dTD_t {
     struct dTD_t * volatile next;
     volatile unsigned length_and_status;
-    volatile unsigned buffer_page[5];
+    void * volatile buffer_page[5];
 
     dtd_completion_t * completion;      // For our use...
 };

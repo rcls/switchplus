@@ -420,7 +420,7 @@ static void reuse_tx_buffer(void * buffer)
 // ethernet.
 static void endpt_tx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    void * buffer = (void *) dtd->buffer_page[4];
+    void * buffer = dtd->buffer_page[4];
     if (status) {                       // Errored...
         reuse_tx_buffer(buffer);
         return;
@@ -439,7 +439,7 @@ static void endpt_tx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 
     EDMA->trans_poll_demand = 0;
 
-    debugf ("TX to MAC..: %08x %08x\n", dtd->buffer_page[0], status);
+    debugf ("TX to MAC..: %p %08x\n", dtd->buffer_page[0], status);
 }
 
 
@@ -688,11 +688,9 @@ static void queue_rx_dma(void * buffer)
 static void endpt_rx_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     // Re-queue the buffer for network data.
-    unsigned buffer = dtd->buffer_page[4];
+    queue_rx_dma(dtd->buffer_page[4]);
 
-    queue_rx_dma((void *) buffer);
-
-    debugf("RX complete: %08x %08x\n",
+    debugf("RX complete: %p %08x\n",
            dtd->buffer_page[0], dtd->length_and_status);
 }
 

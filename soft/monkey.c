@@ -343,11 +343,11 @@ static void monkey_kick_usb(void)
             return;
 
         dTD_t * dtd = get_dtd();
-        dtd->buffer_page[0] = (unsigned) usb_send_pos;
-        dtd->buffer_page[1] = (unsigned) monkey_buffer; // Cyclic.
+        dtd->buffer_page[0] = usb_send_pos;
+        dtd->buffer_page[1] = monkey_buffer; // Cyclic.
 
         usb_send_pos = advance(usb_send_pos, avail);
-        dtd->buffer_page[4] = (unsigned) usb_send_pos;
+        dtd->buffer_page[4] = usb_send_pos;
 
         dtd->length_and_status = avail * 65536 + 0x8080;
         dtd->completion = monkey_in_complete;
@@ -377,7 +377,7 @@ static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
     // On any completion except for shutdown, assume that we want to drop the
     // data.  Also, if the buffer is full, then drop the data.
     if (status != 0x80 || headroom(usb_flight_pos) == 0)
-        usb_flight_pos = (unsigned char *) dtd->buffer_page[4];
+        usb_flight_pos = dtd->buffer_page[4];
 
     monkey_kick_usb();
 }
@@ -556,7 +556,7 @@ void ungetchar (int c)
 
 static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    unsigned char * buffer = (unsigned char *) dtd->buffer_page[4];
+    unsigned char * buffer = dtd->buffer_page[4];
     unsigned length = 512 - remain;
 
     if (length == 0 || status != 0) {
