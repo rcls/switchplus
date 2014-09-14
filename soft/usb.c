@@ -25,14 +25,10 @@ typedef struct dQH_t {
 } dQH_t;
 
 
-typedef struct qh_pair_t {
-    dQH_t OUT;                          // OUT is host to device.
-    dQH_t IN;                           // IN is device to host.
-} qh_pair_t;
 
 #define NUM_DTDS 40
 static struct qh_and_dtd_t {
-    qh_pair_t QH[6];
+    dQH_t QH[12];
     dTD_t DTD[NUM_DTDS];
 } qh_and_dtd __aligned (2048) __section ("ahb0.qh_and_dtd");
 _Static_assert(sizeof(qh_and_dtd) % 2048 == 0, "qh_and_dtd size");
@@ -42,7 +38,7 @@ static dTD_t * dtd_free_list;
 
 static inline dQH_t * QH(int ep)
 {
-    return ep & 0x80 ? &qh_and_dtd.QH[ep - 0x80].IN : &qh_and_dtd.QH[ep].OUT;
+    return &qh_and_dtd.QH[ep];
 }
 
 

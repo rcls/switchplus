@@ -7,8 +7,8 @@
 #include <stdbool.h>
 
 enum {
-    EP_00 =    0, EP_01, EP_02, EP_03, EP_04, EP_05,
-    EP_80 = 0x80, EP_81, EP_82, EP_83, EP_84, EP_85,
+    EP_00, EP_80, EP_01, EP_81, EP_02, EP_82,
+    EP_03, EP_83, EP_04, EP_84, EP_05, EP_85,
 };
 
 typedef struct dTD_t dTD_t;
@@ -43,7 +43,7 @@ unsigned get_0_setup (unsigned * setup1);
 
 static inline unsigned ep_mask (unsigned ep)
 {
-    return ep & 0x80 ? 0x10000 << (ep - 0x80) : 1 << ep;
+    return ((ep & 1) ? 0x10000 : 1) << ep/2;
 }
 
 static inline bool is_high_speed(void)
