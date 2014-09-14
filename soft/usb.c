@@ -105,56 +105,44 @@ dTD_t * get_dtd (void)
 }
 
 
-void schedule_dtd (unsigned ep, dTD_t * dtd)
+static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
 {
-    dQH_t * qh = QH (ep);
-    ep = ep_mask (ep);
+    unsigned mask = ep_mask (ep);
 
-    dtd->next = (dTD_t *) 1;
-    if (qh->first != NULL) {
-        // 1. Add dTD to end of the linked list.
-        qh->last->next = dtd;
-        qh->last = dtd;
+    // 2. Read correct prime bit in ENDPTPRIME - if '1' DONE.
+    if (endpt->prime & mask)
+        return;
 
-        // 2. Read correct prime bit in ENDPTPRIME - if '1' DONE.
-        if (endpt->prime & ep)
-            return;
+    unsigned eps;
+    do {
+        // 3. Set ATDTW bit in USBCMD register to '1'.
+        *USBCMD |= 1 << 14;
 
-        unsigned eps;
-        do {
-            // 3. Set ATDTW bit in USBCMD register to '1'.
-            *USBCMD |= 1 << 14;
+        // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
+        // for later).
+        eps = endpt->stat;
 
-            // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
-            // for later).
-            eps = endpt->stat;
-
-            // 5. Read ATDTW bit in USBCMD register.
-            // - If '0' go to step 3.
-            // - If '1' continue to step 6.
-        }
-        while (!(*USBCMD & (1 << 14)));
-
-        // 6. Write ATDTW bit in USBCMD register to '0'.
-        // Seems unnecessary...
-        //*USBCMD &= ~(1 << 14);
-
-        // 7. If status bit read in step 4 (ENDPSTAT reg) indicates endpoint
-        // priming is DONE (corresponding ERBRx or ETBRx is one): DONE.
-        if (eps & ep)
-            return;
-
-        // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
-        // Step 1.
+        // 5. Read ATDTW bit in USBCMD register.
+        // - If '0' go to step 3.
+        // - If '1' continue to step 6.
     }
-    else {
-        qh->first = dtd;
-        qh->last = dtd;
-    }
+    while (!(*USBCMD & (1 << 14)));
+
+    // 6. Write ATDTW bit in USBCMD register to '0'.
+    // Seems unnecessary...
+    //*USBCMD &= ~(1 << 14);
+
+    // 7. If status bit read in step 4 (ENDPSTAT reg) indicates endpoint priming
+    // is DONE (corresponding ERBRx or ETBRx is one): DONE.
+    if (eps & mask)
+        return;
+
+    // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
+    // Step 1.
 
     // 1. Write dQH next pointer AND dQH terminate bit to 0 as a single
     // DWord operation.
-    qh->next = dtd;
+    qh->next = d;
 
     // 2. Clear active and halt bits in dQH (in case set from a previous
     // error).
@@ -162,7 +150,23 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
 
     // 3. Prime endpoint by writing '1' to correct bit position in
     // ENDPTPRIME.
-    endpt->prime = ep;
+    endpt->prime = mask;
+}
+
+
+void schedule_dtd (unsigned ep, dTD_t * dtd)
+{
+    dQH_t * qh = QH (ep);
+
+    dtd->next = (dTD_t *) 1;
+    if (qh->first != NULL)
+        qh->last->next = dtd;           // 1. Add dTD to end of the linked list.
+    else
+        qh->first = dtd;
+
+    qh->last = dtd;
+
+    start_if_not_running(qh, dtd, ep);
 }
 
 
@@ -202,29 +206,25 @@ static void retire_dtd (dTD_t * d, dQH_t * qh)
 }
 
 
-bool endpt_complete(unsigned ep)
+void endpt_complete(unsigned ep)
 {
     dQH_t * qh = QH (ep);
 
-    bool progress = false;
+    unsigned restart = 0;
     while (qh->first) {
         dTD_t * d = qh->first;
         unsigned status = d->length_and_status;
-        if ((status & 0xff) == 0x80)
-            return progress;            // Still running.
-
-        progress = true;
+        if ((status & 0xff) == 0x80) {
+            if (restart)
+                start_if_not_running(qh, d, ep);
+            return;                     // Still running.
+        }
 
         // If something went wrong, restart the end-point.
-        if (d != qh->last && (status & 0x80)) {
-            qh->next = d->next;         // Restart the end-point.
-            qh->length_and_status &= ~0xc0;
-            endpt->prime = ep_mask(ep);
-        }
+        restart |= status & 0xff;
 
         retire_dtd(d, qh);              // May frig the qh...
     }
-    return progress;
 }
 
 
@@ -240,32 +240,17 @@ void endpt_clear(unsigned ep)
 
 void endpt_complete_one(unsigned ep)
 {
-    unsigned mask = ep_mask(ep);
-    endpt->flush = mask;
-    while (endpt->flush & mask);
-
-    // Pick up the first dtd and complete it.
-    dQH_t * qh = QH(ep);
-    dTD_t * d = qh->first;
-    if (d == NULL)
+    dQH_t * qh = QH (ep);
+    if (!qh->first)
         return;
 
-    unsigned status = d->length_and_status;
-
-    while (true) {
-        retire_dtd(d, qh, status);
-        d = qh->first;
-        if (!d)
-            return;
-
-        status = d->length_and_status;
-        if ((status & 0xff) == 0x80) {
-            qh->next = d;               // Restart the end-point.
-            qh->length_and_status &= ~0xc0;
-            endpt->prime = mask;
-            return;
-        }
+    if ((qh->first->length_and_status & 0xff) == 0x80) {
+        endpt->flush = ep_mask(ep);
+        while (endpt->flush & ep_mask(ep));
+        qh->first->length_and_status |= 1; // Will force restart.
     }
+
+    endpt_complete(ep);
 }
 
 

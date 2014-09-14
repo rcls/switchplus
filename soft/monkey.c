@@ -374,8 +374,8 @@ bool monkey_is_empty (void)
 
 static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
-    // An error that doesn't kill USB assume that we want to drop the data.
-    // Also, if the buffer is full, then drop the data.
+    // On any completion except for shutdown, assume that we want to drop the
+    // data.  Also, if the buffer is full, then drop the data.
     if (status != 0x80 || headroom(usb_flight_pos) == 0)
         usb_flight_pos = (unsigned char *) dtd->buffer_page[4];
 
