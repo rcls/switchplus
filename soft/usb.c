@@ -191,10 +191,7 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
 
 static void retire_dtd (dTD_t * d, dQH_t * qh)
 {
-    if (d == qh->last)
-        qh->first = NULL;
-    else
-        qh->first = d->next;
+    qh->first = (dTD_t *) ((unsigned) d->next & ~1);
 
     if (d->completion) {
         unsigned status = d->length_and_status;
