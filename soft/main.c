@@ -619,15 +619,14 @@ static void process_setup (void)
     //     break;
     case 0x0b01:                        // Set interface.
         switch (setup1 & 0xffff) {
-        case 1:                         // Interface 1 (data)
-            if ((setup1 & 0xffff) == usb_intf_eth_data) {
-                if (setup0 & 0xffff0000) {
-                    start_network();
-                    callback = notify_network_up;
-                }
-                else
-                    stop_network();
+        case usb_intf_eth_data:         // Interface 1 (data)
+            if (setup0 & 0xffff0000) {
+                start_network();
+                callback = notify_network_up;
             }
+            else
+                stop_network();
+
             response_length = 0;
             break;
         case usb_intf_eth_comm:         // Interface 0 (comms) - ignore.
