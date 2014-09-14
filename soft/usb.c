@@ -19,7 +19,7 @@ typedef struct dQH_t {
     volatile unsigned setup1;
     // 16 bytes remaining for our use...
     dTD_t * first;
-    dTD_t * last;
+    dTD_t * last;                       // Only valid if first!=NULL.
     unsigned dummy2;
     unsigned dummy3;
 } dQH_t;
@@ -46,13 +46,6 @@ static inline dQH_t * QH(int ep)
 }
 
 
-static void put_dtd (dTD_t * dtd)
-{
-    dtd->next = dtd_free_list;
-    dtd_free_list = dtd;
-}
-
-
 void usb_init (void)
 {
     // Enable USB0 PHY power.
@@ -61,9 +54,9 @@ void usb_init (void)
     *USBCMD = 2;                        // Reset.
     while (*USBCMD & 2);
 
-    dtd_free_list = NULL;
-    for (int i = 0; i != NUM_DTDS; ++i)
-        put_dtd (&qh_and_dtd.DTD[i]);
+    dtd_free_list = &qh_and_dtd.DTD[0];
+    for (int i = 1; i < NUM_DTDS; ++i)
+        qh_and_dtd.DTD[i-1].next = &qh_and_dtd.DTD[i];
 
     endpt->usbmode = 0xa;               // Device.  Tripwire.
     endpt->otgsc = 9;
@@ -118,7 +111,7 @@ void schedule_dtd (unsigned ep, dTD_t * dtd)
     ep = ep_mask (ep);
 
     dtd->next = (dTD_t *) 1;
-    if (qh->last != NULL) {
+    if (qh->first != NULL) {
         // 1. Add dTD to end of the linked list.
         qh->last->next = dtd;
         qh->last = dtd;
@@ -191,20 +184,21 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
     schedule_dtd (ep, dtd);
 }
 
-static dTD_t * retire_dtd (dTD_t * d, dQH_t * qh, unsigned status)
+
+static void retire_dtd (dTD_t * d, dQH_t * qh)
 {
-    if (d->completion)
+    if (d == qh->last)
+        qh->first = NULL;
+    else
+        qh->first = d->next;
+
+    if (d->completion) {
+        unsigned status = d->length_and_status;
         d->completion(d, status & 0xff, status >> 16);
-
-    dTD_t * next = d->next;
-    if (d == qh->last) {
-        next = NULL;
-        qh->last = NULL;
     }
-    qh->first = next;
 
-    put_dtd (d);
-    return next;
+    d->next = dtd_free_list;
+    dtd_free_list = d;
 }
 
 
@@ -213,20 +207,22 @@ bool endpt_complete(unsigned ep)
     dQH_t * qh = QH (ep);
 
     bool progress = false;
-    for (dTD_t * d = qh->first; d; ) {
+    while (qh->first) {
+        dTD_t * d = qh->first;
         unsigned status = d->length_and_status;
         if ((status & 0xff) == 0x80)
             return progress;            // Still running.
 
         progress = true;
 
-        d = retire_dtd(d, qh, status);
-        if (d && (status & 0x80)) {
-            qh->next = d;               // Restart the end-point.
+        // If something went wrong, restart the end-point.
+        if (d != qh->last && (status & 0x80)) {
+            qh->next = d->next;         // Restart the end-point.
             qh->length_and_status &= ~0xc0;
             endpt->prime = ep_mask(ep);
-            return progress;
         }
+
+        retire_dtd(d, qh);              // May frig the qh...
     }
     return progress;
 }
@@ -237,8 +233,8 @@ void endpt_clear(unsigned ep)
     // Endpt is stopped; clear it out.
     dQH_t * qh = QH (ep);
 
-    for (dTD_t * d = qh->first; d;
-         d = retire_dtd(d, qh, d->length_and_status));
+    while (qh->first)
+        retire_dtd(qh->first, qh);
 }
 
 
@@ -256,7 +252,12 @@ void endpt_complete_one(unsigned ep)
 
     unsigned status = d->length_and_status;
 
-    while ((d = retire_dtd(d, qh, status))) {
+    while (true) {
+        retire_dtd(d, qh, status);
+        d = qh->first;
+        if (!d)
+            return;
+
         status = d->length_and_status;
         if ((status & 0xff) == 0x80) {
             qh->next = d;               // Restart the end-point.
