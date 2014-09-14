@@ -55,6 +55,12 @@ static bool log_ssp;
 
 void init_monkey_usb (void)
 {
+    qh_init (0x03, 0x20000000);         // No 0-size-frame on the monkey.
+    qh_init (0x83, 0x20000000);
+    endpt->ctrl[3] = 0x00c800c8;
+
+    usb_send_pos = usb_flight_pos;
+
     monkey_kick();
 
     schedule_buffer (3, monkey_recv, 512, monkey_out_complete);
@@ -173,41 +179,38 @@ static unsigned char * advance(unsigned char * p, int amount)
 }
 
 
-static void free_monkey_space_usb(void)
+static unsigned free_monkey_space_usb(void)
 {
-    if (current_irs() == 0) {
-        do                              // Running at low priority : wait.
-            __interrupt_wait_go();
-        while (headroom(usb_flight_pos) == 0);
-        return;
-    }
-
     // Running at high priority : discard.
     endpt_complete_one(0x83);
-    if (!headroom(usb_flight_pos))
-        // Last resort - just bump the pointer.
-        usb_flight_pos = advance(usb_flight_pos, 512);
+    int allowed = headroom(usb_flight_pos);
+    if (allowed != 0)
+        return allowed;
+
+    // Last resort - just bump the pointer.
+    usb_flight_pos = advance(usb_flight_pos, 512);
+    return 512;
 }
 
 
-static void free_monkey_space_ssp(void)
+static unsigned free_monkey_space_ssp(void)
 {
     // We just did a kick, so if the buffer pointers are equal, that is
     // because ssp is off.  In that case, just advance pointers.
     if (ssp_flight_pos == ssp_send_pos) {
         ssp_send_pos = advance(insert_pos, 512);
         ssp_flight_pos = ssp_send_pos;
-        return;
+        return 512;
     }
 
     // We could just make the GPDMA interrupt higher priority?
-    do {
-        if (current_irs() == 0)
-            __interrupt_wait_go();
-        else
-            gpdma_interrupt();
+    unsigned allowed;
+    do {                                // We may spin on other interrupts...
+        gpdma_interrupt();
+        allowed = headroom(ssp_flight_pos);
     }
-    while (headroom(ssp_flight_pos) == 0);
+    while (allowed == 0);
+    return allowed;
 }
 
 
@@ -220,15 +223,17 @@ static void free_monkey_space(void)
     // redo the entire calculation.
 retry: ;
     unsigned allowed_usb = headroom(usb_flight_pos);
-    if (!allowed_usb) {
-        free_monkey_space_usb();
-        goto retry;
-    }
-
     unsigned allowed_ssp = headroom(ssp_flight_pos);
-    if (!allowed_ssp) {
-        free_monkey_space_ssp();
-        goto retry;
+
+    if (allowed_usb == 0 || allowed_ssp == 0) {
+        if (current_irs() == 0) {       // Low priority - wait and retry.
+            __interrupt_wait_go();
+            goto retry;
+        }
+        if (allowed_usb == 0)
+            allowed_usb = free_monkey_space_usb();
+        if (allowed_ssp == 0)
+            allowed_ssp = free_monkey_space_ssp();
     }
 
     unsigned allowed = 512;
@@ -273,8 +278,7 @@ void puts (const char * s)
 
 void monkey_start_ssp(void)
 {
-    // We have one of two states; DMA running or idle.... we should only be
-    // called on DMA idle.
+    // We should only be called when the DMA is idle.
     unsigned amount = 512;
     amount = min(amount, insert_pos - ssp_send_pos);
     amount = min(amount, monkey_buffer_end - ssp_send_pos);
@@ -331,6 +335,8 @@ static void monkey_kick_usb(void)
 
     while (1) {
         unsigned avail = (insert_pos - usb_send_pos) & 4095;
+        // Send at most 512 bytes.  Send only if either we are idle or have a
+        // full 512 bytes.
         if (avail >= 512)
             avail = 512;
         else if (!avail || usb_flight_pos != usb_send_pos)
@@ -373,7 +379,7 @@ static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
     if (status != 0x80 || headroom(usb_flight_pos) == 0)
         usb_flight_pos = (unsigned char *) dtd->buffer_page[4];
 
-    monkey_kick();
+    monkey_kick_usb();
 }
 
 

@@ -396,14 +396,10 @@ static void start_mgmt (void)
 
     puts ("Starting mgmt...\n");
 
-    qh_init (0x81, 0x20400000);
-    // No 0-size-frame on the monkey.
-    qh_init (0x03, 0x20000000);
-    qh_init (0x83, 0x20000000);
+    qh_init (0x81, 0x20400000);         // Interrupt, 64-bytes is heaps.
 
     // FIXME - default mgmt packets?
     endpt->ctrl[1] = 0x00cc0000;
-    endpt->ctrl[3] = 0x00c800c8;
 
     init_monkey_usb();
 }
