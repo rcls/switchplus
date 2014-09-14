@@ -9,9 +9,9 @@ clean:
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)
-LDFLAGS=-nostdlib -Wl,--build-id=none
+LDFLAGS=-nostdlib -Wl,--build-id=none -fwhole-program
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -flto -fwhole-program -std=gnu11 -ffreestanding \
+CFLAGS=-Os -flto -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -MMD -MP -MF.deps/$@.d \
 	-fno-common -Wall -Werror
 UTILS=../utils
