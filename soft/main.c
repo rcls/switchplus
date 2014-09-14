@@ -594,6 +594,7 @@ static void process_setup (void)
             break;
         }
         case 7:                         // Other speed config.
+        case 10:                        // Debug.
         default:
             ;
         }
@@ -642,19 +643,19 @@ static void process_setup (void)
         }
         break;
 
-    // case 0x0c82:                        // Synch frame.
+    // case 0x820c:                        // Synch frame.
     //     break;
-    // case 0x2140:                        // Set ethernet multicast.
+    // case 0x4021:                        // Set ethernet multicast.
     //     break;
-    // case 0x2141:                        // Set eth. power mgmt filter.
+    // case 0x4121:                        // Set eth. power mgmt filter.
     //     break;
-    // case 0x2142:                        // Get eth. power mgmt filter.
+    // case 0x4221:                        // Get eth. power mgmt filter.
     //     break;
-    case 0x2143:                        // Set eth. packet filter.
+    case 0x4321:                        // Set eth. packet filter.
         // Just fake it for now...
         response_length = 0;
         break;
-    // case 0x2144:                        // Get eth. statistic.
+    // case 0x4421:                        // Get eth. statistic.
     //     break;
     default:
         break;
