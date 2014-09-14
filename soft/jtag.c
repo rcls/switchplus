@@ -24,8 +24,7 @@
 
 static void wait(void)
 {
-    for (int i = 0; i != 50; ++i)
-        asm volatile ("");
+    spin_for(50);
 }
 
 

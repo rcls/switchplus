@@ -10,8 +10,7 @@
 static int freq_mon (unsigned clock, unsigned count)
 {
     *FREQ_MON = clock * 16777216 + 0x800000 + count;
-    for (int i = 0; i != 100; ++i)
-        asm volatile ("");              // Delay a bit to let clocks start.
+    spin_for(100);                      // Delay a bit to let clocks start.
     while (true) {
         unsigned f = *FREQ_MON;
         if (!(f & (1 << 23)))

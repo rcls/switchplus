@@ -210,8 +210,7 @@ void init_switch (void)
     GPIO_BYTE[7][9] = 1;
 
     // Wait milliseconds (docs say ~ 100us).
-    for (int i = 0; i < 96000; ++i)
-        asm volatile ("");
+    spin_for(96000);
 
     // Take SPI to high speed.
     //spi_reg_write(12, 0x64);

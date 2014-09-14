@@ -108,21 +108,18 @@ void meminit (unsigned mhz)
 
     *DYNAMICCONFIG2 = 0x0680;           // Row, bank, column, 16M x 16.
 
-    for (int i = 0; i != 100 * mhz; ++i)
-        asm volatile ("");
+    spin_for(100 * mhz);
 
     *DYNAMICCONTROL = 0x0183;           // Issue NOP.
 
-    for (int i = 0; i != 200 * mhz; ++i)
-        asm volatile ("");
+    spin_for(200 * mhz);
 
     *DYNAMICCONTROL = 0x0103;           // Issue precharge-all.
 
     *DYNAMICREFRESH = 1 + NS2CLK(5);    // 5*16 = 80 ns.
 
     // Perform at least 2 refresh cycles at around 80ns.  This is heaps.
-    for (int i = 0; i != mhz; ++i)
-        asm volatile ("");
+    spin_for(mhz);
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
     // The unit for the register is 16 cycles.

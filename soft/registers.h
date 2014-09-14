@@ -14,6 +14,12 @@
 #define __section(s) __attribute__ ((section (s)))
 #define __aligned(s) __attribute__ ((aligned (s)))
 
+static inline void spin_for(unsigned n)
+{
+    for (unsigned i = 0; i != n; ++i)
+        asm volatile("");
+}
+
 typedef volatile unsigned char v8;
 typedef volatile unsigned v32;
 typedef v8 v8_32[32];

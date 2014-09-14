@@ -94,8 +94,8 @@ dTD_t * get_dtd (void)
     }
     // Do a softreset.
     *BASE_M4_CLK = 0x0e000800;          // Back to IDIVC.
-    for (int i = 0; i != 100000; ++i)
-        asm volatile ("");
+    spin_for(100000);
+
     while (1)
         *CORTEX_M_AIRCR = 0x05fa0004;
 }

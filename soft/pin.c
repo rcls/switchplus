@@ -70,8 +70,7 @@ void check_for_early_dfu(void)
 
     config_pins(pins, sizeof pins / sizeof pins[0]);
 
-    for (int i = 0; i != 10000; ++i)
-        asm volatile("");
+    spin_for(10000);
 
     if (GPIO_BYTE[6][13] && GPIO_BYTE[6][12] && GPIO_BYTE[5][4])
         return;
@@ -81,8 +80,7 @@ void check_for_early_dfu(void)
     GPIO_DIR[7] |= 1 << 9;
     SFSP[14][9] = 4;                    // GPIO7[9], function 4.
 
-    for (int i = 0; i != 10000; ++i)
-        asm volatile("");
+    spin_for(10000);
 
     GPIO_BYTE[7][9] = 1;
 
