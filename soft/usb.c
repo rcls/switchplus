@@ -133,6 +133,12 @@ static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
     if (eps & mask)
         return;
 
+    // We are used to restart-after-error when we are not sure if the endpoint
+    // is running or not.  This means we need to distinguish between the case
+    // where the DTD has completed and the case where it never started.
+    if ((d->length_and_status & 0xff) != 0x80)
+        return;
+
     // 8. If status bit read in step 4 is 0 then go to Linked list is empty:
     // Step 1.
 
@@ -175,8 +181,6 @@ void schedule_buffer (unsigned ep, void * data, unsigned length,
     dtd->length_and_status = (length << 16) + 0x8080;
     dtd->buffer_page[0] = data;
     dtd->buffer_page[1] = (void *) (0xfffff000 & (unsigned) data) + 4096;
-    //dtd->buffer_page[2] = (0xfffff000 & (unsigned) data) + 8192;
-    //dtd->buffer_page[3] = (0xfffff000 & (unsigned) data) + 12288;
     // We don't do anything this big; just save original address.
     dtd->buffer_page[4] = data;
     dtd->completion = cb;
@@ -203,18 +207,15 @@ void endpt_complete(unsigned ep)
 {
     dQH_t * qh = QH (ep);
 
-    unsigned restart = 0;
     while (qh->first) {
         dTD_t * d = qh->first;
-        unsigned status = d->length_and_status;
-        if ((status & 0xff) == 0x80) {
-            if (restart)
-                start_if_not_running(qh, d, ep);
+        unsigned status = d->length_and_status & 0xff;
+        if (status == 0x80)
             return;                     // Still running.
-        }
 
-        // If something went wrong, restart the end-point.
-        restart |= status & 0xff;
+        // If something went wrong, restart the end-point if necessary.
+        if (status && (unsigned) d->next != 1)
+            start_if_not_running(qh, d->next, ep);
 
         retire_dtd(d, qh);              // May frig the qh...
     }
