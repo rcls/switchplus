@@ -316,7 +316,6 @@ void monkey_start_ssp(void)
 
 void gpdma_interrupt(void)
 {
-    // FIXME - don't forget global initialisation.
     unsigned tcstat = GPDMA->inttcstat;
     GPDMA->inttcclear = tcstat;
     unsigned tcerr = GPDMA->interrstat;
@@ -377,7 +376,7 @@ static void monkey_in_complete (dTD_t * dtd, unsigned status, unsigned remain)
 {
     // On any completion except for shutdown, assume that we want to drop the
     // data.  Also, if the buffer is full, then drop the data.
-    if (status != EP_80 || headroom(usb_flight_pos) == 0)
+    if (status != 0x80 || headroom(usb_flight_pos) == 0)
         usb_flight_pos = dtd->buffer_page[4];
 
     monkey_kick_usb();
