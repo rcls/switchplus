@@ -187,8 +187,11 @@ static unsigned free_monkey_space_usb(void)
     if (allowed != 0)
         return allowed;
 
-    // Last resort - just bump the pointer.
-    usb_flight_pos = advance(usb_flight_pos, 512);
+    // Last resort - just bump the pointers.
+    unsigned char * old = usb_flight_pos;
+    usb_flight_pos = advance(old, 512);
+    if (((usb_send_pos - old) & 4095) < 512)
+        usb_send_pos = usb_flight_pos;
     return 512;
 }
 
@@ -206,7 +209,7 @@ static unsigned free_monkey_space_ssp(void)
     // We could just make the GPDMA interrupt higher priority?
     unsigned allowed;
     do {                                // We may spin on other interrupts...
-        gpdma_interrupt();
+        gpdma_interrupt();              // Process DMA interrupts.
         allowed = headroom(ssp_flight_pos);
     }
     while (allowed == 0);
@@ -218,9 +221,8 @@ static void free_monkey_space(void)
 {
     monkey_kick();
 
-    // Recalculate buffer positions...  Note that both the free... functions
-    // can enable interrupts and invalidate everything, meaning we need to
-    // redo the entire calculation.
+    // Recalculate buffer positions...  Note that enabling interrupts can
+    // invalidate everything, meaning we need to redo the entire calculation.
 retry: ;
     unsigned allowed_usb = headroom(usb_flight_pos);
     unsigned allowed_ssp = headroom(ssp_flight_pos);
@@ -244,7 +246,6 @@ retry: ;
         insert_pos = monkey_buffer;
 
     allowed = min(allowed, monkey_buffer_end - insert_pos);
-    allowed = min(allowed, 512);
 
     limit_pos = insert_pos + allowed;
 }
