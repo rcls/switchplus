@@ -22,19 +22,13 @@
 // CR + ANSI clear line sequence.
 #define CLR "\r\e[K"
 
-static void wait(void)
-{
-    spin_for(50);
-}
-
-
 static int jtag_clk(int tms, int tdi)
 {
     TDI = !!tdi;
     TMS = !!tms;
-    wait();
+    spin_for(50);
     TCK = 0;
-    wait();
+    spin_for(50);
     int r = TDO;
     TCK = 1;
     return r;

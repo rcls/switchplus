@@ -51,7 +51,7 @@ void enter_dfu(void)
     bool was_empty = monkey_is_empty();
     verbose ("Enter DFU\n");
     if (was_empty)
-        for (int i = 0; !monkey_is_empty() && i != 1000000; ++i);
+        for (int i = 0; !monkey_is_empty() && i != 100000; ++i);
 
     enter_dfu_go();
 }
@@ -59,8 +59,8 @@ void enter_dfu(void)
 
 void check_for_early_dfu(void)
 {
-    GPIO_DIR[5] &= ~0x10;
-    GPIO_DIR[6] &= ~0x3000;
+    GPIO_DIR[5] &= ~0x10;               // GPIO 5 bit 4.
+    GPIO_DIR[6] &= ~0x3000;             // GPIO 6 bits 12 and 13.
 
     static const unsigned pins[] = {
         PIN_IN(12,14,4),                // TCK is GPIO6[13] PC_14 func 4 ball N1
@@ -70,7 +70,7 @@ void check_for_early_dfu(void)
 
     config_pins(pins, sizeof pins / sizeof pins[0]);
 
-    spin_for(10000);
+    spin_for(255);                      // Give pull-ups time.
 
     if (GPIO_BYTE[6][13] && GPIO_BYTE[6][12] && GPIO_BYTE[5][4])
         return;
