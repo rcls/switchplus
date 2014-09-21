@@ -118,8 +118,6 @@ typedef struct ssp_t {
 #define FLASHCFGB ((v32 *) 0x40043124)
 #define CREG6 ((v32 *) 0x4004312c)
 
-#define ENET 0x40010000
-
 typedef struct mac_t {
     unsigned config;
     unsigned frame_filter;
@@ -208,7 +206,8 @@ typedef struct usb_endpoints_t {
     unsigned ctrl[6];
 } usb_endpoints_t;
 _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
-#define endpt ((volatile usb_endpoints_t *) 0x400061a0)
+
+#define ENDPT ((volatile usb_endpoints_t *) 0x400061a0)
 
 
 #define NVIC ((v32*) 0xE000E000)

@@ -57,7 +57,7 @@ void init_monkey_usb (void)
 {
     qh_init (EP_03, 0x20000000);        // No 0-size-frame on the monkey.
     qh_init (EP_83, 0x20000000);
-    endpt->ctrl[3] = 0x00c800c8;
+    ENDPT->ctrl[3] = 0x00c800c8;
 
     usb_send_pos = usb_flight_pos;
 
@@ -330,7 +330,7 @@ void gpdma_interrupt(void)
 
 static void monkey_kick_usb(void)
 {
-    if (!(endpt->ctrl[3] & 0x800000))   // Short circuit if not active.
+    if (!(ENDPT->ctrl[3] & 0x800000))   // Short circuit if not active.
         return;
 
     while (1) {
@@ -561,7 +561,7 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
 
     if (length == 0 || status != 0) {
         // Reschedule immediately.
-        if (endpt->ctrl[3] & 0x80)
+        if (ENDPT->ctrl[3] & 0x80)
             schedule_buffer (EP_03, buffer, 512, monkey_out_complete);
         return;
     }
