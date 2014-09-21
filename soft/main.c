@@ -838,8 +838,10 @@ static void switch_interrupt (void)
 
 void main (void)
 {
-    // Disable all interrupts for now...
-    __interrupt_disable();
+    NVIC_ICER[0] = 0xffffffff;          // Redundant after warm reset.
+    NVIC_ICER[1] = 0xffffffff;
+
+    __memory_barrier();
 
     // Soft reset doesn't restore clocking.  So do it ourselves.
     *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
@@ -850,9 +852,6 @@ void main (void)
     while (!(*PLL1_STAT & 1));
 
     *BASE_M4_CLK = 0x0e000800;          // Switch back to 96MHz IDIVC.
-
-    NVIC_ICER[0] = 0xffffffff;
-    NVIC_ICER[1] = 0xffffffff;
 
     check_for_early_dfu();
 
