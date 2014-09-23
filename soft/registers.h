@@ -216,7 +216,7 @@ _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
 #define NVIC_ISPR (NVIC + 128)
 #define NVIC_ICPR (NVIC + 160)
 #define NVIC_IABR (NVIC + 192)
-#define NVIC_IPR (NVIC + 256)
+#define NVIC_IPR ((v8*) (NVIC + 256))
 #define NVIC_STIR (NVIC + 960)
 
 #define CORTEX_M_AIRCR ((v32*) 0xe000ed0c)
@@ -360,5 +360,15 @@ typedef struct event_router_t {
 _Static_assert(sizeof(event_router_t) == 0xff0, "event_router_t size");
 
 #define EVENT_ROUTER ((volatile event_router_t *) 0x40044000)
+
+// M4 interrupt numbers.
+enum {
+    m4_dma      = 2,
+    m4_ethernet = 5,
+    m4_lcd      = 7,
+    m4_usb0     = 8,
+    m4_switch   = 42,                   // Actually the event-router.
+    m4_num_interrupts
+};
 
 #endif

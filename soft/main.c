@@ -911,6 +911,9 @@ void main (void)
 
     usb_init();
 
+    //  Switch interrupt to low priority.
+    NVIC_IPR[m4_switch] = 0x80;
+
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
     NVIC_ISER[1] = 1 << 10;             // Enable event router interrupt.
@@ -938,9 +941,9 @@ void * start[64] = {
     [0] = (void*) 0x10089fe0,
     [1] = main,
 
-    [18] = gpdma_interrupt,
-    [21] = eth_interrupt,
-    [23] = lcd_interrupt,
-    [24] = usb_interrupt,
-    [58] = switch_interrupt,
+    [16 + m4_dma]      = gpdma_interrupt,
+    [16 + m4_ethernet] = eth_interrupt,
+    [16 + m4_lcd]      = lcd_interrupt,
+    [16 + m4_usb0]     = usb_interrupt,
+    [16 + m4_switch]   = switch_interrupt,
 };

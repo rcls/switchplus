@@ -141,11 +141,13 @@ void monkey_ssp_on(void)
 }
 
 
-static inline unsigned current_irs (void)
+// At low priority, we treat buffer full by waiting for interrupts.  At high
+// priority we spin or drop.
+static inline bool at_low_priority(void)
 {
     unsigned r;
-    asm ("\tmrs %0,psr\n" : "=r"(r));
-    return r & 511;
+    asm volatile ("\tmrs %0,ipsr\n" : "=r"(r));
+    return r == 0 || r > 32;
 }
 
 
@@ -228,7 +230,7 @@ retry: ;
     unsigned allowed_ssp = headroom(ssp_flight_pos);
 
     if (allowed_usb == 0 || allowed_ssp == 0) {
-        if (current_irs() == 0) {       // Low priority - wait and retry.
+        if (at_low_priority()) {        // Low priority - wait and retry.
             __interrupt_wait_go();
             goto retry;
         }
@@ -301,8 +303,8 @@ void monkey_start_ssp(void)
     // Bit 26 : source address increment.
     // Bit 28 : priviledged mode.
     // Bit 31 : terminal count interrupt.
-    channel->control
-        = (1<<31) + (1<<28) + (1<<26) + (1<<25) + (1<<15) + (1<<12) + amount;
+    channel->control = (1<<31) + (1<<28) + (1<<26) + (1<<25)
+        + (1<<15) + (1<<12) + amount;
     // Bit 0 : Enable.
     // Bits 10..6 : Dest periph = 12.
     // Bits 13..11 : Flow control = 1, mem to perip, DMA control.
