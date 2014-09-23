@@ -24,10 +24,10 @@ static void enter_dfu_go(void)
     // Switch back to IDIVC.
     *BASE_M4_CLK = 0x0e000800;
 
-    // Turn on the red LED D13, ball H5, P8_1, GPIO4[1].
-    GPIO_BYTE[4][1] = 1;
-    GPIO_DIR[4] |= 1 << 1;
-    SFSP[8][1] = 0;
+    // Turn on the green LED D12, ball K4, P8_2, GPIO4[2].
+    GPIO_BYTE[4][2] = 1;
+    GPIO_DIR[4] |= 1 << 2;
+    SFSP[8][2] = 0;
 
     *USBCMD = 2;                       // Reset USB.
     while (*USBCMD & 2);

@@ -71,8 +71,10 @@ void usb_init (void)
 
     *USBCMD = 1;                        // Run.
 
-    // Pin H5, GPIO4[1] is a LED for indicating fatal errors.
-    GPIO_DIR[4] |= 2;
+    // Pin H5, GPIO4[1] is a red LED for indicating fatal errors.
+    // K4,  GPIO4[2] is a green LED which we leave on pull-up.  But set to
+    // input as we may have just been loaded via DFU.
+    GPIO_DIR[4] = (GPIO_DIR[4] | (1<<1)) & ~(1<<2);
     GPIO_BYTE[4][1] = 0;
 }
 
@@ -88,7 +90,7 @@ dTD_t * get_dtd (void)
     static volatile bool reenter;
     if (!reenter) {
         reenter = true;
-        GPIO_DIR[4] |= 1 << 1;
+        GPIO_DIR[4] |= 1 << 1;          // Turn on the red LED.
         GPIO_BYTE[4][1] = 0;
         puts ("Out of DTDs!!!\n");
     }
