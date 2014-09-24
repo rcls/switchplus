@@ -6,7 +6,7 @@
 #include "registers.h"
 #include "sdram.h"
 
-#define FRAMEBUFFER ((unsigned short *) 0x60000000)
+pixel_t FRAME_BUFFER[2097152] __aligned(8) __section("dram");
 
 static volatile bool frame_flag;
 
@@ -47,8 +47,8 @@ void lcd_init (void)
     LCD->timh = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
     LCD->timv = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
     LCD->pol = 0x07ff3020;
-    LCD->upbase = FRAMEBUFFER;          // SDRAM.
-    LCD->lpbase = FRAMEBUFFER;
+    LCD->upbase = FRAME_BUFFER;         // SDRAM.
+    LCD->lpbase = FRAME_BUFFER;
     LCD->ctrl = 0x1002c;                // TFT, 16bpp, disabled, watermark=8.
 
     // Setup pins.
@@ -59,25 +59,25 @@ void lcd_init (void)
         //PIN_OUT_FAST(,,), // B16 LCD_LE
         PIN_OUT_FAST(7,6,3),            // C7  LCD_LP
         //PIN_OUT_FAST(,,), // B6  LCD_PWR
-        PIN_OUT_FAST(4,1,2),            // A1  LCD_VD0
-        PIN_OUT_FAST(4,4,2),            // B1  LCD_VD1
-        PIN_OUT_FAST(4,3,2),            // C2  LCD_VD2
+        // PIN_OUT_FAST(4,1,2),            // A1  LCD_VD0
+        // PIN_OUT_FAST(4,4,2),            // B1  LCD_VD1
+        // PIN_OUT_FAST(4,3,2),            // C2  LCD_VD2
         PIN_OUT_FAST(4,2,2),            // D3  LCD_VD3
         PIN_OUT_FAST(8,7,3),            // K1  LCD_VD4
         PIN_OUT_FAST(8,6,3),            // K3  LCD_VD5
         PIN_OUT_FAST(8,5,3),            // J1  LCD_VD6
         PIN_OUT_FAST(7,1,4),            // C14 LCD_VD7
-        PIN_OUT_FAST(7,5,3),            // A7  LCD_VD8
-        PIN_OUT_FAST(4,8,2),            // E2  LCD_VD9
+        // PIN_OUT_FAST(7,5,3),            // A7  LCD_VD8
+        // PIN_OUT_FAST(4,8,2),            // E2  LCD_VD9
         PIN_OUT_FAST(4,10,2),           // M3  LCD_VD10
         PIN_OUT_FAST(4,9,2),            // L2  LCD_VD11
         PIN_OUT_FAST(3,5,7),            // C12 LCD_VD12
         PIN_OUT_FAST(3,4,7),            // A15 LCD_VD13
         PIN_OUT_FAST(11,5,2),           // A12 LCD_VD14
         PIN_OUT_FAST(11,4,2),           // B11 LCD_VD15
-        PIN_OUT_FAST(7,4,3),            // C8  LCD_VD16
-        PIN_OUT_FAST(7,3,3),            // C13 LCD_VD17
-        PIN_OUT_FAST(7,2,3),            // A16 LCD_VD18
+        // PIN_OUT_FAST(7,4,3),            // C8  LCD_VD16
+        // PIN_OUT_FAST(7,3,3),            // C13 LCD_VD17
+        // PIN_OUT_FAST(7,2,3),            // A16 LCD_VD18
         PIN_OUT_FAST(11,6,6),           // A6  LCD_VD19
         PIN_OUT_FAST(11,3,2),           // A13 LCD_VD20
         PIN_OUT_FAST(11,2,2),           // B12 LCD_VD21
