@@ -13,72 +13,69 @@
 
 static bool buffer_select;
 
-static void spi_start (volatile ssp_t * ssp, volatile unsigned char * cs,
-                       unsigned op)
+static void spi_start(unsigned op)
 {
     monkey_ssp_off();
 
-    SSP1->cr0 = 0x4f07;                 // divide-by-80 (1MHz), 8 bits.
+    SSP1->cr0 = 0x4f07;                  // divide-by-80 (1MHz), 8 bits.
 
-    *cs = 0;
-    ssp->dr = op;
+    *ROM_CS = 0;
+    SSP1->dr = op;
 }
 
 
-static void spi_end (volatile ssp_t * ssp, volatile unsigned char * cs)
+static void spi_end(void)
 {
-    while (ssp->sr & 16);               // Wait for idle.
-    *cs = 1;
+    while (SSP1->sr & 16);               // Wait for idle.
+    *ROM_CS = 1;
 
-    SSP1->cr0 = 0x0007;                 // divide-by-1.
+    SSP1->cr0 = 0x0007;                  // divide-by-1.
 
     monkey_ssp_on();
 }
 
 
-static void op_address (volatile ssp_t * ssp, volatile unsigned char * cs,
-                        unsigned op, unsigned address)
+static void op_address(unsigned op, unsigned address)
 {
-    spi_start(ssp, cs, op);
-    ssp->dr = address >> 16;
-    ssp->dr = address >> 8;
-    ssp->dr = address;
+    spi_start(op);
+    SSP1->dr = address >> 16;
+    SSP1->dr = address >> 8;
+    SSP1->dr = address;
 }
 
 
-static bool spirom_idle(volatile ssp_t * ssp, volatile unsigned char * cs)
+static bool spirom_idle(void)
 {
-    spi_start(ssp, cs, 0xd7);
-    while (!(ssp->sr & 4));
-    ssp->dr;
+    spi_start(0xd7);
+    while (!(SSP1->sr & 4));
+    SSP1->dr;
     for (int i = 0; i != 1048576; ++i) {
-        ssp->dr = 0;
-        while (!(ssp->sr & 4));
-        if (ssp->dr & 0x80) {
-            spi_end(ssp, cs);
+        SSP1->dr = 0;
+        while (!(SSP1->sr & 4));
+        if (SSP1->dr & 0x80) {
+            spi_end();
             return true;
         }
     }
-    spi_end(ssp, cs);
+    spi_end();
     return false;
 }
 
 
-static void write_page (volatile ssp_t * ssp, volatile unsigned char * cs,
-                        unsigned page, const unsigned char * data)
+static void write_page(unsigned page, const unsigned char * data)
 {
     unsigned buffer_write = buffer_select ? 0x84 : 0x87;
 
-    op_address(ssp, cs, buffer_write, 0);
+    op_address(buffer_write, 0);
 
     for (int i = 0; i != PAGE_LEN; ++i) {
-        while (!(ssp->sr & 2));
-        ssp->dr = data[i];
+        while (!(SSP1->sr & 2));
+        SSP1->dr = data[i];
     }
-    spi_end(ssp, cs);
+    spi_end();
 
     // Wait for idle.
-    if (!spirom_idle(ssp, cs)) {
+    if (!spirom_idle()) {
         printf("*** Idle wait failed for page 0x%0x\n", page);
         return;
     }
@@ -86,8 +83,8 @@ static void write_page (volatile ssp_t * ssp, volatile unsigned char * cs,
     unsigned page_write = buffer_select ? 0x83 : 0x86;
     buffer_select = !buffer_select;
 
-    op_address(ssp, cs, page_write, page * 512);
-    spi_end(ssp, cs);
+    op_address(page_write, page * 512);
+    spi_end();
 }
 
 
@@ -106,7 +103,7 @@ void spirom_init(void)
     printf("\nGet id:");
 
     // Wait for idle.
-    spi_start(SSP1, ROM_CS, 0x9f);
+    spi_start(0x9f);
     for (int i = 0; i != 6; ++i)
         SSP1->dr = 0;
 
@@ -116,20 +113,20 @@ void spirom_init(void)
         bytes[i] = SSP1->dr;
     }
 
-    spi_end(SSP1, ROM_CS);
+    spi_end();
 
     for (int i = 0; i != 7; ++i)
         printf(" %02x", bytes[i]);
     printf("\n");
 
-    spi_start(SSP1, ROM_CS, 0xd7);
+    spi_start(0xd7);
     SSP1->dr = 0;
     SSP1->dr = 0;
     while (SSP1->sr & 16);              // Wait for idle.
     SSP1->dr;
     int s = SSP1->dr;
     int t = SSP1->dr;
-    spi_end (SSP1, ROM_CS);
+    spi_end();
     printf("Status = %02x %02x\n", s, t);
 }
 
@@ -181,7 +178,7 @@ static void spirom_program(void)
     }
     verbose(CLR "SPIROM program page 0x%x press ENTER: ", page);
     if (getchar() == '\n')
-        write_page (SSP1, ROM_CS, page, data);
+        write_page(page, data);
     else
         printf ("Aborted\n");
 }
@@ -202,7 +199,7 @@ static void spirom_read(void)
     }
     printf(CLR "SPIROM read page 0x%x\n", page);
     unsigned char bytes[PAGE_LEN + 5];
-    op_address(SSP1, ROM_CS, 0xb, page * 512);
+    op_address(0xb, page * 512);
     int i = 0;
     int j = 0;
     while (j < PAGE_LEN + 5 || (SSP1->sr & 0x15) != 1) {
@@ -213,7 +210,7 @@ static void spirom_read(void)
         if (SSP1->sr & 4)
             bytes[j++] = SSP1->dr;
     }
-    spi_end(SSP1, ROM_CS);
+    spi_end();
     for (int i = 5; i < PAGE_LEN + 5; ++i)
         printf("%02x%s", bytes[i], (i & 15) == 4 ? "\n" : " ");
     if (PAGE_LEN & 15)
@@ -235,15 +232,15 @@ void spirom_command(void)
             spirom_read();
             break;
         case 's':
-            spi_start(SSP1, ROM_CS, 0xd7);
+            spi_start(0xd7);
             SSP1->dr = 0;
-            spi_end(SSP1, ROM_CS);
+            spi_end();
             SSP1->dr;
             printf(CLR "Status = %02x\n", SSP1->dr);
             break;
         case 'i':
             verbose(CLR "Idle wait");
-            if (!spirom_idle(SSP1, ROM_CS))
+            if (!spirom_idle())
                 printf(CLR "Idle wait failed!\n");
             else
                 verbose(CLR "SPIROM idle\n");
