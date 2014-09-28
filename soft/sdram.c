@@ -1,7 +1,7 @@
 
+#include "configure.h"
 #include "freq.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 #include "sdram.h"
 
@@ -58,7 +58,7 @@ void meminit (unsigned mhz)
 
     RESET_CTRL[0] = 1 << 21;
 
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     // The datasheet says all clocks and allow input.
     SFSCLK[0] = 0xe0;                   // N5, function 0

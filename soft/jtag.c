@@ -1,6 +1,6 @@
 
+#include "configure.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 #include "usb.h"
 
@@ -90,7 +90,7 @@ static void jtag_reset(void)
         PIN_OUT(2,4,4),                 // TMS is GPIO5[4] P2_4 func 4 ball K11
     };
 
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     // Reset jtag, land in run test/idle.
     jtag_tms(9,0xff);

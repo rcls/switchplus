@@ -1,11 +1,11 @@
+#include "configure.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 
-// Everything in this file can get run before globals are initialised (because
+// Most stuff in this file can get run before globals are initialised (because
 // of check-for-early-DFU).
 
-void config_pins(const unsigned * pins, int count)
+void configure(const unsigned * pins, int count)
 {
     for (int i = 0; i < count; ++i) {
         unsigned address = 0x40000000 + (pins[i] & 0xfffffff);
@@ -78,7 +78,7 @@ void check_for_early_dfu(void)
         PIN_IN(2,4,4),                  // TMS is GPIO5[4] P2_4 func 4 ball K11
     };
 
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     spin_for(255);                      // Give pull-ups time.
 

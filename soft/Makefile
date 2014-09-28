@@ -18,7 +18,7 @@ UTILS=../utils
 
 -include .deps/*.d
 
-LIBO=callback pin freq jtag lcd monkey sdram spirom square switch usb
+LIBO=callback configure freq jtag lcd monkey sdram spirom square switch usb
 main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 
 %.s: %.c

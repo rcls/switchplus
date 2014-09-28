@@ -1,5 +1,5 @@
+#include "configure.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 #include "switch.h"
 
@@ -167,15 +167,15 @@ void init_switch (void)
 #define PULL_DOWN 0x18
     static const unsigned pins[] = {
         // Set the prescaler to divide by 8.
-        WORD_WRS(&SSP0->cpsr, 8),
+        WORD_WRITE(&SSP0->cpsr, 8),
 
         // Keep clock HI while idle, CPOL=1,CPHA=1
         // Output data on falling edge.  Read data on rising edge.
         // No clock divide (6.25MHz).
-        WORD_WRS(&SSP0->cr0, 0xc7),
+        WORD_WRITE(&SSP0->cr0, 0xc7),
 
         // Enable SSP0.
-        WORD_WRS(&SSP0->cr1, 2),
+        WORD_WRITE(&SSP0->cr1, 2),
 
         // Set SPIS output hi.
         BYTE_ONE(&GPIO_BYTE[7][16]),
@@ -207,7 +207,7 @@ void init_switch (void)
         // Out of reset.
         BYTE_ONE(&GPIO_BYTE[7][9]),
     };
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     // Wait milliseconds (docs say ~ 100us).
     spin_for(96000);

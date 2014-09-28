@@ -1,7 +1,7 @@
 
 #include "callback.h"
+#include "configure.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 #include "usb.h"
 
@@ -98,7 +98,7 @@ void init_monkey_ssp (void)
         PIN_IO_FAST (15,6,2),           // MISO is E7, PF_6 func 2.
         PIN_OUT_FAST(15,7,2),           // MOSI is B7, PF_7 func 2.
     };
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     // Leave CS low.
     *CONSOLE_CS = 0;

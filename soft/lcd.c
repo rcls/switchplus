@@ -1,7 +1,7 @@
 
+#include "configure.h"
 #include "freq.h"
 #include "lcd.h"
-#include "pin.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
@@ -85,7 +85,7 @@ void lcd_init (void)
         PIN_OUT_FAST(11,0,2),           // B15 LCD_VD23
     };
 
-    config_pins(pins, sizeof pins / sizeof pins[0]);
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     // Enable the lcd.
     LCD->ctrl = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.

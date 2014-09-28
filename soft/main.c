@@ -1,11 +1,11 @@
 // Lets try to bring up a usb device...
 
 #include "callback.h"
+#include "configure.h"
 #include "freq.h"
 #include "jtag.h"
 #include "lcd.h"
 #include "monkey.h"
-#include "pin.h"
 #include "registers.h"
 #include "sdram.h"
 #include "spirom.h"
