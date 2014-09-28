@@ -11,6 +11,8 @@ void meminit (unsigned mhz)
 
     // Setup pins.
     static const unsigned pins[] = {
+        BIT_SET(RESET_CTRL[0], 21),
+
         PIN_IO_FAST(1, 7, 3),           // T5  EMC_D0
         PIN_IO_FAST(1, 8, 3),           // R7  EMC_D1
         PIN_IO_FAST(1, 9, 3),           // T7  EMC_D2
@@ -54,18 +56,14 @@ void meminit (unsigned mhz)
         PIN_OUT_FAST(13,14, 2),             // R13 EMC_DYCS2
 
         PIN_OUT_FAST(1, 6, 3),              // T4 EMC_WE
+
+        WORD_WRITE(SFSCLK[0], 0xe0),    // N5, function 0
+        WORD_WRITE(SFSCLK[1], 0xe0),    // T10, function 0
+        WORD_WRITE(SFSCLK[2], 0xe5),    // D14 EMC_CLK23, CLK2 func 5
+        WORD_WRITE(SFSCLK[3], 0),
     };
 
-    RESET_CTRL[0] = 1 << 21;
-
     configure(pins, sizeof pins / sizeof pins[0]);
-
-    // The datasheet says all clocks and allow input.
-    SFSCLK[0] = 0xe0;                   // N5, function 0
-    SFSCLK[1] = 0xe0;                   // T10, function 0
-    SFSCLK[2] = 0xe5;                   // D14 EMC_CLK23, CLK2 func 5
-    SFSCLK[3] = 0;
-    //SFSCLK[3] = 0xe0;                   // P12, function 0 (?)
 
     // Delays...
     if (mhz > 121)
