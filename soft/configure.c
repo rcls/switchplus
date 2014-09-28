@@ -17,9 +17,12 @@ void configure(const unsigned * pins, int count)
         case 2:                         // Write word immediate.
             * (volatile unsigned *) address = pins[++i];
             break;
+        case 3:
+            spin_for(pins[i] & 0xfffffff);
+            break;
         default:                        // Write word small.
             * (volatile unsigned *) (address & ~0xff00000)
-                = (pins[i] >> 20) - 768;
+                = (pins[i] >> 20) - 1024;
             break;
         }
     }
@@ -69,30 +72,31 @@ void enter_dfu(void)
 
 void check_for_early_dfu(void)
 {
-    GPIO_DIR[5] &= ~0x10;               // GPIO 5 bit 4.
-    GPIO_DIR[6] &= ~0x3000;             // GPIO 6 bits 12 and 13.
-
     static const unsigned pins[] = {
+        BIT_RESET(GPIO_DIR[5], 4),
+        BIT_RESET(GPIO_DIR[6], 12),
+        BIT_RESET(GPIO_DIR[6], 13),
         PIN_IN(12,14,4),                // TCK is GPIO6[13] PC_14 func 4 ball N1
         PIN_IN(12,13,4),                // TDI is GPIO6[12] PC_13 func 4 ball M1
         PIN_IN(2,4,4),                  // TMS is GPIO5[4] P2_4 func 4 ball K11
+        SPIN_FOR(255),                  // Give pull-ups time.
     };
 
     configure(pins, sizeof pins / sizeof pins[0]);
-
-    spin_for(255);                      // Give pull-ups time.
 
     if (GPIO_BYTE[6][13] && GPIO_BYTE[6][12] && GPIO_BYTE[5][4])
         return;
 
     // Reset the switch.  Switch reset is E16, GPIO7[9], PE_9.
-    GPIO_BYTE[7][9] = 0;
-    GPIO_DIR[7] |= 1 << 9;
-    SFSP[14][9] = 4;                    // GPIO7[9], function 4.
-
-    spin_for(10000);
-
-    GPIO_BYTE[7][9] = 1;
+    static const unsigned swreset[] = {
+        BYTE_ZERO(GPIO_BYTE[7][9]),
+        BIT_SET(GPIO_DIR[7], 9),
+        PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
+        PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
+        SPIN_FOR(10000),
+        BYTE_ONE(GPIO_BYTE[7][9]),
+    };
+    configure(swreset, sizeof swreset / sizeof swreset[0]);
 
     // 50 MHz in from eth_tx_clk
     // Configure the clock to USB.

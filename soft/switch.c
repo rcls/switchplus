@@ -206,11 +206,11 @@ void init_switch (void)
 
         // Out of reset.
         BYTE_ONE(GPIO_BYTE[7][9]),
+
+        // Wait milliseconds (docs say ~ 100us).
+        SPIN_FOR(96000),
     };
     configure(pins, sizeof pins / sizeof pins[0]);
-
-    // Wait milliseconds (docs say ~ 100us).
-    spin_for(96000);
 
     // Take SPI to high speed.
     //spi_reg_write(12, 0x64);

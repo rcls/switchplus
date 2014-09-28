@@ -17,13 +17,15 @@
 #define opcode28(n,a) (((n) << 28) | (0xfffffff & (unsigned) (a)))
 #define BYTE_ZERO(a) opcode28(0,&(a))
 #define BYTE_ONE(a)  opcode28(1,&(a))
-#define WORD_WRITE(a,v) opcode28(3,&(a)) + ((v)<<20) + 0 * (1/((v) < 768))
-//#define WORD_WRITE32(a,v) opcode28(2,a), v
+#define WORD_WRITE(a,v) opcode28(4,&(a)) + ((v)<<20) + 0 * (1/((v) < 8 * 256))
+#define WORD_WRITE32(a,v) opcode28(2,&(a)), v
 
 // Note that the 32* will overflow on the multiplication, stripping off leading
 // bits.
 #define BIT_SET(a,n)   opcode28(1, 0x42000000 + 32 * (unsigned) &(a) + 4 * (n))
 #define BIT_RESET(a,n) opcode28(0, 0x42000000 + 32 * (unsigned) &(a) + 4 * (n))
+
+#define SPIN_FOR(n) opcode28(3,n)
 
 void configure(const unsigned * pins, int count);
 
