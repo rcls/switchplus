@@ -220,39 +220,42 @@ _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
 
 #define CORTEX_M_AIRCR ((v32*) 0xe000ed0c)
 
-#define EMC ((v32*) 0x40005000)
+typedef struct EMC_t {
+    unsigned emc_control;
+    unsigned status;
+    unsigned config;
+    unsigned _dummy1[5];
 
-#define EMCCONTROL (EMC)
-#define EMCSTATUS (EMC + 1)
-#define EMCCONFIG (EMC + 2)
+    unsigned dynamic_control;
+    unsigned refresh;
+    unsigned read_config;
+    unsigned _dummy2;
 
-#define DYNAMICCONTROL (EMC + 8)
-#define DYNAMICREFRESH (EMC + 9)
-#define DYNAMICREADCONFIG (EMC + 10)
+    unsigned rp;
+    unsigned ras;
+    unsigned srex;
+    unsigned apr;
+    unsigned dal;
+    unsigned wr;
+    unsigned rc;
+    unsigned rfc;
+    unsigned xsr;
+    unsigned rrd;
+    unsigned mrd;
 
-#define DYNAMICRP   (EMC + 12)
-#define DYNAMICRAS  (EMC + 13)
-#define DYNAMICSREX (EMC + 14)
-#define DYNAMICAPR  (EMC + 15)
-#define DYNAMICDAL  (EMC + 16)
-#define DYNAMICWR   (EMC + 17)
-#define DYNAMICRC   (EMC + 18)
-#define DYNAMICRFC  (EMC + 19)
-#define DYNAMICXSR  (EMC + 20)
-#define DYNAMICRRD  (EMC + 21)
-#define DYNAMICMRD  (EMC + 22)
+    unsigned _dummy3[41];
 
-#define DYNAMICCONFIG0 (EMC + 64)
-#define DYNAMICRASCAS0 (EMC + 65)
+    struct {
+        unsigned config;
+        unsigned rascas;
+        unsigned dummy[6];
+    } port[4];
+} EMC_t;
 
-#define DYNAMICCONFIG1 (EMC + 72)
-#define DYNAMICRASCAS1 (EMC + 73)
+_Static_assert(__builtin_offsetof(EMC_t, rp) == 48, "rp offset");
+_Static_assert(__builtin_offsetof(EMC_t, port) == 256, "port0 offset");
 
-#define DYNAMICCONFIG2 (EMC + 80)
-#define DYNAMICRASCAS2 (EMC + 81)
-
-#define DYNAMICCONFIG3 (EMC + 88)
-#define DYNAMICRASCAS3 (EMC + 89)
+#define EMC ((volatile EMC_t *) 0x40005000)
 
 typedef struct lcd_t {
     unsigned timh;

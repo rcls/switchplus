@@ -81,51 +81,50 @@ void meminit (unsigned mhz)
     // The -7e device is CL3 at 143MHz, CL2 at 133MHz.
 
     if (mhz >= 143)
-        *DYNAMICRASCAS2 = 0x0303;       // RAS, CAS latencies.
+        EMC->port[2].rascas = 0x0303;   // RAS, CAS latencies.
     else
-        *DYNAMICRASCAS2 = 0x0202;       // RAS, CAS latencies.
-    *DYNAMICREADCONFIG = 1;
+        EMC->port[2].rascas = 0x0202;   // RAS, CAS latencies.
 
-    // EMCDELAYCLK?
+    EMC->read_config = 1;
 
 #define NS2CLK(x) ((x) * mhz / 1000)
     // Settings for 96MHz.
-    *DYNAMICRP = NS2CLK(15);            // Precharge period, tRP = 15ns.
-    *DYNAMICRAS = NS2CLK(37);           // Active to precharge, tRAS = 37ns.
-    *DYNAMICSREX = NS2CLK(67);          // tSREX or tXSR=67ns
-    *DYNAMICAPR = NS2CLK(15+14);        // tAPR. ???  Using tDAL=tWR+tRP.
+    EMC->rp = NS2CLK(15);            // Precharge period, tRP = 15ns.
+    EMC->ras = NS2CLK(37);           // Active to precharge, tRAS = 37ns.
+    EMC->srex = NS2CLK(67);          // tSREX or tXSR=67ns
+    EMC->apr = NS2CLK(15+14);        // tAPR. ???  Using tDAL=tWR+tRP.
     if (mhz > 97)
-        *DYNAMICDAL = 4;                // Seems good to 160MHz.
+        EMC->dal = 4;                // Seems good to 160MHz.
     else
-        *DYNAMICDAL = 3;
-    *DYNAMICWR = NS2CLK(14);            // Write recovery, tWR=14ns.
-    *DYNAMICRC = NS2CLK(60);            // Active to active, tRC=60ns.
-    *DYNAMICRFC = NS2CLK(66);           // tRFC, auto refresh period = 66ns.
-    *DYNAMICXSR = NS2CLK(67);           // Self-refresh exit time, tXSR=67ns.
+        EMC->dal = 3;
+    EMC->wr = NS2CLK(14);            // Write recovery, tWR=14ns.
+    EMC->rc = NS2CLK(60);            // Active to active, tRC=60ns.
+    EMC->rfc = NS2CLK(66);           // tRFC, auto refresh period = 66ns.
+    EMC->xsr = NS2CLK(67);           // Self-refresh exit time, tXSR=67ns.
     // The datasheet says tRRD = 14tCK but I think they mean 14ns.
-    *DYNAMICRRD = NS2CLK(14);           // Bank-to-bank time, tRRD = 14tCK!!!.
-    *DYNAMICMRD = 1;                    // Load mode to active, tMRD = 2clock.
+    EMC->rrd = NS2CLK(14);           // Bank-to-bank time, tRRD = 14tCK!!!.
+    EMC->mrd = 1;                    // Load mode to active, tMRD = 2clock.
 
-    *DYNAMICCONFIG2 = 0x0680;           // Row, bank, column, 16M x 16.
+    EMC->port[2].config = 0x0680;       // Row, bank, column, 16M x 16.
 
     spin_for(100 * mhz);
 
-    *DYNAMICCONTROL = 0x0183;           // Issue NOP.
+    EMC->dynamic_control = 0x0183;      // Issue NOP.
 
     spin_for(200 * mhz);
 
-    *DYNAMICCONTROL = 0x0103;           // Issue precharge-all.
+    EMC->dynamic_control = 0x0103;      // Issue precharge-all.
 
-    *DYNAMICREFRESH = 1 + NS2CLK(5);    // 5*16 = 80 ns.
+    EMC->refresh = 1 + NS2CLK(5);    // 5*16 = 80 ns.
 
     // Perform at least 2 refresh cycles at around 80ns.  This is heaps.
     spin_for(mhz);
 
     // 64ms @ 96MHz = 6144000 cycles.   For 8192 rows gives 750 cycles / row.
     // The unit for the register is 16 cycles.
-    *DYNAMICREFRESH = mhz * 64000 / 8192 / 16; // The real refresh period.
+    EMC->refresh = mhz * 64000 / 8192 / 16; // The real refresh period.
 
-    *DYNAMICCONTROL = 0x0083;           // Mode command.
+    EMC->dynamic_control = 0x0083;           // Mode command.
 
     // Burst mode set-up value: 0x023
     // Column length = 9
@@ -138,10 +137,10 @@ void meminit (unsigned mhz)
         * (volatile unsigned char *) (0x60000000 + (0x023 << 12));
 
     // Normal mode.
-    *DYNAMICCONTROL = 0x0000;
+    EMC->dynamic_control = 0x0000;
 
     // Enable buffers...
-    *DYNAMICCONFIG2 = 0x00080680;
+    EMC->port[2].config = 0x00080680;
 }
 
 
