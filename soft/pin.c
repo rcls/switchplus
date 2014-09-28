@@ -11,21 +11,15 @@ void config_pins(const unsigned * pins, int count)
         unsigned address = 0x40000000 + (pins[i] & 0xfffffff);
         unsigned opcode = pins[i] >> 28;
         switch (opcode) {
-        case 0: {                       // Configure pin - special case.
-            volatile unsigned * sfsp = (volatile unsigned *) 0x40086000;
-            unsigned pin = pins[i] >> 16;
-            unsigned config = pins[i] & 0xffff;
-            sfsp[pin] = config;
+        case 0: case 1:                 // Write byte.
+            * (volatile unsigned char *) address = opcode;
             break;
-        }
-        case 2: case 3:
-            * (volatile unsigned char *) address = opcode - 2;
-            break;
-        case 1:                         // Write word immediate.
+        case 2:                         // Write word immediate.
             * (volatile unsigned *) address = pins[++i];
             break;
-        default:                         // Write word small.
-            * (volatile unsigned *) (address & ~0xff00000) = (pins[i] >> 20) - 1024;
+        default:                        // Write word small.
+            * (volatile unsigned *) (address & ~0xff00000)
+                = (pins[i] >> 20) - 768;
             break;
         }
     }
