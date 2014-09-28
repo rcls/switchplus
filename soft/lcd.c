@@ -92,7 +92,7 @@ void lcd_init (void)
 
     // Enable the frame interrupt.
     LCD->intmsk = 4;
-    NVIC_ISER[0] = 0x80;
+    NVIC_ISER[0] = 1 << m4_lcd;
 }
 
 
