@@ -426,10 +426,8 @@ static void format_number (unsigned long value, unsigned base, unsigned lower,
             --width;
     }
 
-    while (width > p - c) {
+    for (; width > p - c; --width)
         write_byte (fill);
-        --width;
-    }
 
     while (p != c)
         write_byte (*--p);
