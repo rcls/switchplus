@@ -846,9 +846,9 @@ void main (void)
     *BASE_M4_CLK = 0x01000800;          // Switch to irc for a bit.
 
     // Restore PLL1 & IDIVC to 96MHz off IRC, just in case of soft reset.
-    *PLL1_CTRL = 0x01170940;
+    PLL1->ctrl = 0x01170940;
     *IDIVC_CTRL = 0x09000808;
-    while (!(*PLL1_STAT & 1));
+    while (!(PLL1->stat & 1));
 
     *BASE_M4_CLK = 0x0e000800;          // Switch back to 96MHz IDIVC.
 
@@ -880,13 +880,13 @@ void main (void)
     // ndec=5, mdec=32682, pdec=0
     // selr=0, seli=28, selp=13
     // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    *PLL0USB_CTRL = 0x03000819;
-    *PLL0USB_MDIV = (28 << 22) + (13 << 17) + 32682;
-    *PLL0USB_NP_DIV = 5 << 12;
-    *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
+    PLL0USB->ctrl = 0x03000819;
+    PLL0USB->mdiv = (28 << 22) + (13 << 17) + 32682;
+    PLL0USB->np_div = 5 << 12;
+    PLL0USB->ctrl = 0x03000818;         // Divided in, direct out.
 
     // Wait for locks.
-    while (!(*PLL0USB_STAT & 1));
+    while (!(PLL0USB->stat & 1));
 
     // Set the flash access time for 160MHz.
     *FLASHCFGA = 0x8000703a;

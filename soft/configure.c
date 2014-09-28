@@ -100,13 +100,13 @@ void check_for_early_dfu(void)
     // ndec=5, mdec=32682, pdec=0
     // selr=0, seli=28, selp=13
     // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    *PLL0USB_CTRL = 0x03000819;
-    *PLL0USB_MDIV = (28 << 22) + (13 << 17) + 32682;
-    *PLL0USB_NP_DIV = 5 << 12;
-    *PLL0USB_CTRL = 0x03000818;         // Divided in, direct out.
+    PLL0USB->ctrl = 0x03000819;
+    PLL0USB->mdiv = (28 << 22) + (13 << 17) + 32682;
+    PLL0USB->np_div = 5 << 12;
+    PLL0USB->ctrl = 0x03000818;         // Divided in, direct out.
 
     // Wait for locks.
-    while (!(*PLL0USB_STAT & 1));
+    while (!(PLL0USB->stat & 1));
 
     enter_dfu_go();
 }

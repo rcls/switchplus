@@ -57,19 +57,18 @@ typedef struct EDMA_DESC_t {
 
 #define FREQ_MON ((v32 *) (CGU + 0x14))
 
-#define PLL0USB_STAT ((v32 *) (CGU + 0x1c))
-#define PLL0USB_CTRL ((v32 *) (CGU + 0x20))
-#define PLL0USB_MDIV ((v32 *) (CGU + 0x24))
-#define PLL0USB_NP_DIV ((v32 *) (CGU + 0x28))
+// Not all PLLs have all registers...
+typedef struct PLL_t {
+    unsigned stat;
+    unsigned ctrl;
+    unsigned mdiv;
+    unsigned np_div;
+    unsigned frac;
+} PLL_t;
 
-#define PLL0AUDIO_STAT ((v32 *) (CGU + 0x2c))
-#define PLL0AUDIO_CTRL ((v32 *) (CGU + 0x30))
-#define PLL0AUDIO_MDIV ((v32 *) (CGU + 0x34))
-#define PLL0AUDIO_NP_DIV ((v32 *) (CGU + 0x38))
-#define PLL0AUDIO_FRAC ((v32 *) (CGU + 0x3c))
-
-#define PLL1_STAT ((v32*) (CGU + 0x40))
-#define PLL1_CTRL ((v32*) (CGU + 0x44))
+#define PLL0USB ((volatile PLL_t *) 0x4005001c)
+#define PLL0AUDIO ((volatile PLL_t *) 0x4005002c)
+#define PLL1 ((volatile PLL_t *) 0x40050040)
 
 #define IDIVA_CTRL ((v32*) (CGU + 0x48))
 #define IDIVC_CTRL ((v32*) (CGU + 0x50))

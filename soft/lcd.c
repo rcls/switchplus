@@ -18,14 +18,14 @@ void lcd_init (void)
     // pllfract = 47.839996,0x17eb85
     // pre-divider=16, feedback div=47, post-div=2
     // fcco=299MHz, fout=74.749994MHz.
-    *PLL0AUDIO_CTRL = 0x03001811;
-    *PLL0AUDIO_MDIV = 13107;
-    *PLL0AUDIO_NP_DIV = 66 + (122 << 12);
-    *PLL0AUDIO_FRAC = 0x17eb85;
+    PLL0AUDIO->ctrl = 0x03001811;
+    PLL0AUDIO->mdiv = 13107;
+    PLL0AUDIO->np_div = 66 + (122 << 12);
+    PLL0AUDIO->frac = 0x17eb85;
 
-    *PLL0AUDIO_CTRL = 0x03001810;
+    PLL0AUDIO->ctrl = 0x03001810;
     puts ("LCD lock wait:");
-    while (!(*PLL0AUDIO_STAT & 1));
+    while (!(PLL0AUDIO->stat & 1));
     puts (" done\n");
 
     // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
