@@ -167,23 +167,23 @@ void init_switch (void)
 #define PULL_DOWN 0x18
     static const unsigned pins[] = {
         // Set the prescaler to divide by 8.
-        WORD_WRITE(&SSP0->cpsr, 8),
+        WORD_WRITE(SSP0->cpsr, 8),
 
         // Keep clock HI while idle, CPOL=1,CPHA=1
         // Output data on falling edge.  Read data on rising edge.
         // No clock divide (6.25MHz).
-        WORD_WRITE(&SSP0->cr0, 0xc7),
+        WORD_WRITE(SSP0->cr0, 0xc7),
 
         // Enable SSP0.
-        WORD_WRITE(&SSP0->cr1, 2),
+        WORD_WRITE(SSP0->cr1, 2),
 
         // Set SPIS output hi.
-        BYTE_ONE(&GPIO_BYTE[7][16]),
-        BIT_SET(&GPIO_DIR[7], 16),
+        BYTE_ONE(GPIO_BYTE[7][16]),
+        BIT_SET(GPIO_DIR[7], 16),
 
         // Switch reset is E16, GPIO7[9], PE_9.
-        BYTE_ZERO(&GPIO_BYTE[7][9]),
-        BIT_SET(&GPIO_DIR[7], 9),
+        BYTE_ZERO(GPIO_BYTE[7][9]),
+        BIT_SET(GPIO_DIR[7], 9),
 
         PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
 
@@ -205,7 +205,7 @@ void init_switch (void)
         PIN_OUT(0,1,6),                 // TX_EN, M2, P0_1, func 6.
 
         // Out of reset.
-        BYTE_ONE(&GPIO_BYTE[7][9]),
+        BYTE_ONE(GPIO_BYTE[7][9]),
     };
     configure(pins, sizeof pins / sizeof pins[0]);
 
