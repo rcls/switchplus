@@ -7,11 +7,27 @@
 
 void config_pins(const unsigned * pins, int count)
 {
-    volatile unsigned * sfsp = (volatile unsigned *) 0x40086000;
     for (int i = 0; i < count; ++i) {
-        unsigned pin = pins[i] >> 16;
-        unsigned config = pins[i] & 0xffff;
-        sfsp[pin] = config;
+        unsigned address = 0x40000000 + (pins[i] & 0xfffffff);
+        unsigned opcode = pins[i] >> 28;
+        switch (opcode) {
+        case 0: {                       // Configure pin - special case.
+            volatile unsigned * sfsp = (volatile unsigned *) 0x40086000;
+            unsigned pin = pins[i] >> 16;
+            unsigned config = pins[i] & 0xffff;
+            sfsp[pin] = config;
+            break;
+        }
+        case 2: case 3:
+            * (volatile unsigned char *) address = opcode - 2;
+            break;
+        case 1:                         // Write word immediate.
+            * (volatile unsigned *) address = pins[++i];
+            break;
+        default:                         // Write word small.
+            * (volatile unsigned *) (address & ~0xff00000) = (pins[i] >> 20) - 1024;
+            break;
+        }
     }
 }
 
