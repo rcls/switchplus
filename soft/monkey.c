@@ -88,22 +88,21 @@ void init_monkey_ssp (void)
 
     SSP1->dmacr = 2;                    // TX DMA enabled.
 
-    // Setup pins; make CS a GPIO output, pulse it high for a bit.
-    GPIO_DIR[7] |= 1 << 19;
-    *CONSOLE_CS = 1;
-
     static const unsigned pins[] = {
+        // Setup pins; make CS a GPIO output, pulse it high for a bit.
+        BIT_SET(GPIO_DIR[7], 19),
+        BYTE_ONE(*CONSOLE_CS),
+
         PIN_OUT_FAST(15,4,0),           // SCK is D10, PF_4 func 0.
         PIN_OUT_FAST(15,5,4),           // SSEL is E9, PF_5, GPIO7[19] func 4.
         PIN_IO_FAST (15,6,2),           // MISO is E7, PF_6 func 2.
         PIN_OUT_FAST(15,7,2),           // MOSI is B7, PF_7 func 2.
+
+        // Leave CS low.
+        BYTE_ZERO(*CONSOLE_CS),
+        WORD_WRITE(GPDMA->config, 1),   // Enable.
     };
     configure(pins, sizeof pins / sizeof pins[0]);
-
-    // Leave CS low.
-    *CONSOLE_CS = 0;
-
-    GPDMA->config = 1;                  // Enable.
 
     ssp_send_pos = monkey_buffer;
     ssp_flight_pos = monkey_buffer;
