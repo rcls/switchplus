@@ -8,24 +8,28 @@
 void configure(const unsigned * pins, int count)
 {
     for (int i = 0; i < count; ++i) {
-        unsigned address = 0x40000000 + (pins[i] & 0xfffffff);
+        unsigned numberL = pins[i] & 0xfffffff;
+        volatile unsigned * addressL = (void *) 0x40000000 + numberL;
+        volatile unsigned * addressS = (void *) 0x40000000 + (pins[i] & 0xfffff);
         unsigned opcode = pins[i] >> 28;
         switch (opcode) {
         case op_zero: case op_one:      // Write byte.
-            * (volatile unsigned *) address = opcode;
+            *addressL = opcode;
             break;
-        case op_write32:                // Write word immediate.
-            * (volatile unsigned *) address = pins[++i];
+        case op_write32: {              // Write words.
+            unsigned count = numberL >> 20;
+            for (unsigned j = 0; j <= count; ++j)
+                addressS[j] = pins[++i];
             break;
+        }
         case op_spin:
-            spin_for(pins[i] & 0xfffffff);
+            spin_for(numberL);
             break;
         case op_wait_zero:
-            while (* (volatile unsigned *) address);
+            while (*addressL);
             break;
         default:                        // Write word small.
-            * (volatile unsigned *) (address & ~0xff00000)
-                = (pins[i] >> 20) - op_write * 256;
+            *addressS = (pins[i] >> 20) - op_write * 256;
             break;
         }
     }
@@ -105,9 +109,11 @@ void check_for_early_dfu(void)
         // ndec=5, mdec=32682, pdec=0
         // selr=0, seli=28, selp=13
         // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-        WORD_WRITE32(PLL0USB->ctrl, 0x03000819), // Divided in, direct out.
-        WORD_WRITE32(PLL0USB->mdiv, (28 << 22) + (13 << 17) + 32682),
-        WORD_WRITE32(PLL0USB->np_div, 5 << 12),
+        WORD_WRITE32n(PLL0USB->ctrl, 3),
+        0x30000819,                      // CTRL : Divided in, direct out.
+        (28 << 22) + (13 << 17) + 32682, // MDIV.
+        5 << 12,                         // NP_DIV
+
         BIT_RESET(PLL0USB->ctrl, 0),
 
         // Wait for lock.

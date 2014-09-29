@@ -26,6 +26,9 @@ enum {
 #define opcode28(n,a) (((n) << 28) | (0xfffffff & (unsigned) (a)))
 #define WORD_WRITE(a,v) opcode28(op_write, &(a)) + ((v)<<20) \
     + 0 * (1/((v) < 8 * 256))
+
+#define WORD_WRITE32n(a,n,...) \
+    opcode28(op_write32, &(a)) + ((n-1) << 20), ## __VA_ARGS__
 #define WORD_WRITE32(a,v) opcode28(op_write32,&(a)), v
 
 // Note that the 32* will overflow on the multiplication, stripping off leading

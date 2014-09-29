@@ -23,16 +23,16 @@ void lcd_init (void)
         // pllfract = 47.839996,0x17eb85
         // pre-divider=16, feedback div=47, post-div=2
         // fcco=299MHz, fout=74.749994MHz.
-        WORD_WRITE32(PLL0AUDIO->ctrl, 0x03001811),
-        WORD_WRITE32(PLL0AUDIO->mdiv, 13107),
-        WORD_WRITE32(PLL0AUDIO->np_div, 66 + (122 << 12)),
-        WORD_WRITE32(PLL0AUDIO->frac, 0x17eb85),
+        WORD_WRITE32n(PLL0AUDIO->ctrl, 4,
+                      0x03001811,       // CTRL
+                      13107,            // MDIV
+                      66 + (122 << 12), // NP_DIV
+                      0x17eb85),        // FRAC
 
         BIT_RESET(PLL0AUDIO->ctrl, 0),
-        //PLL0AUDIO->ctrl = 0x03001810;
 
+        // Wait for lock.
         BIT_WAIT_ZERO(PLL0AUDIO->stat, 0),
-        //while (!(PLL0AUDIO->stat & 1));
 
         // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
         WORD_WRITE32(*BASE_LCD_CLK, 0x08000800),
@@ -47,12 +47,14 @@ void lcd_init (void)
         // horizontal 1024 48 32 80
         // vertical 1024 3 10 17
 
-        WORD_WRITE32(LCD->timh, (79 << 24) + (47 << 8) + (31 << 16) + 0xfc),
-        WORD_WRITE32(LCD->timv, (16 << 24) + (2 << 16) + (9 << 10) + 1023),
-        WORD_WRITE32(LCD->pol, 0x07ff3020),
-        WORD_WRITE32(LCD->upbase, (unsigned) FRAME_BUFFER), // SDRAM.
-        WORD_WRITE32(LCD->lpbase, (unsigned) FRAME_BUFFER),
-        WORD_WRITE32(LCD->ctrl, 0x1002c), // TFT, 16bpp, disabled, watermark=8.
+        WORD_WRITE32n(LCD->timh, 7,
+                      (79 << 24) + (47 << 8) + (31 << 16) + 0xfc, // TIMH
+                      (16 << 24) + (2 << 16) + (9 << 10) + 1023,  // TIMV
+                      0x07ff3020,                                 // POL
+                      0,                                          // LE
+                      (unsigned) FRAME_BUFFER,                    // UPBASE
+                      (unsigned) FRAME_BUFFER,                    // LPBASE
+                      0x1002c),      // CTRL: TFT, 16bpp, disabled, watermark=8.
 
         PIN_OUT_FAST(12,0,4),           // D4  LCD_DCLK
         PIN_OUT_FAST(4,6,2),            // C1  LCD_ENAB/LCDM
