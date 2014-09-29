@@ -41,16 +41,19 @@ static void enter_dfu_go(void)
     NVIC_ICER[0] = 0xffffffff;
     NVIC_ICER[1] = 0xffffffff;
 
-    // Switch back to IDIVC.
-    *BASE_M4_CLK = 0x0e000800;
+    static const unsigned pins[] = {
+        // Switch back to IDIVC.
+        WORD_WRITE32(*BASE_M4_CLK, 0x0e000800),
 
-    // Turn on the green LED D12, ball K4, P8_2, GPIO4[2].
-    GPIO_BYTE[4][2] = 1;
-    GPIO_DIR[4] |= 1 << 2;
-    SFSP[8][2] = 0;
+        // Turn on the green LED D12, ball K4, P8_2, GPIO4[2].
+        WORD_WRITE(GPIO_WORD[4][2], 1),
+        BIT_SET(GPIO_DIR[4], 2),
+        PIN_OUT(8, 2, 0),
 
-    *USBCMD = 2;                       // Reset USB.
-    while (*USBCMD & 2);
+        WORD_WRITE(*USBCMD, 2),         // Reset USB.
+        BIT_WAIT_ZERO(*USBCMD, 1),
+    };
+    configure(pins, sizeof pins / sizeof pins[0]);
 
     unsigned fakeotp[64];
     for (int i = 0; i != 64; ++i)
