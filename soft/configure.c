@@ -11,18 +11,18 @@ void configure(const unsigned * pins, int count)
         unsigned address = 0x40000000 + (pins[i] & 0xfffffff);
         unsigned opcode = pins[i] >> 28;
         switch (opcode) {
-        case 0: case 1:                 // Write byte.
+        case op_zero: case op_one:      // Write byte.
             * (volatile unsigned *) address = opcode;
             break;
-        case 2:                         // Write word immediate.
+        case op_write32:                // Write word immediate.
             * (volatile unsigned *) address = pins[++i];
             break;
-        case 3:
+        case op_spin:
             spin_for(pins[i] & 0xfffffff);
             break;
         default:                        // Write word small.
             * (volatile unsigned *) (address & ~0xff00000)
-                = (pins[i] >> 20) - 1024;
+                = (pins[i] >> 20) - op_write * 256;
             break;
         }
     }
