@@ -104,9 +104,6 @@ void init_monkey_ssp (void)
     };
     configure(pins, sizeof pins / sizeof pins[0]);
 
-    ssp_send_pos = monkey_buffer;
-    ssp_flight_pos = monkey_buffer;
-
     log_ssp = true;
 
     monkey_kick();
