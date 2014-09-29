@@ -2,10 +2,6 @@
 #include "registers.h"
 #include "spirom.h"
 
-#define JOIN2(a,b) a##b
-#define JOIN(a,b) JOIN2(a,b)
-#define STATIC_ASSERT(b) extern int JOIN(_sa_dummy_, __LINE__)[b ? 1 : -1]
-#define CONSOLE_CS (&GPIO_BYTE[7][19])
 #define ROM_CS (&GPIO_BYTE[3][8])
 #define CLR "\r\e[K"
 

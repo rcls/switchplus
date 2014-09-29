@@ -36,6 +36,7 @@ typedef struct EDMA_DESC_t {
 #define GPIO 0x400F4000
 
 #define GPIO_BYTE ((v8_32 *) GPIO)
+#define GPIO_WORD ((v32_32 *) (GPIO + 0x1000))
 #define GPIO_DIR ((v32 *) (GPIO + 0x2000))
 
 #define USART3_THR ((v32 *) 0x400c2000)
