@@ -23,9 +23,12 @@ enum {
 #define PIN_IO(a,b,f)       PIN_IN(a,b,f)
 #define PIN_IO_FAST(a,b,f)  PIN(a, b, 0xe0 | (f))
 
+#define PIN_EXTRA(n) ((n) << 28)
+
 #define opcode28(n,a) (((n) << 28) | (0xfffffff & (unsigned) (a)))
 #define WORD_WRITE(a,v) opcode28(op_write, &(a)) + ((v)<<20) \
-    + 0 * (1/((v) < 8 * 256))
+    + 0 * (1/((v) < 256))
+#define WORD_EXTRA(n) ((n) << 28)
 
 #define WORD_WRITE32n(a,n,...) \
     opcode28(op_write32, &(a)) + ((n-1) << 20), ## __VA_ARGS__

@@ -13,7 +13,7 @@ void configure(const unsigned * pins, int count)
         volatile unsigned * addressS = (void *) 0x40000000 + (pins[i] & 0xfffff);
         unsigned opcode = pins[i] >> 28;
         switch (opcode) {
-        case op_zero: case op_one:      // Write byte.
+        case op_zero: case op_one:      // Write zero/one.
             *addressL = opcode;
             break;
         case op_write32: {              // Write words.
@@ -29,7 +29,8 @@ void configure(const unsigned * pins, int count)
             while (*addressL);
             break;
         default:                        // Write word small.
-            *addressS = (pins[i] >> 20) - op_write * 256;
+            for (unsigned i = op_write; i <= opcode; ++i)
+                *addressS++ = numberL >> 20;
             break;
         }
     }

@@ -13,52 +13,38 @@ void meminit (unsigned mhz)
     static const unsigned pins[] = {
         WORD_WRITE32(RESET_CTRL[0], (1<<21) | (1<<12)),
 
-        PIN_IO_FAST(1, 7, 3),           // T5  EMC_D0
-        PIN_IO_FAST(1, 8, 3),           // R7  EMC_D1
-        PIN_IO_FAST(1, 9, 3),           // T7  EMC_D2
-        PIN_IO_FAST(1,10, 3),           // R8  EMC_D3
-        PIN_IO_FAST(1,11, 3),           // T9  EMC_D4
-        PIN_IO_FAST(1,12, 3),           // R9  EMC_D5
-        PIN_IO_FAST(1,13, 3),           // R10 EMC_D6
-        PIN_IO_FAST(1,14, 3),           // R11 EMC_D7
-        PIN_IO_FAST(5, 4, 2),           // P9  EMC_D8
-        PIN_IO_FAST(5, 5, 2),           // P10 EMC_D9
-        PIN_IO_FAST(5, 6, 2),           // T13 EMC_D10
-        PIN_IO_FAST(5, 7, 2),           // R12 EMC_D11
-        PIN_IO_FAST(5, 0, 2),           // N3  EMC_D12
-        PIN_IO_FAST(5, 1, 2),           // P3  EMC_D13
-        PIN_IO_FAST(5, 2, 2),           // R4  EMC_D14
-        PIN_IO_FAST(5, 3, 2),           // T8  EMC_D15
+        PIN_IO_FAST(1, 7, 3)            // T5  EMC_D0
+        + PIN_EXTRA(7),                 // ... R11 EMC_D7
 
-        PIN_OUT_FAST(2, 9, 3),          // H16 EMC_A0
-        PIN_OUT_FAST(2,10, 3),          // G16 EMC_A1
-        PIN_OUT_FAST(2,11, 3),          // F16 EMC_A2
-        PIN_OUT_FAST(2,12, 3),          // E15 EMC_A3
-        PIN_OUT_FAST(2,13, 3),          // C16 EMC_A4
-        PIN_OUT_FAST(1, 0, 2),          // P2  EMC_A5
-        PIN_OUT_FAST(1, 1, 2),          // R2  EMC_A6
-        PIN_OUT_FAST(1, 2, 2),          // R3  EMC_A7
-        PIN_OUT_FAST(2, 8, 3),          // J16 EMC_A8
-        PIN_OUT_FAST(2, 7, 3),          // H14 EMC_A9
-        PIN_OUT_FAST(2, 6, 2),          // K16 EMC_A10
-        PIN_OUT_FAST(2, 2, 2),          // M15 EMC_A11
-        PIN_OUT_FAST(2, 1, 2),          // N15 EMC_A12
-        PIN_OUT_FAST(2, 0, 2),          // T16 EMC_A13
+        PIN_IO_FAST(5, 0, 2)            // N3  EMC_D12
+        + PIN_EXTRA(7),          // .... T8  EMC_D15, P9  EMC_D8 ... R12 EMC_D11
+
+        PIN_OUT_FAST(1, 0, 2)           // P2  EMC_A5
+        + PIN_EXTRA(2),                 // R2  EMC_A6, R3  EMC_A7
+
+        PIN_OUT_FAST(2, 0, 2)           // T16 EMC_A13
+        + PIN_EXTRA(2),                 // N15 EMC_A12, M15 EMC_A11
+
+        PIN_OUT_FAST(2, 6, 2),          // K16 EMC_A10 (PB_6)
+
+        PIN_OUT_FAST(2, 7, 3)        // H14 EMC_A9
+        + PIN_EXTRA(6),              // J16 EMC_A8, H16 EMC_A0 ... // C16 EMC_A4
+
         PIN_OUT_FAST(6, 8, 1),          // H13 EMC_A14
 
-        PIN_OUT_FAST(6,12, 3),          // G15 EMC_DQMOUT0
+        PIN_OUT_FAST(6, 4, 3)           // R16 EMC_CAS
+        + PIN_EXTRA(1),                 // P16 EMC_RAS
+
         PIN_OUT_FAST(6,10, 3),          // H15 EMC_DQMOUT1
+        PIN_OUT_FAST(6,12, 3),          // G15 EMC_DQMOUT0
 
-        PIN_OUT_FAST(6, 5, 3),              // P16 EMC_RAS
-        PIN_OUT_FAST(6, 4, 3),              // R16 EMC_CAS
+        PIN_OUT_FAST(13, 1, 2),         // P1 EMC_CKEOUT2
+        PIN_OUT_FAST(13,14, 2),         // R13 EMC_DYCS2
 
-        PIN_OUT_FAST(13, 1, 2),             // P1 EMC_CKEOUT2
-        PIN_OUT_FAST(13,14, 2),             // R13 EMC_DYCS2
+        PIN_OUT_FAST(1, 6, 3),          // T4 EMC_WE
 
-        PIN_OUT_FAST(1, 6, 3),              // T4 EMC_WE
-
-        WORD_WRITE(SFSCLK[0], 0xe0),    // N5, function 0
-        WORD_WRITE(SFSCLK[1], 0xe0),    // T10, function 0
+        WORD_WRITE(SFSCLK[0], 0xe0)     // N5, function 0
+        + WORD_EXTRA(1),                // T10, function 0
         WORD_WRITE(SFSCLK[2], 0xe5),    // D14 EMC_CLK23, CLK2 func 5
         WORD_WRITE(SFSCLK[3], 0),
     };
