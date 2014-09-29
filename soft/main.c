@@ -731,7 +731,7 @@ static void init_ethernet (void)
 
     *CREG6 = 4;                         // Set ethernet to RMII.
 
-    RESET_CTRL[0] = 1 << 22;            // Reset ethernet.
+    RESET_CTRL[0] = (1 << 22) | (1 << 12); // Reset ethernet.
     while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
 
     EDMA->bus_mode = 1;                 // Reset ethernet DMA.

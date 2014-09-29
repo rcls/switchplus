@@ -32,7 +32,7 @@ void lcd_init (void)
     *BASE_LCD_CLK = 0x08000800;
 
     // Reset the lcd.
-    RESET_CTRL[0] = 1 << 16;
+    RESET_CTRL[0] = (1<<16) | (1<<12);
     while (!(RESET_ACTIVE_STATUS[0] & (1 << 16)));
 
     // Reset the SDRAM.
