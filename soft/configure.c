@@ -12,7 +12,7 @@ void configure(const unsigned * pins, int count)
         unsigned opcode = pins[i] >> 28;
         switch (opcode) {
         case 0: case 1:                 // Write byte.
-            * (volatile unsigned char *) address = opcode;
+            * (volatile unsigned *) address = opcode;
             break;
         case 2:                         // Write word immediate.
             * (volatile unsigned *) address = pins[++i];
