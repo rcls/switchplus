@@ -95,19 +95,19 @@ void check_for_early_dfu(void)
         PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
         SPIN_FOR(10000),
         WORD_WRITE(GPIO_WORD[7][9], 1),
+
+        // 50 MHz in from eth_tx_clk
+        // Configure the clock to USB.
+        // Generate 480MHz off 50MHz...
+        // ndec=5, mdec=32682, pdec=0
+        // selr=0, seli=28, selp=13
+        // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
+        WORD_WRITE32(PLL0USB->ctrl, 0x03000819), // Divided in, direct out.
+        WORD_WRITE32(PLL0USB->mdiv, (28 << 22) + (13 << 17) + 32682),
+        WORD_WRITE32(PLL0USB->np_div, 5 << 12),
+        BIT_RESET(PLL0USB->ctrl, 0),
     };
     configure(swreset, sizeof swreset / sizeof swreset[0]);
-
-    // 50 MHz in from eth_tx_clk
-    // Configure the clock to USB.
-    // Generate 480MHz off 50MHz...
-    // ndec=5, mdec=32682, pdec=0
-    // selr=0, seli=28, selp=13
-    // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    PLL0USB->ctrl = 0x03000819;
-    PLL0USB->mdiv = (28 << 22) + (13 << 17) + 32682;
-    PLL0USB->np_div = 5 << 12;
-    PLL0USB->ctrl = 0x03000818;         // Divided in, direct out.
 
     // Wait for locks.
     while (!(PLL0USB->stat & 1));
