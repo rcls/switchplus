@@ -4,10 +4,10 @@
 #include "registers.h"
 #include "usb.h"
 
-#define TCK GPIO_BYTE[6][13]
-#define TDO GPIO_BYTE[5][3]
-#define TDI GPIO_BYTE[6][12]
-#define TMS GPIO_BYTE[5][4]
+#define TCK GPIO_WORD[6][13]
+#define TDO GPIO_WORD[5][3]
+#define TDI GPIO_WORD[6][12]
+#define TMS GPIO_WORD[5][4]
 
 #define JTAG_EP_IN 0x84
 #define JTAG_EP_OUT 0x04
@@ -31,7 +31,7 @@ static int jtag_clk(int tms, int tdi)
     spin_for(50);
     int r = TDO;
     TCK = 1;
-    return r;
+    return r & 1;
 }
 
 
@@ -75,15 +75,17 @@ static unsigned jtag_dr_short(int n, unsigned d)
 
 static void jtag_reset(void)
 {
-    // Set the jtag pins to be GPIO.
-    GPIO_DIR[6] |= 0x3000;
-    GPIO_DIR[5] = (GPIO_DIR[5] & ~8) | 0x10;
-
-    TCK = 0;
-    TDI = 1;
-    TMS = 1;
-
+    // Set-up the jtag pins to be GPIO.
     static const unsigned pins[] = {
+        WORD_WRITE(TCK, 0),
+        WORD_WRITE(TDI, 1),
+        WORD_WRITE(TMS, 1),
+
+        BIT_SET(GPIO_DIR[6], 12),       // TDI
+        BIT_SET(GPIO_DIR[6], 13),       // TCK
+        BIT_RESET(GPIO_DIR[5], 3),      // TDO
+        BIT_SET(GPIO_DIR[5], 4),        // TMS
+
         PIN_OUT(12,14,4),               // TCK is GPIO6[13] PC_14 func 4 ball N1
         PIN_IN(2,3,4),                  // TDO is GPIO5[3] P2_3 func 4 ball J12
         PIN_OUT(12,13,4),               // TDI is GPIO6[12] PC_13 func 4 ball M1
