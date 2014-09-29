@@ -178,11 +178,11 @@ void init_switch (void)
         WORD_WRITE(SSP0->cr1, 2),
 
         // Set SPIS output hi.
-        BYTE_ONE(GPIO_BYTE[7][16]),
+        WORD_WRITE(GPIO_WORD[7][16], 1),
         BIT_SET(GPIO_DIR[7], 16),
 
         // Switch reset is E16, GPIO7[9], PE_9.
-        BYTE_ZERO(GPIO_BYTE[7][9]),
+        WORD_WRITE(GPIO_WORD[7][9], 0),
         BIT_SET(GPIO_DIR[7], 9),
 
         PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
@@ -205,7 +205,7 @@ void init_switch (void)
         PIN_OUT(0,1,6),                 // TX_EN, M2, P0_1, func 6.
 
         // Out of reset.
-        BYTE_ONE(GPIO_BYTE[7][9]),
+        WORD_WRITE(GPIO_WORD[7][9], 1),
 
         // Wait milliseconds (docs say ~ 100us).
         SPIN_FOR(96000),

@@ -15,8 +15,6 @@
 #define PIN_IO_FAST(a,b,f)  PIN(a, b, 0xe0 | (f))
 
 #define opcode28(n,a) (((n) << 28) | (0xfffffff & (unsigned) (a)))
-#define BYTE_ZERO(a) opcode28(0,&(a))
-#define BYTE_ONE(a)  opcode28(1,&(a))
 #define WORD_WRITE(a,v) opcode28(4,&(a)) + ((v)<<20) + 0 * (1/((v) < 8 * 256))
 #define WORD_WRITE32(a,v) opcode28(2,&(a)), v
 

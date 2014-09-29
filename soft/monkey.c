@@ -9,7 +9,7 @@
 #include <stddef.h>
 
 // The chip-select to the console, we configure as a GPIO.
-#define CONSOLE_CS (&GPIO_BYTE[7][19])
+#define CONSOLE_CS (&GPIO_WORD[7][19])
 
 
 // Buffer for log text.
@@ -91,7 +91,7 @@ void init_monkey_ssp (void)
     static const unsigned pins[] = {
         // Setup pins; make CS a GPIO output, pulse it high for a bit.
         BIT_SET(GPIO_DIR[7], 19),
-        BYTE_ONE(*CONSOLE_CS),
+        WORD_WRITE(*CONSOLE_CS, 1),
 
         PIN_OUT_FAST(15,4,0),           // SCK is D10, PF_4 func 0.
         PIN_OUT_FAST(15,5,4),           // SSEL is E9, PF_5, GPIO7[19] func 4.
@@ -99,7 +99,7 @@ void init_monkey_ssp (void)
         PIN_OUT_FAST(15,7,2),           // MOSI is B7, PF_7 func 2.
 
         // Leave CS low.
-        BYTE_ZERO(*CONSOLE_CS),
+        WORD_WRITE(*CONSOLE_CS, 0),
         WORD_WRITE(GPDMA->config, 1),   // Enable.
     };
     configure(pins, sizeof pins / sizeof pins[0]);

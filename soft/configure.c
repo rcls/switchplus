@@ -89,12 +89,12 @@ void check_for_early_dfu(void)
 
     // Reset the switch.  Switch reset is E16, GPIO7[9], PE_9.
     static const unsigned swreset[] = {
-        BYTE_ZERO(GPIO_BYTE[7][9]),
+        WORD_WRITE(GPIO_WORD[7][9], 0),
         BIT_SET(GPIO_DIR[7], 9),
         PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
         PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
         SPIN_FOR(10000),
-        BYTE_ONE(GPIO_BYTE[7][9]),
+        WORD_WRITE(GPIO_WORD[7][9], 1),
     };
     configure(swreset, sizeof swreset / sizeof swreset[0]);
 
