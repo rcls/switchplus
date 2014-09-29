@@ -12,47 +12,48 @@ static volatile bool frame_flag;
 
 void lcd_init (void)
 {
-    // Setup the PLL0AUDIO to give 74.75MHz off 50MHz ethernet clock.
-    // ndec=122, mdec=13107, pdec=66
-    // selr=0, seli=48, selp=24
-    // pllfract = 47.839996,0x17eb85
-    // pre-divider=16, feedback div=47, post-div=2
-    // fcco=299MHz, fout=74.749994MHz.
-    PLL0AUDIO->ctrl = 0x03001811;
-    PLL0AUDIO->mdiv = 13107;
-    PLL0AUDIO->np_div = 66 + (122 << 12);
-    PLL0AUDIO->frac = 0x17eb85;
-
-    PLL0AUDIO->ctrl = 0x03001810;
-    puts ("LCD lock wait:");
-    while (!(PLL0AUDIO->stat & 1));
-    puts (" done\n");
-
-    // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
-    *BASE_LCD_CLK = 0x08000800;
-
-    // Reset the lcd.
-    RESET_CTRL[0] = (1<<16) | (1<<12);
-    while (!(RESET_ACTIVE_STATUS[0] & (1 << 16)));
-
     // Reset the SDRAM.
     meminit (cpu_frequency (1));
 
-    // 1024x1024 59.90 Hz (CVT) hsync: 63.13 kHz; pclk: 74.75 MHz
-    // Modeline "1024x1024R"   74.75  1024 1072 1104 1184  1024 1027 1037 1054
-    // +hsync -vsync
-    // horizontal 1024 48 32 80
-    // vertical 1024 3 10 17
-
-    LCD->timh = (79 << 24) + (47 << 8) + (31 << 16) + 0xfc;
-    LCD->timv = (16 << 24) + (2 << 16) + (9 << 10) + 1023;
-    LCD->pol = 0x07ff3020;
-    LCD->upbase = FRAME_BUFFER;         // SDRAM.
-    LCD->lpbase = FRAME_BUFFER;
-    LCD->ctrl = 0x1002c;                // TFT, 16bpp, disabled, watermark=8.
-
-    // Setup pins.
+    puts ("LCD setup:");
     static const unsigned pins[] = {
+        // Setup the PLL0AUDIO to give 74.75MHz off 50MHz ethernet clock.
+        // ndec=122, mdec=13107, pdec=66
+        // selr=0, seli=48, selp=24
+        // pllfract = 47.839996,0x17eb85
+        // pre-divider=16, feedback div=47, post-div=2
+        // fcco=299MHz, fout=74.749994MHz.
+        WORD_WRITE32(PLL0AUDIO->ctrl, 0x03001811),
+        WORD_WRITE32(PLL0AUDIO->mdiv, 13107),
+        WORD_WRITE32(PLL0AUDIO->np_div, 66 + (122 << 12)),
+        WORD_WRITE32(PLL0AUDIO->frac, 0x17eb85),
+
+        BIT_RESET(PLL0AUDIO->ctrl, 0),
+        //PLL0AUDIO->ctrl = 0x03001810;
+
+        BIT_WAIT_ZERO(PLL0AUDIO->stat, 0),
+        //while (!(PLL0AUDIO->stat & 1));
+
+        // The lcd clock is outclk11.  PLL0AUDIO is clock source 8.
+        WORD_WRITE32(*BASE_LCD_CLK, 0x08000800),
+
+        // Reset the lcd.
+        WORD_WRITE32(RESET_CTRL[0], (1<<16) | (1<<12)),
+        BIT_WAIT_ZERO(RESET_ACTIVE_STATUS[0], 16),
+
+        // 1024x1024 59.90 Hz (CVT) hsync: 63.13 kHz; pclk: 74.75 MHz
+        // Modeline "1024x1024R" 74.75  1024 1072 1104 1184  1024 1027 1037 1054
+        // +hsync -vsync
+        // horizontal 1024 48 32 80
+        // vertical 1024 3 10 17
+
+        WORD_WRITE32(LCD->timh, (79 << 24) + (47 << 8) + (31 << 16) + 0xfc),
+        WORD_WRITE32(LCD->timv, (16 << 24) + (2 << 16) + (9 << 10) + 1023),
+        WORD_WRITE32(LCD->pol, 0x07ff3020),
+        WORD_WRITE32(LCD->upbase, (unsigned) FRAME_BUFFER), // SDRAM.
+        WORD_WRITE32(LCD->lpbase, (unsigned) FRAME_BUFFER),
+        WORD_WRITE32(LCD->ctrl, 0x1002c), // TFT, 16bpp, disabled, watermark=8.
+
         PIN_OUT_FAST(12,0,4),           // D4  LCD_DCLK
         PIN_OUT_FAST(4,6,2),            // C1  LCD_ENAB/LCDM
         PIN_OUT_FAST(4,5,2),            // D2  LCD_FP
@@ -83,16 +84,19 @@ void lcd_init (void)
         PIN_OUT_FAST(11,2,2),           // B12 LCD_VD21
         PIN_OUT_FAST(11,1,2),           // A14 LCD_VD22
         PIN_OUT_FAST(11,0,2),           // B15 LCD_VD23
+
+        // Enable the lcd.
+        WORD_WRITE32(LCD->ctrl, 0x1082d), // TFT, 16bpp, 565, watermark=8.
+
+        // Enable the frame interrupt.
+        WORD_WRITE(LCD->intmsk, 4),
     };
 
     configure(pins, sizeof pins / sizeof pins[0]);
 
-    // Enable the lcd.
-    LCD->ctrl = 0x1082d;                  // TFT, 16bpp, 565, watermark=8.
-
-    // Enable the frame interrupt.
-    LCD->intmsk = 4;
     NVIC_ISER[0] = 1 << m4_lcd;
+
+    puts (" done\n");
 }
 
 
