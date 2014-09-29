@@ -189,7 +189,7 @@ void memtest (void)
         sdram[i] = i * 0x02030401;
 
     putchar ('\n');
-    for (int i = 0; i != size; ++i) {
+    for (unsigned i = 0; i != size; ++i) {
         unsigned e = i * 0x02030401;
         unsigned v = sdram[i];
         if (v != e) {
