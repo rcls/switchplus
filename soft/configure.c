@@ -20,6 +20,9 @@ void configure(const unsigned * pins, int count)
         case op_spin:
             spin_for(pins[i] & 0xfffffff);
             break;
+        case op_wait_zero:
+            while (* (volatile unsigned *) address);
+            break;
         default:                        // Write word small.
             * (volatile unsigned *) (address & ~0xff00000)
                 = (pins[i] >> 20) - op_write * 256;
@@ -106,11 +109,11 @@ void check_for_early_dfu(void)
         WORD_WRITE32(PLL0USB->mdiv, (28 << 22) + (13 << 17) + 32682),
         WORD_WRITE32(PLL0USB->np_div, 5 << 12),
         BIT_RESET(PLL0USB->ctrl, 0),
+
+        // Wait for lock.
+        BIT_WAIT_ZERO(PLL0USB->stat, 0),
     };
     configure(swreset, sizeof swreset / sizeof swreset[0]);
-
-    // Wait for locks.
-    while (!(PLL0USB->stat & 1));
 
     enter_dfu_go();
 }
