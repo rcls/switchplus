@@ -86,9 +86,9 @@ static void jtag_reset(void)
         BIT_RESET(GPIO_DIR[5], 3),      // TDO
         BIT_SET(GPIO_DIR[5], 4),        // TMS
 
-        PIN_OUT(12,14,4),               // TCK is GPIO6[13] PC_14 func 4 ball N1
+        PIN_OUT(12,13,4)                // TDI is GPIO6[12] PC_13 func 4 ball M1
+        + PIN_EXTRA(1),                 // TCK is GPIO6[13] PC_14 func 4 ball N1
         PIN_IN(2,3,4),                  // TDO is GPIO5[3] P2_3 func 4 ball J12
-        PIN_OUT(12,13,4),               // TDI is GPIO6[12] PC_13 func 4 ball M1
         PIN_OUT(2,4,4),                 // TMS is GPIO5[4] P2_4 func 4 ball K11
     };
 

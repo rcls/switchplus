@@ -160,12 +160,12 @@ void mdio_report_changed (void)
 
 void init_switch (void)
 {
-    // Configure SSP0...
-    *BASE_SSP0_CLK = 0x03000800;        // Base clock is 50MHz.
-
     // Set up the pins.
 #define PULL_DOWN 0x18
     static const unsigned pins[] = {
+        // Configure SSP0...
+        WORD_WRITE32(*BASE_SSP0_CLK, 0x03000800), // Base clock is 50MHz.
+
         // Set the prescaler to divide by 8.
         WORD_WRITE(SSP0->cpsr, 8),
 
