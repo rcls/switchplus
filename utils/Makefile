@@ -1,9 +1,9 @@
 
-CFLAGS=-O2 -Wall -Werror -std=gnu11 -flto -fwhole-program -MMD -MP -MF.deps/$@.d
+CFLAGS=-O2 -g -Wall -Werror -std=gnu11 -flto -fwhole-program -MMD -MP -MF.deps/$@.d
 
 LINK.o = $(CC) $(CFLAGS) $(LDFLAGS)
 
-PROGS=addheader flasher runit xbit pbit decode_bitstream usbreset
+PROGS=addheader decode_bitstream flasher runit xbit pbit usbreset square4
 all: $(PROGS)
 
 clean:

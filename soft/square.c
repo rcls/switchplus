@@ -53,6 +53,10 @@ typedef struct block16_t {
 
 
 static const block16_t block8[4] = {
+    // Down 8, offset = 1,3, move = 0,8
+    { 1 + 3 * 1024, 8 * 1024, {
+            0x003e, 0x006b, 0x00e1, 0x01e3, 0x0100, 0x0180, 0x01e0, 0x01a0,
+            0x01e0, 0x0180, 0x0100, 0x01e1, 0x00e1, 0x006b, 0x003e, 0x0000 }},
     // Right 8, offset = 3,7, move = 8,0
     { 3 + 7 * 1024, 8, {
             0x0ff8, 0x1bec, 0x394e, 0x79cf, 0x4001, 0x6003, 0x4001, 0x600b,
@@ -65,10 +69,6 @@ static const block16_t block8[4] = {
     { 11 + 1024, -8, {
             0x380e, 0x6803, 0x4001, 0x6003, 0x4001, 0x79cf, 0x394e, 0x1bec,
             0x0ff8, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }},
-    // Down 8, offset = 1,3, move = 0,8
-    { 1 + 3 * 1024, 8 * 1024, {
-            0x003e, 0x006b, 0x00e1, 0x01e3, 0x0100, 0x0180, 0x01e0, 0x01a0,
-            0x01e0, 0x0180, 0x0100, 0x01e1, 0x00e1, 0x006b, 0x003e, 0x0000 }},
 };
 
 
@@ -104,10 +104,10 @@ static pixel_t * draw8 (pixel_t * s, const block16_t * b, int colour)
 
 
 static const short block1[4][4] = {
-    { -1024, -1024+1, -1024+2, 2 },
-    { -1, -1-1024, -1-2048, -2048 },
-    { 1024, 1024-1, 1024-2, -2 },
-    { 1, 1 + 1024, 1 + 2048, 2048 }
+    { 1, 1 + 1024, 1 + 2048, 2048 },    // Down.
+    { -1024, -1024+1, -1024+2, 2 },     // Right.
+    { -1, -1-1024, -1-2048, -2048 },    // Up.
+    { 1024, 1024-1, 1024-2, -2 },       // Left.
 };
 
 
@@ -150,29 +150,29 @@ static sq_context_t * square_clip(sq_context_t * restrict c, unsigned dir,
     // Work out bounding box.
     int right, up, left, down;
     switch (dir) {
-    case 0:                             // right
+    case 0:                             // down
+        down  = (3 * L) - 1;
+        right = (2 * L) - 1;
+        up    = L - 1;
+        left  = (L - 1) >> 1;
+        break;
+    case 1:                             // right
         right = (3 * L) - 1;
         up    = (2 * L) - 1;
         left  = L - 1;
         down  = (L - 1) >> 1;
         break;
-    case 1:                             // up
+    case 2:                             // up
         up    = (3 * L) - 1;
         left  = (2 * L) - 1;
         down  = L - 1;
         right = (L - 1) >> 1;
         break;
-    case 2:                             // left
+    case 3:                             // left
         left  = (3 * L) - 1;
         down  = (2 * L) - 1;
         right = L - 1;
         up    = (L - 1) >> 1;
-        break;
-    case 3:                             // down
-        down  = (3 * L) - 1;
-        right = (2 * L) - 1;
-        up    = L - 1;
-        left  = (L - 1) >> 1;
         break;
     default:
         __builtin_unreachable();
@@ -201,22 +201,7 @@ static sq_context_t * square_clip(sq_context_t * restrict c, unsigned dir,
     c = square_clip(c, dir, L);
     return square_clip(c, (dir - 1) & 3, L);
 move:
-    switch (dir) {
-    case 0:                             // right
-        c->x += L;
-        break;
-    case 1:                             // up
-        c->y -= L;
-        break;
-    case 2:                             // left
-        c->x -= L;
-        break;
-    case 3:                             // down
-        c->y += L;
-        break;
-    default:
-        __builtin_unreachable();
-    }
+    * (dir & 1 ? &c->x : &c->y) += dir & 2 ? -L : L;
     return c;
 }
 
@@ -270,7 +255,7 @@ void square_draw9 (void)
     c.Lcolour = 256 / 8;
     c.next_colour = 0;
     c.frame_buffer = FRAME_BUFFER;
-    square_clip(&c, 0, 256);
+    square_clip(&c, 1, 256);
     verbose(" done.\n");
 }
 
@@ -302,7 +287,7 @@ void square_interact (void)
             c.Lcolour = L >> 3;
             c.next_colour = 0;
             c.frame_buffer = new_frame;
-            square_clip(&c, 0, L);
+            square_clip(&c, 1, L);
             lcd_setframe_wait (new_frame);
             // Clear out the old one.  FIXME - record number of pixels so we can
             // make a smart decision?
