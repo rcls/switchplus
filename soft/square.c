@@ -13,11 +13,6 @@ typedef struct sq_context_t {
     pixel_t * frame_buffer;
 } sq_context_t;
 
-static sq_context_t * square_right(sq_context_t * restrict c, unsigned L);
-static sq_context_t * square_up   (sq_context_t * restrict c, unsigned L);
-static sq_context_t * square_left (sq_context_t * restrict c, unsigned L);
-static sq_context_t * square_down (sq_context_t * restrict c, unsigned L);
-
 static pixel_t colour(unsigned i)
 {
     // Pixel layout msb to lsb is BBBB BGGG GGGR RRRR.
@@ -36,10 +31,10 @@ static pixel_t colour(unsigned i)
     case 1:                             // Green to blue.
         r = 64;
         g = 255 - part;
-        b = part;
+        b = 64 + part;
         break;
     case 2:                             // Blue to red.
-        r = part;
+        r = 64 + part;
         g = 64;
         b = 255 - part;
         break;
@@ -138,77 +133,91 @@ static pixel_t * square_draw (pixel_t * start, int dir, unsigned L, unsigned c)
     return start;
 }
 
-
 // We keep coords and (3<<level) in range -(1<<30)..(1<<30), so the arithmetic
 // does not overflow.
-static inline bool fits (int x, int y, int right, int up, int left, int down)
+static sq_context_t * square_clip(sq_context_t * restrict c, unsigned dir,
+                                  unsigned L)
 {
-    return x - left >= 0 && x + right < 1024 && y - up >= 0 && y + down < 1024;
-}
+    if (__builtin_expect(L == 0, 1)) {
+        if (c->x >= 0 && c->x < 1024 && c->y >= 0 && c->y < 1024)
+            c->frame_buffer[c->x + c->y * 1024] = c->colour;
+        L = 1;
+        goto move;
+    }
+    if (L == c->Lcolour)
+        c->colour = colour(c->next_colour++);
 
+    // Work out bounding box.
+    int right, up, left, down;
+    switch (dir) {
+    case 0:                             // right
+        right = (3 * L) - 1;
+        up    = (2 * L) - 1;
+        left  = L - 1;
+        down  = (L - 1) >> 1;
+        break;
+    case 1:                             // up
+        up    = (3 * L) - 1;
+        left  = (2 * L) - 1;
+        down  = L - 1;
+        right = (L - 1) >> 1;
+        break;
+    case 2:                             // left
+        left  = (3 * L) - 1;
+        down  = (2 * L) - 1;
+        right = L - 1;
+        up    = (L - 1) >> 1;
+        break;
+    case 3:                             // down
+        down  = (3 * L) - 1;
+        right = (2 * L) - 1;
+        up    = L - 1;
+        left  = (L - 1) >> 1;
+        break;
+    default:
+        __builtin_unreachable();
+    }
+    right = c->x + right;
+    up    = c->y - up;
+    left  = c->x - left;
+    down  = c->y + down;
+    if (L <= c->Lcolour) {
+        if (right < 0 || up >= 1024 || left >= 1024 || down < 0) {
+            L *= 2;
+            goto move;
+        }
 
-static inline bool off (int x, int y, int right, int up, int left, int down)
-{
-    return x - left >= 1024 || x + right < 0 || y - up >= 1024 || y + down < 0;
-}
+        if (right < 1024 && up >= 0 && left >= 0 && down < 1024) {
+            square_draw(c->frame_buffer + c->x + c->y * 1024,
+                        dir, L, c->colour);
+            L *= 2;
+            goto move;
+        }
+    }
 
-
-#define B_right (3 * L) - 1 , (2 * L) - 1 , L - 1       , (L - 1) >> 1
-#define B_up    (L - 1) >> 1, (3 * L) - 1 , (2 * L) - 1 , L - 1
-#define B_left  L - 1       , (L - 1) >> 1, (3 * L) - 1 , (2 * L) - 1
-#define B_down  (2 * L) - 1 , L - 1       , (L - 1) >> 1, (3 * L) - 1
-
-#define M_right(c,L) (c)->x += L
-#define M_up(c,L)    (c)->y -= L
-#define M_left(c,L)  (c)->x -= L
-#define M_down(c,L)  (c)->y += L
-
-#define SQUARE_BLK(MAIN,FIRST,LAST,DIR)                                 \
-    if (L == 0) {                                                       \
-        if (c->x >= 0 && c->x < 1024 && c->y >= 0 && c->y < 1024)       \
-            c->frame_buffer[c->x + c->y * 1024] = c->colour;            \
-        M_##MAIN(c,1);                                                  \
-        return c;                                                       \
-    }                                                                   \
-    if (L == c->Lcolour)                                                \
-        c->colour = colour(c->next_colour++);                           \
-                                                                        \
-    if (L <= c->Lcolour && fits (c->x, c->y, B_##MAIN))                 \
-        square_draw(c->frame_buffer + c->x + c->y * 1024,               \
-                    DIR, L, c->colour);                                 \
-                                                                        \
-    else if (L > c->Lcolour || !off (c->x, c->y, B_##MAIN)) {           \
-        L >>= 1;                                                        \
-        c = square_##FIRST(c, L);                                       \
-        c = square_##MAIN(c, L);                                        \
-        c = square_##MAIN(c, L);                                        \
-        return square_##LAST(c, L);                                     \
-    }                                                                   \
-                                                                        \
-    M_##MAIN(c, 2*L);                                                   \
+    L >>= 1;
+    c = square_clip(c, (dir + 1) & 3, L);
+    c = square_clip(c, dir, L);
+    c = square_clip(c, dir, L);
+    return square_clip(c, (dir - 1) & 3, L);
+move:
+    switch (dir) {
+    case 0:                             // right
+        c->x += L;
+        break;
+    case 1:                             // up
+        c->y -= L;
+        break;
+    case 2:                             // left
+        c->x -= L;
+        break;
+    case 3:                             // down
+        c->y += L;
+        break;
+    default:
+        __builtin_unreachable();
+    }
     return c;
-
-static sq_context_t * square_right (sq_context_t * restrict c, unsigned L)
-{
-    SQUARE_BLK(right, up, down, 0);
-}
-
-
-static sq_context_t * square_up (sq_context_t * restrict c, unsigned L)
-{
-    SQUARE_BLK(up, left, right, 1);
-}
-
-
-static sq_context_t * square_left (sq_context_t * restrict c, unsigned L)
-{
-    SQUARE_BLK(left, down, up, 2);
-}
-
-
-static sq_context_t * square_down (sq_context_t * restrict c, unsigned L)
-{
-    SQUARE_BLK(down, right, left, 3);
 }
 
 
@@ -261,8 +270,7 @@ void square_draw9 (void)
     c.Lcolour = 256 / 8;
     c.next_colour = 0;
     c.frame_buffer = FRAME_BUFFER;
-    square_right(&c, 256);
-    __memory_barrier();
+    square_clip(&c, 0, 256);
     verbose(" done.\n");
 }
 
@@ -294,27 +302,15 @@ void square_interact (void)
             c.Lcolour = L >> 3;
             c.next_colour = 0;
             c.frame_buffer = new_frame;
-            square_right(&c, L);
+            square_clip(&c, 0, L);
             lcd_setframe_wait (new_frame);
             // Clear out the old one.  FIXME - record number of pixels so we can
             // make a smart decision?
-            if (false) {
-                c.x = lastX;
-                c.y = lastY;
-                c.Lcolour = 0xffffffff;
-                c.colour = 0x4208;
-                c.next_colour = 0;
-                c.frame_buffer = current_frame;
-                current_frame = new_frame;
-                new_frame = c.frame_buffer;
-                square_right(&c, lastL);
-            }
-            else {
-                dma_fill(current_frame, 0x42084208, 524288);
-                pixel_t * temp = current_frame;
-                current_frame = new_frame;
-                new_frame = temp;
-            }
+            dma_fill(current_frame, 0x42084208, 524288);
+            pixel_t * temp = current_frame;
+            current_frame = new_frame;
+            new_frame = temp;
+
             lastX = X;
             lastY = Y;
             lastL = L;
