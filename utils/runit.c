@@ -58,18 +58,18 @@ static size_t do_block (const unsigned char * buffer, size_t start, size_t end)
 int main (int argc, char * const argv[])
 {
     unsigned char * buffer = NULL;
-    size_t offset = 0;
+    size_t length = 0;
     size_t size = 0;
 
-    slurp_file(0, &buffer, &offset, &size);
+    slurp_file(0, &buffer, &length, &size);
 
     if (size == 0)
         errx (1, "Nothing to do!");
 
-    printf("A 0\n");
-    printf("W %u %zu\n", 0x10000000, offset);
+    printf("A 0\n");                    // Turn off echo.
+    printf("W %u %zu\n", 0x10000000, length);
 
-    for (size_t done = 0; done < offset; done = do_block(buffer, done, offset));
+    for (size_t done = 0; done < length; done = do_block(buffer, done, length));
 
     printf("G %u T\n", 0x10000000);
 
