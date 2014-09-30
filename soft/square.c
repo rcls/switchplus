@@ -9,7 +9,7 @@
 typedef struct sq_context_t {
     int x, y;
     unsigned colour, Lcolour;
-    const pixel_t * next_colour;
+    unsigned next_colour;
     pixel_t * frame_buffer;
 } sq_context_t;
 
@@ -18,17 +18,36 @@ static sq_context_t * square_up   (sq_context_t * restrict c, unsigned L);
 static sq_context_t * square_left (sq_context_t * restrict c, unsigned L);
 static sq_context_t * square_down (sq_context_t * restrict c, unsigned L);
 
-// Pixel layout msb to lsb is BBBB BGGG GGGR RRRR.
-static const pixel_t colours[] = {
-    0x421f, 0x425e, 0x429d, 0x42dc, 0x431b, 0x435a, 0x4399, 0x43d8,
-    0x4456, 0x4495, 0x44d4, 0x4513, 0x4552, 0x4591, 0x45d0, 0x460f,
-    0x468d, 0x46cc, 0x470b, 0x474a, 0x4789, 0x47c8, 0x47c8, 0x4f88,
-    0x5f08, 0x66c8, 0x6e88, 0x7648, 0x7e08, 0x85c8, 0x8d88, 0x9548,
-    0xa4c8, 0xac88, 0xb448, 0xbc08, 0xc3c8, 0xcb88, 0xd348, 0xdb08,
-    0xea88, 0xf248, 0xfa08, 0xfa08, 0xf209, 0xea0a, 0xe20b, 0xda0c,
-    0xca0e, 0xc20f, 0xba10, 0xb211, 0xaa12, 0xa213, 0x9a14, 0x9215,
-    0x8217, 0x7a18, 0x7219, 0x6a1a, 0x621b, 0x5a1c, 0x521d, 0x4a1e,
-};
+static pixel_t colour(unsigned i)
+{
+    // Pixel layout msb to lsb is BBBB BGGG GGGR RRRR.
+    // We do the colours in 64 steps, running through 3 segments.
+    // Each segment is divided into pieces running one colour up and another
+    // down, the top 75%.
+    unsigned segment = (i * 3) >> 6;
+    unsigned part = ((i * 3) & 63) * 3; // 0 <= part < 191.
+    unsigned r, g, b;
+    switch (segment) {
+    case 0:                             // Red to green.
+        r = 255 - part;
+        g = 64 + part;
+        b = 64;
+        break;
+    case 1:                             // Green to blue.
+        r = 64;
+        g = 255 - part;
+        b = part;
+        break;
+    case 2:                             // Blue to red.
+        r = part;
+        g = 64;
+        b = 255 - part;
+        break;
+    default:
+        __builtin_unreachable();
+    }
+    return (r >> 3) | (g >> 2) * 32 | (b >> 3) * 2048;
+}
 
 
 typedef struct block16_t {
@@ -152,7 +171,7 @@ static inline bool off (int x, int y, int right, int up, int left, int down)
         return c;                                                       \
     }                                                                   \
     if (L == c->Lcolour)                                                \
-        c->colour = *c->next_colour++;                                  \
+        c->colour = colour(c->next_colour++);                           \
                                                                         \
     if (L <= c->Lcolour && fits (c->x, c->y, B_##MAIN))                 \
         square_draw(c->frame_buffer + c->x + c->y * 1024,               \
@@ -240,7 +259,7 @@ void square_draw9 (void)
     c.x = 256;
     c.y = 768;
     c.Lcolour = 256 / 8;
-    c.next_colour = colours;
+    c.next_colour = 0;
     c.frame_buffer = FRAME_BUFFER;
     square_right(&c, 256);
     __memory_barrier();
@@ -273,7 +292,7 @@ void square_interact (void)
             c.x = X;
             c.y = Y;
             c.Lcolour = L >> 3;
-            c.next_colour = colours;
+            c.next_colour = 0;
             c.frame_buffer = new_frame;
             square_right(&c, L);
             lcd_setframe_wait (new_frame);
@@ -284,7 +303,7 @@ void square_interact (void)
                 c.y = lastY;
                 c.Lcolour = 0xffffffff;
                 c.colour = 0x4208;
-                c.next_colour = colours;
+                c.next_colour = 0;
                 c.frame_buffer = current_frame;
                 current_frame = new_frame;
                 new_frame = c.frame_buffer;
