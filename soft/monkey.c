@@ -222,8 +222,13 @@ static void free_monkey_space(void)
     // Recalculate buffer positions...  Note that enabling interrupts can
     // invalidate everything, meaning we need to redo the entire calculation.
 retry: ;
-    unsigned allowed_usb = headroom(usb_flight_pos);
-    unsigned allowed_ssp = headroom(ssp_flight_pos);
+    if (insert_pos == monkey_buffer_end)
+        insert_pos = monkey_buffer;
+
+    // If the pointers are before the insert_pos then we get a large
+    // value which gets clamped to 512 or the buffer end.
+    unsigned allowed_usb = usb_flight_pos - insert_pos - 1;
+    unsigned allowed_ssp = ssp_flight_pos - insert_pos - 1;
 
     if (allowed_usb == 0 || allowed_ssp == 0) {
         if (at_low_priority()) {        // Low priority - wait and retry.
@@ -239,9 +244,6 @@ retry: ;
     unsigned allowed = 512;
     allowed = min(allowed, allowed_usb);
     allowed = min(allowed, allowed_ssp);
-
-    if (insert_pos == monkey_buffer_end)
-        insert_pos = monkey_buffer;
 
     allowed = min(allowed, monkey_buffer_end - insert_pos);
 
@@ -396,7 +398,7 @@ static void format_string (const char * s, unsigned width, unsigned char fill)
 static void format_number (unsigned long value, unsigned base, unsigned lower,
                            bool sgn, unsigned width, unsigned char fill)
 {
-    unsigned char c[23];
+    unsigned char c[12];
     unsigned char * p = c;
     if (sgn && (long) value < 0)
         value = -value;
@@ -425,8 +427,9 @@ static void format_number (unsigned long value, unsigned base, unsigned lower,
     for (; width > p - c; --width)
         write_byte (fill);
 
-    while (p != c)
+    do
         write_byte (*--p);
+    while (p != c);
 }
 
 
@@ -436,9 +439,9 @@ void printf (const char * restrict f, ...)
     va_list args;
     va_start (args, f);
 
-    for (const unsigned char * s = (const unsigned char *) f; *s; ++s) {
+    for (const char * s = f; *s; ++s) {
         if (*s != '%') {
-            write_byte(*s);
+            write_byte(*s & 0xff);
             continue;
         }
 
@@ -467,9 +470,6 @@ void printf (const char * restrict f, ...)
         case 'u':
             base = 10;
             break;
-        case 'o':
-            base = 8;
-            break;
         case 'p':
             base = 16;
             width = 8;
@@ -479,7 +479,7 @@ void printf (const char * restrict f, ...)
             format_string (va_arg (args, const char *), width, fill);
             continue;
         default:
-            continue;                   // Ignore.
+            continue;
         }
 
         unsigned long value = va_arg(args, unsigned long);
