@@ -209,6 +209,10 @@ void init_switch (void)
 
         // Wait milliseconds (docs say ~ 100us).
         SPIN_FOR(96000),
+
+        // Reset event-router WAKEUP0 & enable it (interrupt from switch).
+        WORD_WRITE(EVENT_ROUTER->clr_stat, 1),
+        WORD_WRITE(EVENT_ROUTER->set_en, 1),
     };
     configure(pins, sizeof pins / sizeof pins[0]);
 

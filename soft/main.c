@@ -765,6 +765,9 @@ static void init_ethernet (void)
     // Start ethernet & it's dma.
     MAC->config = 0xc90c;
     EDMA->op_mode = 0x2002;
+
+    EDMA->stat = 0x1ffff;
+    EDMA->int_en = 0x0001ffff;
 }
 
 
@@ -847,8 +850,8 @@ void main (void)
 
     // Restore PLL1 & IDIVC to 96MHz off IRC, just in case of soft reset.
     PLL1->ctrl = 0x01170940;
-    *IDIVC_CTRL = 0x09000808;
     while (!(PLL1->stat & 1));
+    *IDIVC_CTRL = 0x09000808;
 
     *BASE_M4_CLK = 0x0e000800;          // Switch back to 96MHz IDIVC.
 
@@ -896,9 +899,9 @@ void main (void)
     *IDIVA_CTRL = 0x07000808;
     *BASE_M4_CLK = 0x0c000800;
 
-    disable_clocks();
-
     *BASE_SSP1_CLK = 0x0c000800;        // Take monkey SSP to 80Mb/s.
+
+    disable_clocks();
 
     // Build the linked list of idle tx buffers.
     idle_tx_buffers = NULL;
@@ -916,13 +919,6 @@ void main (void)
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
     NVIC_ISER[1] = 1 << 10;             // Enable event router interrupt.
-    *USBINTR = 0x00000041;              // Port change, reset, data.
-    EDMA->stat = 0x1ffff;
-    EDMA->int_en = 0x0001ffff;
-
-    // Reset event-router WAKEUP0 & enable it (interrupt from switch).
-    EVENT_ROUTER->clr_stat = 1;
-    EVENT_ROUTER->set_en = 1;
 
     __interrupt_enable();
 

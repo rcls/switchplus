@@ -44,26 +44,26 @@ static inline dQH_t * QH(int ep)
 
 void usb_init (void)
 {
+    // Start with just the control end-points.
+    for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
+        ((char *) &qh_and_dtd.QH)[i] = 0;
+
+    dtd_free_list = &qh_and_dtd.DTD[0];
+    for (int i = 1; i < NUM_DTDS; ++i)
+        qh_and_dtd.DTD[i-1].next = &qh_and_dtd.DTD[i];
+
+    qh_init (EP_00, 0x20408000);
+    qh_init (EP_80, 0x20408000);
+
     // Enable USB0 PHY power.
     *CREG0 &= ~32;
 
     *USBCMD = 2;                        // Reset.
     while (*USBCMD & 2);
 
-    dtd_free_list = &qh_and_dtd.DTD[0];
-    for (int i = 1; i < NUM_DTDS; ++i)
-        qh_and_dtd.DTD[i-1].next = &qh_and_dtd.DTD[i];
-
     ENDPT->usbmode = 0xa;               // Device.  Tripwire.
     ENDPT->otgsc = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
-
-    // Start with just the control end-points.
-    for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
-        ((char *) &qh_and_dtd.QH)[i] = 0;
-
-    qh_init (EP_00, 0x20408000);
-    qh_init (EP_80, 0x20408000);
 
     // Set the endpoint list pointer.
     *ENDPOINTLISTADDR = (unsigned) &qh_and_dtd.QH;
@@ -76,6 +76,8 @@ void usb_init (void)
     // input as we may have just been loaded via DFU.
     GPIO_DIR[4] = (GPIO_DIR[4] | (1<<1)) & ~(1<<2);
     GPIO_BYTE[4][1] = 0;
+
+    *USBINTR = 0x00000041;              // Port change, reset, data.
 }
 
 
