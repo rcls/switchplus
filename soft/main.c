@@ -759,8 +759,8 @@ static void init_ethernet (void)
 
     rx_dma_insert = EDMA_COUNT;
 
-    EDMA->trans_des_addr = (unsigned) tx_dma;
-    EDMA->rec_des_addr = (unsigned) rx_dma;
+    EDMA->trans_des_addr = tx_dma;
+    EDMA->rec_des_addr = rx_dma;
 
     // Start ethernet & it's dma.
     MAC->config = 0xc90c;

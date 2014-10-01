@@ -149,8 +149,8 @@ typedef struct edma_t {
     unsigned bus_mode;
     unsigned trans_poll_demand;
     unsigned rec_poll_demand;
-    unsigned rec_des_addr;
-    unsigned trans_des_addr;
+    volatile void * rec_des_addr;
+    volatile void * trans_des_addr;
     unsigned stat;
     unsigned op_mode;
     unsigned int_en;
