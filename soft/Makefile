@@ -21,9 +21,6 @@ UTILS=../utils
 LIBO=callback configure freq jtag lcd monkey sdram spirom square switch usb
 main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 
-%.s: %.c
-	$(CC) $(CFLAGS) -S -o $@ $<
-
 # Kill this rule.
 %: %.c
 
@@ -58,3 +55,7 @@ main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 # accidentally program an older version into the flash.
 go:	main.sram.boot main.flashA.flasher
 	dfu-util -D main.sram.boot
+
+# Cancel...
+%: %.c
+%: %.o
