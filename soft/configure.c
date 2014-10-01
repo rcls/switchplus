@@ -56,8 +56,8 @@ static void enter_dfu_go(void)
     };
     configure(pins, sizeof pins / sizeof pins[0]);
 
-    unsigned fakeotp[64];
-    for (int i = 0; i != 64; ++i)
+    unsigned fakeotp[16];
+    for (int i = 0; i != 16; ++i)
         fakeotp[i] = OTP[i];
 
     fakeotp[12] = (6 << 25) + (1 << 23); // Boot mode; use custom usb ids.
