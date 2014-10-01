@@ -450,16 +450,15 @@ void printf (const char * restrict f, ...)
         unsigned width = 0;
         for (; *s >= '0' && *s <= '9'; ++s)
             width = width * 10 + *s - '0';
-        unsigned base = 0;
-        unsigned lower = 0;
+        unsigned base;
         bool sgn = false;
         unsigned lng = 0;
         for (; *s == 'l'; ++s)
             ++lng;
-        switch (*s) {
+        unsigned lower = *s & 32;
+        switch (*s | 32) {
         case 'x':
             lower = 0x20;
-        case 'X':
             base = 16;
             break;
         case 'i':
@@ -471,27 +470,20 @@ void printf (const char * restrict f, ...)
         case 'o':
             base = 8;
             break;
-        case 'p': {
-            void * value = va_arg (args, void *);
-            if (width == 0)
-                width = 8;
-            format_number ((unsigned) value, 16, 32, false, width, '0');
+        case 'p':
+            base = 16;
+            width = 8;
+            fill = '0';
             break;
-        }
         case 's':
             format_string (va_arg (args, const char *), width, fill);
-            break;
+            continue;
+        default:
+            continue;                   // Ignore.
         }
-        if (base != 0) {
-            unsigned long value;
-            if (lng)
-                value = va_arg (args, unsigned long);
-            else if (sgn)
-                value = va_arg (args, int);
-            else
-                value = va_arg (args, unsigned);
-            format_number (value, base, lower, sgn, width, fill);
-        }
+
+        unsigned long value = va_arg(args, unsigned long);
+        format_number (value, base, lower, sgn, width, fill);
     }
 
     va_end (args);
