@@ -39,7 +39,8 @@ void lcd_init (void)
 
         // Reset the lcd.
         WORD_WRITE32(RESET_CTRL[0], 1<<16),
-        BIT_WAIT_ZERO(RESET_ACTIVE_STATUS[0], 16),
+        // FIXME - we should poll for the active bit to go non-zero.
+        SPIN_FOR(100),
 
         // 1024x1024 59.90 Hz (CVT) hsync: 63.13 kHz; pclk: 74.75 MHz
         // Modeline "1024x1024R" 74.75  1024 1072 1104 1184  1024 1027 1037 1054

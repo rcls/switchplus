@@ -114,7 +114,7 @@ void check_for_early_dfu(void)
         // selr=0, seli=28, selp=13
         // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
         WORD_WRITE32n(PLL0USB->ctrl, 3,
-                      0x30000819,        // CTRL : Divided in, direct out.
+                      0x30000819,       // CTRL : Divided in, direct out.
                       (28 << 22) + (13 << 17) + 32682, // MDIV.
                       5 << 12),                        // NP_DIV
 
