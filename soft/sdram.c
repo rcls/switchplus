@@ -11,7 +11,7 @@ void meminit (unsigned mhz)
 
     // Setup pins.
     static const unsigned pins[] = {
-        WORD_WRITE32(RESET_CTRL[0], (1<<21) | (1<<12)),
+        WORD_WRITE32(RESET_CTRL[0], 1<<21),
 
         PIN_IO_FAST(1, 7, 3)            // T5  EMC_D0
         + PIN_EXTRA(7),                 // ... R11 EMC_D7

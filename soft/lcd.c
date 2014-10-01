@@ -38,7 +38,7 @@ void lcd_init (void)
         WORD_WRITE32(*BASE_LCD_CLK, 0x08000800),
 
         // Reset the lcd.
-        WORD_WRITE32(RESET_CTRL[0], (1<<16) | (1<<12)),
+        WORD_WRITE32(RESET_CTRL[0], 1<<16),
         BIT_WAIT_ZERO(RESET_ACTIVE_STATUS[0], 16),
 
         // 1024x1024 59.90 Hz (CVT) hsync: 63.13 kHz; pclk: 74.75 MHz

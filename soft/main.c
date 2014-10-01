@@ -357,14 +357,14 @@ static void serial_byte (unsigned byte)
         *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
         spin_for(100000);
         while (1)
-            RESET_CTRL[0] = (1<<12) | (1<<1);
+            RESET_CTRL[0] = 1 << 1;
     case 'R':
         puts ("Cold Reboot!\n");
         *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
         spin_for(100000);
         __interrupt_disable();
         while (1)
-            RESET_CTRL[0] = (1<<12) | 1;
+            RESET_CTRL[0] = 1;
 
     case 'u':
         enter_dfu();
@@ -731,7 +731,7 @@ static void init_ethernet (void)
 
     *CREG6 = 4;                         // Set ethernet to RMII.
 
-    RESET_CTRL[0] = (1 << 22) | (1 << 12); // Reset ethernet.
+    RESET_CTRL[0] = 1 << 22;            // Reset ethernet.
     while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
 
     EDMA->bus_mode = 1;                 // Reset ethernet DMA.
