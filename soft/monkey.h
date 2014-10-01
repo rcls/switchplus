@@ -10,7 +10,6 @@ extern bool verbose_flag;
 void init_monkey_usb (void);
 void init_monkey_ssp (void);
 
-void monkey_kick (void);
 bool monkey_is_empty (void);
 
 void putchar (int byte);
