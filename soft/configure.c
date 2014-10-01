@@ -51,8 +51,8 @@ static void enter_dfu_go(void)
         BIT_SET(GPIO_DIR[4], 2),
         PIN_OUT(8, 2, 0),
 
-        WORD_WRITE(*USBCMD, 2),         // Reset USB.
-        BIT_WAIT_ZERO(*USBCMD, 1),
+        WORD_WRITE(USB->cmd, 2),        // Reset USB.
+        BIT_WAIT_ZERO(USB->cmd, 1),     /*  */
     };
     configure(pins, sizeof pins / sizeof pins[0]);
 

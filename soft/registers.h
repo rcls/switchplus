@@ -169,29 +169,34 @@ _Static_assert(sizeof(edma_t) == 0x58, "edma size");
 
 #define EDMA ((volatile edma_t *) 0x40011000)
 
-#define USB0 0x40006000
+typedef struct usb_t {
+    unsigned cmd;
+    unsigned sts;
+    unsigned intr;
+    unsigned frindex;
+    unsigned dummy;
+    union {
+        unsigned device_addr;
+        unsigned periodic_list_base;
+    };
+    union {
+        void * endpoint_list_addr;
+        void * async_list_addr;
+    };
+    unsigned tt_ctrl;
+    unsigned burst_size;
+    unsigned tx_fill_tuning;
+    unsigned dummy2[3];
+    unsigned binterval;
+    unsigned endpt_nak;
+    unsigned endpt_nak_en;
+    unsigned dummy3;
+    unsigned portsc1;
+} usb_t;
 
-#define CAPLENGTH ((v32*) (USB0 + 0x100))
-#define HCSPARAMS ((v32*) (USB0 + 0x104))
-#define HCCPARAMS ((v32*) (USB0 + 0x108))
-#define DCIVERSION ((v32*) (USB0 + 0x120))
-#define DCCPARAMS ((v32*) (USB0 + 0x124))
+#define USB ((volatile usb_t *) 0x40006140)
 
-#define USBCMD ((v32*) (USB0 + 0x140))
-#define USBSTS ((v32*) (USB0 + 0x144))
-#define USBINTR ((v32*) (USB0 + 0x148))
-#define FRINDEX ((v32*) (USB0 + 0x14c))
-#define DEVICEADDR ((v32*) (USB0 + 0x154))
-#define PERIODICLISTBASE ((v32*) (USB0 + 0x154))
-#define ENDPOINTLISTADDR ((v32*) (USB0 + 0x158))
-#define ASYNCLISTADDR ((v32*) (USB0 + 0x158))
-#define TTCTRL ((v32*) (USB0 + 0x15c))
-#define BURSTSIZE ((v32*) (USB0 + 0x160))
-#define TXFILLTUNING ((v32*) (USB0 + 0x164))
-#define BINTERVAL ((v32*) (USB0 + 0x174))
-#define ENDPTNAK ((v32*) (USB0 + 0x178))
-#define ENDPTNAKEN ((v32*) (USB0 + 0x17c))
-#define PORTSC1 ((v32*) (USB0 + 0x184))
+_Static_assert((unsigned) &USB->portsc1 == 0x40006184, "portsc1");
 
 typedef struct usb_endpoints_t {
     unsigned dummy;

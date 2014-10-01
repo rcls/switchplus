@@ -597,7 +597,7 @@ static void process_setup (void)
     case 0x0500:                        // Set address.
         if (((setup0 >> 16) & 127) == 0)
             stop_mgmt();                // Stop everything if back to address 0.
-        *DEVICEADDR = ((setup0 >> 16) << 25) | (1 << 24);
+        USB->device_addr = ((setup0 >> 16) << 25) | (1 << 24);
         response_length = 0;
         break;
     case 0x0900:                        // Set configuration.
@@ -773,8 +773,8 @@ static void init_ethernet (void)
 
 static void usb_interrupt (void)
 {
-    unsigned status = *USBSTS;
-    *USBSTS = status;                   // Clear interrupts.
+    unsigned status = USB->sts;
+    USB->sts = status;                   // Clear interrupts.
 
     unsigned complete = ENDPT->complete;
     ENDPT->complete = complete;
@@ -807,10 +807,10 @@ static void usb_interrupt (void)
     for (int i = 0; i < sizeof endpoints; ++i)
         endpt_clear(endpoints[i]);
 
-    *ENDPTNAK = 0xffffffff;
-    *ENDPTNAKEN = 1;
+    USB->endpt_nak = 0xffffffff;
+    USB->endpt_nak_en = 1;
 
-    *DEVICEADDR = 0;
+    USB->device_addr = 0;
 
     puts ("USB Reset processed...\n");
 }

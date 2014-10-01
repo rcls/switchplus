@@ -48,7 +48,7 @@ static inline unsigned ep_mask (unsigned ep)
 
 static inline bool is_high_speed(void)
 {
-    return *PORTSC1 & (1<<9);
+    return USB->portsc1 & (1<<9);
 }
 
 #endif

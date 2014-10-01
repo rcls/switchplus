@@ -58,18 +58,18 @@ void usb_init (void)
     // Enable USB0 PHY power.
     *CREG0 &= ~32;
 
-    *USBCMD = 2;                        // Reset.
-    while (*USBCMD & 2);
+    USB->cmd = 2;                        // Reset.
+    while (USB->cmd & 2);
 
     ENDPT->usbmode = 0xa;               // Device.  Tripwire.
     ENDPT->otgsc = 9;
     //*PORTSC1 = 0x01000000;              // Only full speed for now.
 
     // Set the endpoint list pointer.
-    *ENDPOINTLISTADDR = (unsigned) &qh_and_dtd.QH;
-    *DEVICEADDR = 0;
+    USB->endpoint_list_addr = &qh_and_dtd.QH;
+    USB->device_addr = 0;
 
-    *USBCMD = 1;                        // Run.
+    USB->cmd = 1;                        // Run.
 
     // Pin H5, GPIO4[1] is a red LED for indicating fatal errors.
     // K4,  GPIO4[2] is a green LED which we leave on pull-up.  But set to
@@ -77,7 +77,7 @@ void usb_init (void)
     GPIO_DIR[4] = (GPIO_DIR[4] | (1<<1)) & ~(1<<2);
     GPIO_BYTE[4][1] = 0;
 
-    *USBINTR = 0x00000041;              // Port change, reset, data.
+    USB->intr = 0x00000041;             // Port change, reset, data.
 }
 
 
@@ -116,7 +116,7 @@ static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
     unsigned eps;
     do {
         // 3. Set ATDTW bit in USBCMD register to '1'.
-        *USBCMD |= 1 << 14;
+        USB->cmd |= 1 << 14;
 
         // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
         // for later).
@@ -126,11 +126,11 @@ static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
         // - If '0' go to step 3.
         // - If '1' continue to step 6.
     }
-    while (!(*USBCMD & (1 << 14)));
+    while (!(USB->cmd & (1 << 14)));
 
     // 6. Write ATDTW bit in USBCMD register to '0'.
     // Seems unnecessary...
-    //*USBCMD &= ~(1 << 14);
+    //USB->cmd &= ~(1 << 14);
 
     // 7. If status bit read in step 4 (ENDPSTAT reg) indicates endpoint priming
     // is DONE (corresponding ERBRx or ETBRx is one): DONE.
@@ -295,12 +295,12 @@ unsigned get_0_setup (unsigned * setup1)
 {
     unsigned setup0;
     do {
-        *USBCMD |= 1 << 13;             // Set tripwire.
+        USB->cmd |= 1 << 13;             // Set tripwire.
         setup0 = QH(EP_00)->setup0;
         *setup1 = QH(EP_00)->setup1;
     }
-    while (!(*USBCMD & (1 << 13)));
-    *USBCMD &= ~(1 << 13);
+    while (!(USB->cmd & (1 << 13)));
+    USB->cmd &= ~(1 << 13);
     while (ENDPT->setupstat & 1)
         ENDPT->setupstat = 1;
 
