@@ -865,8 +865,6 @@ void main (void)
 
     __memory_barrier();
 
-    init_monkey_ssp();
-
     puts ("***********************************\n");
     puts ("**          Supa Switch          **\n");
     puts ("***********************************\n");
@@ -896,7 +894,7 @@ void main (void)
     *IDIVA_CTRL = 0x07000808;
     *BASE_M4_CLK = 0x0c000800;
 
-    *BASE_SSP1_CLK = 0x0c000800;        // Take monkey SSP to 80Mb/s.
+    init_monkey_ssp();
 
     disable_clocks();
 
