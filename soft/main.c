@@ -334,14 +334,11 @@ static void serial_byte (unsigned byte)
         clock_report();
         return;
     case 'h': case '?':
-        puts("<d>ebug, <f>req, <j>tag, <l>cd, <m>emtest, <p>retty, <s>pi\n"
+        puts("<d>ebug, <f>req, <j>tag, <m>emtest, <p>retty, <s>pi\n"
              "<r>eset, <R>eboot, df<u>, <v>erbose\n");
         return;
     case 'j':
         jtag_cmd();
-        return;
-    case 'l':
-        lcd_init();
         return;
     case 'm':
         memtest();
