@@ -92,7 +92,7 @@ dTD_t * get_dtd (void)
     static volatile bool reenter;
     if (!reenter) {
         reenter = true;
-        GPIO_DIR[4] |= 1 << 1;          // Turn on the red LED.
+        BIT_BAND(GPIO_DIR[4])[1] = 1;   // Turn on the red LED.
         GPIO_BYTE[4][1] = 0;
         puts ("Out of DTDs!!!\n");
     }
@@ -116,7 +116,7 @@ static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
     unsigned eps;
     do {
         // 3. Set ATDTW bit in USBCMD register to '1'.
-        USB->cmd |= 1 << 14;
+        BIT_BAND(USB->cmd)[14] = 1;
 
         // 4. Read correct status bit in ENDPTSTAT. (Store in temp variable
         // for later).
@@ -126,7 +126,7 @@ static void start_if_not_running(dQH_t * qh, dTD_t * d, unsigned ep)
         // - If '0' go to step 3.
         // - If '1' continue to step 6.
     }
-    while (!(USB->cmd & (1 << 14)));
+    while (!BIT_BAND(USB->cmd)[14]);
 
     // 6. Write ATDTW bit in USBCMD register to '0'.
     // Seems unnecessary...
@@ -295,12 +295,12 @@ unsigned get_0_setup (unsigned * setup1)
 {
     unsigned setup0;
     do {
-        USB->cmd |= 1 << 13;             // Set tripwire.
+        BIT_BAND(USB->cmd)[13] = 1;     // Set tripwire.
         setup0 = QH(EP_00)->setup0;
         *setup1 = QH(EP_00)->setup1;
     }
-    while (!(USB->cmd & (1 << 13)));
-    USB->cmd &= ~(1 << 13);
+    while (!BIT_BAND(USB->cmd)[13]);
+    //BIT_BAND(USB->cmd)[13] = 0;
     while (ENDPT->setupstat & 1)
         ENDPT->setupstat = 1;
 

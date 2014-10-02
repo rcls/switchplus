@@ -1,3 +1,4 @@
+#include "configure.h"
 #include "monkey.h"
 #include "registers.h"
 #include "spirom.h"
@@ -94,7 +95,7 @@ void spirom_init(void)
 
     // Set up B16, P7_0 as function 0, GPIO3_8.  High slew rate.
     SFSP[7][0] = 0x20;
-    GPIO_DIR[3] |= 1 << 8;
+    BIT_BAND(GPIO_DIR[3])[8] = 1;
 
     printf("\nGet id:");
 

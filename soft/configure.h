@@ -50,4 +50,6 @@ void configure(const unsigned * pins, int count);
 void enter_dfu(void);
 void check_for_early_dfu(void);
 
+#define BIT_BAND(a) ((volatile unsigned *) 0x42000000 + 8 * (unsigned) &(a))
+
 #endif
