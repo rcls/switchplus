@@ -21,13 +21,13 @@ SECTIONS
      *(SORT_BY_NAME(init.script*))
      init_script_end = .;
      . = NEXT(4);
-  } > flashA
-  /* The linker puts initialised data into flashA and we copy to sram2.  */
+  } > @TARGET@
+  /* The linker puts initialised data into @TARGET@ and we copy to sram2.  */
   .data : {
      rw_data_start = .;
      *(SORT_BY_ALIGNMENT(.data*))
      rw_data_end = .;
-  } > sram2 AT>flashA
+  } > sram2 AT>@TARGET@
   .bss (NOLOAD) : {
      bss_start = .;
      *(SORT_BY_ALIGNMENT(.bss*))

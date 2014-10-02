@@ -24,14 +24,13 @@ main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 # Kill this rule.
 %: %.c
 
-%.sram.elf: %.o
-	$(LINK.c) -T sram.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+^-ld = $(filter-out %.ld,$^)
 
-%.zero.elf: %.o
-	$(LINK.c) -T zero.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.sram.elf: sram.ld %.o
+	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-%.flashA.elf: %.o
-	$(LINK.c) -T flashA.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.flashA.elf: flashA.ld %.o
+	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
@@ -44,17 +43,24 @@ main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 	/home/ralph/dfu-util/src/dfu-suffix -v 0xf055 -p 0x4c52 -a $@.tmp
 	mv $@.tmp $@
 
-%.flasher: %.bin flash.zero.bin
-	$(UTILS)/flasher flash.zero.bin $< > $@.tmp
+%.flasher: %.bin flash.sram.bin
+	$(UTILS)/flasher flash.sram.bin $< > $@.tmp
 	$(UTILS)/addheader < $@.tmp > $@.tmp2
 	rm $@.tmp
 	mv $@.tmp2 $@
+
+%.ld: template.ld.in
+	sed 's/@TARGET@/$*/g' $< > $@.tmp
+	mv $@.tmp $@
 
 .PHONY: go
 # We don't really depend on the flasher.  But let's make it harder to
 # accidentally program an older version into the flash.
 go:	main.sram.boot main.flashA.flasher
 	dfu-util -D main.sram.boot
+
+%.s: %.c
+	$(CC) $(filter-out -flto,$(CFLAGS)) -S -o $@ $<
 
 # Cancel...
 %: %.c

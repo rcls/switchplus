@@ -134,7 +134,7 @@ void main (void)
 
     // Now do the writes...
     size = (size + 511) & ~511;
-    unsigned source = (unsigned) start[63];
+    unsigned source = (unsigned) start + (unsigned) start[63];
     unsigned dest;
     if (bank == 0)
         dest = 0x1a000000;
