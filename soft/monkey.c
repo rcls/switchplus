@@ -94,6 +94,7 @@ const unsigned init_monkey_regs[] __init_script("3") = {
 
     // Setup pins; make CS a GPIO output, pulse it high for a bit.
     BIT_SET(GPIO_DIR[7], 19),
+    // Leave CS high, monkey_ssp_on() actually turns it on.
     WORD_WRITE(*CONSOLE_CS, 1),
 
     PIN_OUT_FAST(15,4,0),               // SCK is D10, PF_4 func 0.
@@ -101,18 +102,8 @@ const unsigned init_monkey_regs[] __init_script("3") = {
     PIN_IO_FAST (15,6,2),               // MISO is E7, PF_6 func 2.
     PIN_OUT_FAST(15,7,2),               // MOSI is B7, PF_7 func 2.
 
-    // Leave CS low.  FIXME - use the monkey_ssp_on() instead.
-    WORD_WRITE(*CONSOLE_CS, 0),
     WORD_WRITE(GPDMA->config, 1),   // Enable.
 };
-
-
-void init_monkey_ssp (void)
-{
-    log_ssp = true;
-
-    monkey_kick_ssp();
-}
 
 
 void monkey_ssp_off(void)

@@ -895,6 +895,7 @@ void main (void)
 
     __memory_barrier();
 
+    // Initialise memory that isn't in the main sections...
     init_ethernet_mem();
 
     // Build the linked list of idle tx buffers.
@@ -910,12 +911,13 @@ void main (void)
     puts ("**          Supa Switch          **\n");
     puts ("***********************************\n");
 
+    // Run all the register initialisation scripts.
     extern const unsigned init_script_start[], init_script_end[];
     configure(init_script_start, init_script_end - init_script_start);
 
     init_switch();
 
-    init_monkey_ssp();
+    monkey_ssp_on();                    // Enables interrupts.
 
     disable_clocks();
 
@@ -925,8 +927,6 @@ void main (void)
     // Enable the ethernet, usb and dma interrupts.
     NVIC_ISER[0] = 0x00000124;
     NVIC_ISER[1] = 1 << 10;             // Enable event router interrupt.
-
-    __interrupt_enable();
 
     lcd_init();
 

@@ -8,7 +8,6 @@ extern bool debug_flag;
 extern bool verbose_flag;
 
 void init_monkey_usb (void);
-void init_monkey_ssp (void);
 
 bool monkey_is_empty (void);
 
