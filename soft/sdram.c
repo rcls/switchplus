@@ -6,8 +6,6 @@
 #include "sdram.h"
 
 const unsigned sdram_pins[] __init_script("2") = {
-    WORD_WRITE32(RESET_CTRL[0], 1<<21),
-
     PIN_IO_FAST(1, 7, 3)                // T5  EMC_D0
     + PIN_EXTRA(7),                     // ... R11 EMC_D7
 
@@ -47,6 +45,8 @@ const unsigned sdram_pins[] __init_script("2") = {
 void meminit (unsigned mhz)
 {
     verbose("SDRAM init @ %d MHz\n", mhz);
+
+    RESET_CTRL[0] = 1 << 21;            // Reset.
 
     // Delays...
     if (mhz > 121)
