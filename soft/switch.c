@@ -158,64 +158,65 @@ void mdio_report_changed (void)
 }
 
 
+// This initialisation needs to be done early, because it sets up the 50MHz
+// clock input.
+#define PULL_DOWN 0x18
+const unsigned switch_pins[] __init_script("0") = {
+    // Switch reset is E16, GPIO7[9], PE_9.
+    WORD_WRITE(GPIO_WORD[7][9], 0),
+    BIT_SET(GPIO_DIR[7], 9),
+
+    PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
+
+    PIN_OUT(15,1,4),                // SPIS, E11, GPIO7[16], function 4.
+    PIN_OUT(3,3,2),                 // SPIC, B14, SSP0 Clock.
+    PIN_OUT(3,7,5),                 // SPID, C11, SSP0 MOSI.
+    PIN_IN(3,6,5),                  // SPIQ, B13, SSP0 MISO.
+
+    PIN_IO(1,17,3),                 // MDIO (M8, P1_17, func 3)
+    PIN_OUT(12,1,3),                // MDC (E4, PC_1, func 3).
+
+    PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
+    PIN_IN_FAST(1,15,PULL_DOWN | 3), // RXD0 (T12, P1_15, func 3)
+    PIN_IN_FAST(0,0,PULL_DOWN | 2), // RXD1 (L3, P0_0, func 2)
+    PIN_IN_FAST(12,8,3),            // RX_DV (N4, PC_8, func 3)
+
+    PIN_OUT(1,18,3),                // TXD0, N12, P1_18, func 3.
+    PIN_OUT(1,20,3),                // TXD1, M10, P1_20, func 3.
+    PIN_OUT(0,1,6),                 // TX_EN, M2, P0_1, func 6.
+
+    // Out of reset.
+    WORD_WRITE(GPIO_WORD[7][9], 1),
+
+    // Wait milliseconds (docs say ~ 100us).
+    SPIN_FOR(96000),
+
+    // Reset event-router WAKEUP0 & enable it (interrupt from switch).
+    WORD_WRITE(EVENT_ROUTER->clr_stat, 1),
+    WORD_WRITE(EVENT_ROUTER->set_en, 1),
+
+    // Configure SSP0...
+    WORD_WRITE32(*BASE_SSP0_CLK, 0x03000800), // Base clock is 50MHz.
+
+    // Set the prescaler to divide by 8.
+    WORD_WRITE(SSP0->cpsr, 8),
+
+    // Keep clock HI while idle, CPOL=1,CPHA=1
+    // Output data on falling edge.  Read data on rising edge.
+    // No clock divide (6.25MHz).
+    WORD_WRITE(SSP0->cr0, 0xc7),
+
+    // Enable SSP0.
+    WORD_WRITE(SSP0->cr1, 2),
+
+    // Set SPIS output hi.
+    WORD_WRITE(GPIO_WORD[7][16], 1),
+    BIT_SET(GPIO_DIR[7], 16),
+};
+
+
 void init_switch (void)
 {
-    // Set up the pins.
-#define PULL_DOWN 0x18
-    static const unsigned pins[] = {
-        // Configure SSP0...
-        WORD_WRITE32(*BASE_SSP0_CLK, 0x03000800), // Base clock is 50MHz.
-
-        // Set the prescaler to divide by 8.
-        WORD_WRITE(SSP0->cpsr, 8),
-
-        // Keep clock HI while idle, CPOL=1,CPHA=1
-        // Output data on falling edge.  Read data on rising edge.
-        // No clock divide (6.25MHz).
-        WORD_WRITE(SSP0->cr0, 0xc7),
-
-        // Enable SSP0.
-        WORD_WRITE(SSP0->cr1, 2),
-
-        // Set SPIS output hi.
-        WORD_WRITE(GPIO_WORD[7][16], 1),
-        BIT_SET(GPIO_DIR[7], 16),
-
-        // Switch reset is E16, GPIO7[9], PE_9.
-        WORD_WRITE(GPIO_WORD[7][9], 0),
-        BIT_SET(GPIO_DIR[7], 9),
-
-        PIN_OUT(14,9,4),                // Switch reset, GPIO7[9], function 4.
-
-        PIN_OUT(15,1,4),                // SPIS, E11, GPIO7[16], function 4.
-        PIN_OUT(3,3,2),                 // SPIC, B14, SSP0 Clock.
-        PIN_OUT(3,7,5),                 // SPID, C11, SSP0 MOSI.
-        PIN_IN(3,6,5),                  // SPIQ, B13, SSP0 MISO.
-
-        PIN_IO(1,17,3),                 // MDIO (M8, P1_17, func 3)
-        PIN_OUT(12,1,3),                // MDC (E4, PC_1, func 3).
-
-        PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
-        PIN_IN_FAST(1,15,PULL_DOWN | 3), // RXD0 (T12, P1_15, func 3)
-        PIN_IN_FAST(0,0,PULL_DOWN | 2), // RXD1 (L3, P0_0, func 2)
-        PIN_IN_FAST(12,8,3),            // RX_DV (N4, PC_8, func 3)
-
-        PIN_OUT(1,18,3),                // TXD0, N12, P1_18, func 3.
-        PIN_OUT(1,20,3),                // TXD1, M10, P1_20, func 3.
-        PIN_OUT(0,1,6),                 // TX_EN, M2, P0_1, func 6.
-
-        // Out of reset.
-        WORD_WRITE(GPIO_WORD[7][9], 1),
-
-        // Wait milliseconds (docs say ~ 100us).
-        SPIN_FOR(96000),
-
-        // Reset event-router WAKEUP0 & enable it (interrupt from switch).
-        WORD_WRITE(EVENT_ROUTER->clr_stat, 1),
-        WORD_WRITE(EVENT_ROUTER->set_en, 1),
-    };
-    configure(pins, sizeof pins / sizeof pins[0]);
-
     // Take SPI to high speed.
     //spi_reg_write(12, 0x64);
 

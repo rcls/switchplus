@@ -718,30 +718,43 @@ static void retire_tx_dma (volatile EDMA_DESC_t * tx)
 }
 
 
-static void init_ethernet (void)
-{
+const unsigned init_ethernet_regs[] __init_script("2") = {
     // Pins are set-up in init-switch.
 
     // Set the PHY clocks.
-    *BASE_PHY_TX_CLK = 0x03000800;
-    *BASE_PHY_RX_CLK = 0x03000800;
+    WORD_WRITE32(*BASE_PHY_TX_CLK, 0x03000800),
+    WORD_WRITE32(*BASE_PHY_RX_CLK, 0x03000800),
 
-    *CREG6 = 4;                         // Set ethernet to RMII.
+    WORD_WRITE(*CREG6, 4),              // Set ethernet to RMII.
 
-    RESET_CTRL[0] = 1 << 22;            // Reset ethernet.
-    while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
+    WORD_WRITE32(RESET_CTRL[0], 1 << 22),            // Reset ethernet.
+    // FIXME while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
+    SPIN_FOR(1000),
 
-    EDMA->bus_mode = 1;                 // Reset ethernet DMA.
-    while (EDMA->bus_mode & 1);
+    WORD_WRITE(EDMA->bus_mode, 1),      // Reset ethernet DMA.
+    BIT_WAIT_ZERO(EDMA->bus_mode, 0),
 
-    MAC->addr0_low = 0xc4ffba42;
-    MAC->addr0_high = 0x8000e96e;
+    WORD_WRITE32(MAC->addr0_high, 0x8000e96e),
+    WORD_WRITE32(MAC->addr0_low, 0xc4ffba42),
 
     // Set filtering options.  Promiscuous / recv all.
-    MAC->frame_filter = 0x80000001;
+    WORD_WRITE32(MAC->frame_filter, 0x80000001),
 
-    MAC->config = 0xc900;
+    WORD_WRITE32(MAC->config, 0xc900),
 
+    WORD_WRITE32(EDMA->trans_des_addr, (unsigned) tx_dma),
+    WORD_WRITE32(EDMA->rec_des_addr, (unsigned) rx_dma),
+
+    // Start ethernet & it's dma.
+    WORD_WRITE32(MAC->config, 0xc90c),
+    WORD_WRITE32(EDMA->op_mode, 0x2002),
+
+    WORD_WRITE32(EDMA->stat, 0x1ffff),
+    WORD_WRITE32(EDMA->int_en, 0x0001ffff),
+};
+
+static void init_ethernet_mem (void)
+{
     // Set-up the dma descs.
     for (int i = 0; i != EDMA_COUNT; ++i) {
         tx_dma[i].status = 0;
@@ -755,16 +768,6 @@ static void init_ethernet (void)
     rx_dma[EDMA_MASK].count = 0x8000 + BUF_SIZE; // End of ring.
 
     rx_dma_insert = EDMA_COUNT;
-
-    EDMA->trans_des_addr = tx_dma;
-    EDMA->rec_des_addr = rx_dma;
-
-    // Start ethernet & it's dma.
-    MAC->config = 0xc90c;
-    EDMA->op_mode = 0x2002;
-
-    EDMA->stat = 0x1ffff;
-    EDMA->int_en = 0x0001ffff;
 }
 
 
@@ -835,6 +838,33 @@ static void switch_interrupt (void)
 }
 
 
+const unsigned init_clocks[] __init_script("1") = {
+    // 50 MHz in from eth_tx_clk
+    // Configure the clock to USB.
+    // Generate 480MHz off 50MHz...
+    // ndec=5, mdec=32682, pdec=0
+    // selr=0, seli=28, selp=13
+    // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
+    // Divided in, direct out.
+    WORD_WRITE32(PLL0USB->ctrl, 0x03000819),
+    WORD_WRITE32(PLL0USB->mdiv, (28 << 22) + (13 << 17) + 32682),
+    WORD_WRITE32(PLL0USB->np_div, 5 << 12),
+    BIT_RESET(PLL0USB->ctrl, 0),        // Enable.
+
+    // Wait for locks.
+    BIT_WAIT_ZERO(PLL0USB->stat, 0),
+
+    // Set the flash access time for 160MHz.
+    WORD_WRITE32n(*FLASHCFGA, 2,
+                  0x8000703a,           // FLASHCFGA
+                  0x8000703a),          // FLASHCFGB
+
+    // Now ramp to 160MHz.
+    WORD_WRITE32(*IDIVA_CTRL, 0x07000808),
+    WORD_WRITE32(*BASE_M4_CLK, 0x0c000800),
+};
+
+
 void main (void)
 {
     NVIC_ICER[0] = 0xffffffff;          // Redundant after warm reset.
@@ -865,38 +895,7 @@ void main (void)
 
     __memory_barrier();
 
-    puts ("***********************************\n");
-    puts ("**          Supa Switch          **\n");
-    puts ("***********************************\n");
-
-    init_switch();
-    init_ethernet();
-
-    // 50 MHz in from eth_tx_clk
-    // Configure the clock to USB.
-    // Generate 480MHz off 50MHz...
-    // ndec=5, mdec=32682, pdec=0
-    // selr=0, seli=28, selp=13
-    // PLL0USB - mdiv = 0x06167ffa, np_div = 0x00302062
-    PLL0USB->ctrl = 0x03000819;
-    PLL0USB->mdiv = (28 << 22) + (13 << 17) + 32682;
-    PLL0USB->np_div = 5 << 12;
-    PLL0USB->ctrl = 0x03000818;         // Divided in, direct out.
-
-    // Wait for locks.
-    while (!(PLL0USB->stat & 1));
-
-    // Set the flash access time for 160MHz.
-    *FLASHCFGA = 0x8000703a;
-    *FLASHCFGB = 0x8000703a;
-
-    // Now ramp to 160MHz.
-    *IDIVA_CTRL = 0x07000808;
-    *BASE_M4_CLK = 0x0c000800;
-
-    init_monkey_ssp();
-
-    disable_clocks();
+    init_ethernet_mem();
 
     // Build the linked list of idle tx buffers.
     idle_tx_buffers = NULL;
@@ -906,7 +905,20 @@ void main (void)
         idle_tx_buffers = buffer;
     }
 
+    puts ("***********************************\n");
+    puts ("**          Supa Switch          **\n");
+    puts ("***********************************\n");
+
+    extern const unsigned init_script_start[], init_script_end[];
+    configure(init_script_start, init_script_end - init_script_start);
+
+    init_switch();
+
+    init_monkey_ssp();
+
     usb_init();
+
+    disable_clocks();
 
     //  Switch interrupt to low priority.
     NVIC_IPR[m4_switch] = 0x80;

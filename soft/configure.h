@@ -52,4 +52,7 @@ void check_for_early_dfu(void);
 
 #define BIT_BAND(a) ((volatile unsigned *) 0x42000000 + 8 * (unsigned) &(a))
 
+#define __init_script(s)__attribute__( \
+        (externally_visible, section("init.script." s)))
+
 #endif

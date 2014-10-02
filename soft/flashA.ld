@@ -17,6 +17,10 @@ SECTIONS
      *(.text*)
      *(SORT_BY_ALIGNMENT(.rodata*))
      . = NEXT(4);
+     init_script_start = .;
+     *(SORT_BY_NAME(init.script*))
+     init_script_end = .;
+     . = NEXT(4);
   } > flashA
   /* The linker puts initialised data into flash and we copy to sram2.  */
   .data : {

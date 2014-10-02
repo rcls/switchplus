@@ -76,37 +76,39 @@ void init_monkey_usb (void)
 }
 
 
-void init_monkey_ssp (void)
-{
-    *BASE_SSP1_CLK = 0x0c000800;        // Base clock is 160MHz.
+const unsigned init_monkey_regs[] __init_script("3") = {
+    WORD_WRITE32(*BASE_SSP1_CLK, 0x0c000800), // Base clock is be 160MHz.
 
-    RESET_CTRL[1] = (1 << 19) | (1 << 24); // Reset ssp1, keep m0 in reset.
-    while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
+    // Reset ssp1, keep m0 in reset.
+    WORD_WRITE32(RESET_CTRL[1], (1 << 19) | (1 << 24)),
+    SPIN_FOR(1000),                     // FIXME
+    //while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
 
-    SSP1->cpsr = 2;                     // Clock pre-scale: 160MHz / 2 = 80MHz.
+    WORD_WRITE(SSP1->cpsr, 2),          // Clock pre-scale: 160MHz / 2 = 80MHz.
     // 8-bit xfer, clock low between frames, capture on first (rising) edge of
     // frame (we'll output on falling edge).  No divide.
-    SSP1->cr0 = 0x0007;
-    SSP1->cr1 = 2;                      // Enable master.
+    WORD_WRITE(SSP1->cr0, 0x0007),
+    WORD_WRITE(SSP1->cr1, 2),           // Enable master.
 
-    SSP1->dmacr = 2;                    // TX DMA enabled.
+    WORD_WRITE(SSP1->dmacr, 2),         // TX DMA enabled.
 
-    static const unsigned pins[] = {
-        // Setup pins; make CS a GPIO output, pulse it high for a bit.
-        BIT_SET(GPIO_DIR[7], 19),
-        WORD_WRITE(*CONSOLE_CS, 1),
+    // Setup pins; make CS a GPIO output, pulse it high for a bit.
+    BIT_SET(GPIO_DIR[7], 19),
+    WORD_WRITE(*CONSOLE_CS, 1),
 
-        PIN_OUT_FAST(15,4,0),           // SCK is D10, PF_4 func 0.
-        PIN_OUT_FAST(15,5,4),           // SSEL is E9, PF_5, GPIO7[19] func 4.
-        PIN_IO_FAST (15,6,2),           // MISO is E7, PF_6 func 2.
-        PIN_OUT_FAST(15,7,2),           // MOSI is B7, PF_7 func 2.
+    PIN_OUT_FAST(15,4,0),               // SCK is D10, PF_4 func 0.
+    PIN_OUT_FAST(15,5,4),               // SSEL is E9, PF_5, GPIO7[19] func 4.
+    PIN_IO_FAST (15,6,2),               // MISO is E7, PF_6 func 2.
+    PIN_OUT_FAST(15,7,2),               // MOSI is B7, PF_7 func 2.
 
-        // Leave CS low.
-        WORD_WRITE(*CONSOLE_CS, 0),
-        WORD_WRITE(GPDMA->config, 1),   // Enable.
-    };
-    configure(pins, sizeof pins / sizeof pins[0]);
+    // Leave CS low.  FIXME - use the monkey_ssp_on() instead.
+    WORD_WRITE(*CONSOLE_CS, 0),
+    WORD_WRITE(GPDMA->config, 1),   // Enable.
+};
 
+
+void init_monkey_ssp (void)
+{
     log_ssp = true;
 
     monkey_kick_ssp();
