@@ -1,5 +1,6 @@
-#include "usb.h"
+#include "configure.h"
 #include "monkey.h"
+#include "usb.h"
 
 #include <stddef.h>
 
@@ -42,7 +43,35 @@ static inline dQH_t * QH(int ep)
 }
 
 
-void usb_init (void)
+const unsigned usb_init_regs[] __init_script("2") = {
+    // Enable USB0 PHY power.
+    BIT_RESET(*CREG0, 5),
+
+    WORD_WRITE(USB->cmd, 2),            // Reset.
+    BIT_WAIT_ZERO(USB->cmd, 1),
+
+    WORD_WRITE(ENDPT->usbmode, 0xa),    // Device.  Tripwire.
+    WORD_WRITE(ENDPT->otgsc, 9),
+    //*PORTSC1 = 0x01000000;              // Only full speed for now.
+
+    // Set the endpoint list pointer.
+    WORD_WRITE32(USB->endpoint_list_addr, (unsigned) &qh_and_dtd.QH),
+    WORD_WRITE(USB->device_addr, 0),
+
+    WORD_WRITE(USB->cmd, 1),            // Run.
+
+    // Pin H5, GPIO4[1] is a red LED for indicating fatal errors.
+    // K4,  GPIO4[2] is a green LED which we leave on pull-up.  But set to
+    // input as we may have just been loaded via DFU.
+    WORD_WRITE(GPIO_WORD[4][1], 0),
+    BIT_SET(GPIO_DIR[4], 1),
+    BIT_RESET(GPIO_DIR[4], 2),
+
+    WORD_WRITE(USB->intr, 0x00000041),  // Port change, reset, data.
+
+};
+
+void usb_init_mem(void)
 {
     // Start with just the control end-points.
     for (int i = 0; i != sizeof qh_and_dtd.QH; ++i)
@@ -54,30 +83,6 @@ void usb_init (void)
 
     qh_init (EP_00, 0x20408000);
     qh_init (EP_80, 0x20408000);
-
-    // Enable USB0 PHY power.
-    *CREG0 &= ~32;
-
-    USB->cmd = 2;                        // Reset.
-    while (USB->cmd & 2);
-
-    ENDPT->usbmode = 0xa;               // Device.  Tripwire.
-    ENDPT->otgsc = 9;
-    //*PORTSC1 = 0x01000000;              // Only full speed for now.
-
-    // Set the endpoint list pointer.
-    USB->endpoint_list_addr = &qh_and_dtd.QH;
-    USB->device_addr = 0;
-
-    USB->cmd = 1;                        // Run.
-
-    // Pin H5, GPIO4[1] is a red LED for indicating fatal errors.
-    // K4,  GPIO4[2] is a green LED which we leave on pull-up.  But set to
-    // input as we may have just been loaded via DFU.
-    GPIO_DIR[4] = (GPIO_DIR[4] | (1<<1)) & ~(1<<2);
-    GPIO_BYTE[4][1] = 0;
-
-    USB->intr = 0x00000041;             // Port change, reset, data.
 }
 
 

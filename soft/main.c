@@ -904,6 +904,7 @@ void main (void)
         * (void **) buffer = idle_tx_buffers;
         idle_tx_buffers = buffer;
     }
+    usb_init_mem();
 
     puts ("***********************************\n");
     puts ("**          Supa Switch          **\n");
@@ -915,8 +916,6 @@ void main (void)
     init_switch();
 
     init_monkey_ssp();
-
-    usb_init();
 
     disable_clocks();
 

@@ -24,7 +24,7 @@ struct dTD_t {
     dtd_completion_t * completion;      // For our use...
 };
 
-void usb_init (void);
+void usb_init_mem(void);
 void qh_init (unsigned ep, unsigned capabilities);
 
 void respond_to_setup (unsigned setup1, const void * buffer, unsigned length,
