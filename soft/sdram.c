@@ -5,51 +5,48 @@
 #include "registers.h"
 #include "sdram.h"
 
+const unsigned sdram_pins[] __init_script("2") = {
+    WORD_WRITE32(RESET_CTRL[0], 1<<21),
+
+    PIN_IO_FAST(1, 7, 3)                // T5  EMC_D0
+    + PIN_EXTRA(7),                     // ... R11 EMC_D7
+
+    PIN_IO_FAST(5, 0, 2)         // N3  EMC_D12
+    + PIN_EXTRA(7),              // .... T8  EMC_D15, P9  EMC_D8 ... R12 EMC_D11
+
+    PIN_OUT_FAST(1, 0, 2)               // P2  EMC_A5
+    + PIN_EXTRA(2),                     // R2  EMC_A6, R3  EMC_A7
+
+    PIN_OUT_FAST(2, 0, 2)               // T16 EMC_A13
+    + PIN_EXTRA(2),                     // N15 EMC_A12, M15 EMC_A11
+
+    PIN_OUT_FAST(2, 6, 2),              // K16 EMC_A10 (PB_6)
+
+    PIN_OUT_FAST(2, 7, 3)            // H14 EMC_A9
+    + PIN_EXTRA(6),                  // J16 EMC_A8, H16 EMC_A0 ... // C16 EMC_A4
+
+    PIN_OUT_FAST(6, 8, 1),              // H13 EMC_A14
+
+    PIN_OUT_FAST(6, 4, 3)               // R16 EMC_CAS
+    + PIN_EXTRA(1),                     // P16 EMC_RAS
+
+    PIN_OUT_FAST(6,10, 3),              // H15 EMC_DQMOUT1
+    PIN_OUT_FAST(6,12, 3),              // G15 EMC_DQMOUT0
+
+    PIN_OUT_FAST(13, 1, 2),             // P1 EMC_CKEOUT2
+    PIN_OUT_FAST(13,14, 2),             // R13 EMC_DYCS2
+
+    PIN_OUT_FAST(1, 6, 3),              // T4 EMC_WE
+
+    WORD_WRITE(SFSCLK[0], 0xe0)         // N5, function 0
+    + WORD_EXTRA(1),                    // T10, function 0
+    WORD_WRITE(SFSCLK[2], 0xe5),        // D14 EMC_CLK23, CLK2 func 5
+    WORD_WRITE(SFSCLK[3], 0),
+};
+
 void meminit (unsigned mhz)
 {
     verbose("SDRAM init @ %d MHz\n", mhz);
-
-    // Setup pins.
-    static const unsigned pins[] = {
-        WORD_WRITE32(RESET_CTRL[0], 1<<21),
-
-        PIN_IO_FAST(1, 7, 3)            // T5  EMC_D0
-        + PIN_EXTRA(7),                 // ... R11 EMC_D7
-
-        PIN_IO_FAST(5, 0, 2)            // N3  EMC_D12
-        + PIN_EXTRA(7),          // .... T8  EMC_D15, P9  EMC_D8 ... R12 EMC_D11
-
-        PIN_OUT_FAST(1, 0, 2)           // P2  EMC_A5
-        + PIN_EXTRA(2),                 // R2  EMC_A6, R3  EMC_A7
-
-        PIN_OUT_FAST(2, 0, 2)           // T16 EMC_A13
-        + PIN_EXTRA(2),                 // N15 EMC_A12, M15 EMC_A11
-
-        PIN_OUT_FAST(2, 6, 2),          // K16 EMC_A10 (PB_6)
-
-        PIN_OUT_FAST(2, 7, 3)        // H14 EMC_A9
-        + PIN_EXTRA(6),              // J16 EMC_A8, H16 EMC_A0 ... // C16 EMC_A4
-
-        PIN_OUT_FAST(6, 8, 1),          // H13 EMC_A14
-
-        PIN_OUT_FAST(6, 4, 3)           // R16 EMC_CAS
-        + PIN_EXTRA(1),                 // P16 EMC_RAS
-
-        PIN_OUT_FAST(6,10, 3),          // H15 EMC_DQMOUT1
-        PIN_OUT_FAST(6,12, 3),          // G15 EMC_DQMOUT0
-
-        PIN_OUT_FAST(13, 1, 2),         // P1 EMC_CKEOUT2
-        PIN_OUT_FAST(13,14, 2),         // R13 EMC_DYCS2
-
-        PIN_OUT_FAST(1, 6, 3),          // T4 EMC_WE
-
-        WORD_WRITE(SFSCLK[0], 0xe0)     // N5, function 0
-        + WORD_EXTRA(1),                // T10, function 0
-        WORD_WRITE(SFSCLK[2], 0xe5),    // D14 EMC_CLK23, CLK2 func 5
-        WORD_WRITE(SFSCLK[3], 0),
-    };
-
-    configure(pins, sizeof pins / sizeof pins[0]);
 
     // Delays...
     if (mhz > 121)
