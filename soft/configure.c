@@ -28,6 +28,9 @@ void configure(const unsigned * pins, int count)
         case op_wait_zero:
             while (*addressL);
             break;
+        case op_wait_non_zero:
+            while (!*addressL);
+            break;
         default:                        // Write word small.
             for (unsigned i = op_write; i <= opcode; ++i)
                 *addressS++ = numberL >> 20;

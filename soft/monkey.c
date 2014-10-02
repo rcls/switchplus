@@ -81,8 +81,7 @@ const unsigned init_monkey_regs[] __init_script("3") = {
 
     // Reset ssp1, keep m0 in reset.
     WORD_WRITE32(RESET_CTRL[1], (1 << 19) | (1 << 24)),
-    SPIN_FOR(1000),                     // FIXME
-    //while (!(RESET_ACTIVE_STATUS[1] & (1 << 19)));
+    BIT_WAIT_SET(RESET_ACTIVE_STATUS[1], 19),
 
     WORD_WRITE(SSP1->cpsr, 2),          // Clock pre-scale: 160MHz / 2 = 80MHz.
     // 8-bit xfer, clock low between frames, capture on first (rising) edge of

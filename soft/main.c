@@ -728,8 +728,7 @@ const unsigned init_ethernet_regs[] __init_script("2") = {
     WORD_WRITE(*CREG6, 4),              // Set ethernet to RMII.
 
     WORD_WRITE32(RESET_CTRL[0], 1 << 22),            // Reset ethernet.
-    // FIXME while (!(RESET_ACTIVE_STATUS[0] & (1 << 22)));
-    SPIN_FOR(1000),
+    BIT_WAIT_SET(RESET_ACTIVE_STATUS[0], 22),
 
     WORD_WRITE(EDMA->bus_mode, 1),      // Reset ethernet DMA.
     BIT_WAIT_ZERO(EDMA->bus_mode, 0),

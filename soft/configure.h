@@ -10,6 +10,7 @@ enum {
     op_write32,
     op_spin,
     op_wait_zero,
+    op_wait_non_zero,
     op_write
 };
 
@@ -42,6 +43,7 @@ enum {
 #define BIT_RESET(a,n) opcode28bit(op_zero, a, n)
 
 #define BIT_WAIT_ZERO(a,n) opcode28bit(op_wait_zero, a, n)
+#define BIT_WAIT_SET(a,n) opcode28bit(op_wait_non_zero, a, n)
 
 #define SPIN_FOR(n) opcode28(op_spin, n)
 
