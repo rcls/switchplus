@@ -22,6 +22,24 @@
 // CR + ANSI clear line sequence.
 #define CLR "\r\e[K"
 
+// Set-up the jtag pins to be GPIO.
+const unsigned jtag_pins[] __init_script("2") = {
+    WORD_WRITE(TCK, 0),
+    WORD_WRITE(TDI, 1),
+    WORD_WRITE(TMS, 1),
+
+    BIT_SET(GPIO_DIR[6], 12),           // TDI
+    BIT_SET(GPIO_DIR[6], 13),           // TCK
+    BIT_RESET(GPIO_DIR[5], 3),          // TDO
+    BIT_SET(GPIO_DIR[5], 4),            // TMS
+
+    PIN_OUT(12,13,4)                    // TDI is GPIO6[12] PC_13 func 4 ball M1
+    + PIN_EXTRA(1),                     // TCK is GPIO6[13] PC_14 func 4 ball N1
+    PIN_IN(2,3,4),                      // TDO is GPIO5[3] P2_3 func 4 ball J12
+    PIN_OUT(2,4,4),                     // TMS is GPIO5[4] P2_4 func 4 ball K11
+};
+
+
 static int jtag_clk(int tms, int tdi)
 {
     TDI = !!tdi;
@@ -75,25 +93,6 @@ static unsigned jtag_dr_short(int n, unsigned d)
 
 static void jtag_reset(void)
 {
-    // Set-up the jtag pins to be GPIO.
-    static const unsigned pins[] = {
-        WORD_WRITE(TCK, 0),
-        WORD_WRITE(TDI, 1),
-        WORD_WRITE(TMS, 1),
-
-        BIT_SET(GPIO_DIR[6], 12),       // TDI
-        BIT_SET(GPIO_DIR[6], 13),       // TCK
-        BIT_RESET(GPIO_DIR[5], 3),      // TDO
-        BIT_SET(GPIO_DIR[5], 4),        // TMS
-
-        PIN_OUT(12,13,4)                // TDI is GPIO6[12] PC_13 func 4 ball M1
-        + PIN_EXTRA(1),                 // TCK is GPIO6[13] PC_14 func 4 ball N1
-        PIN_IN(2,3,4),                  // TDO is GPIO5[3] P2_3 func 4 ball J12
-        PIN_OUT(2,4,4),                 // TMS is GPIO5[4] P2_4 func 4 ball K11
-    };
-
-    configure(pins, sizeof pins / sizeof pins[0]);
-
     // Reset jtag, land in run test/idle.
     jtag_tms(9,0xff);
     printf ("idcode %08x\n", jtag_dr_short (32, 0xdeadbeef));
