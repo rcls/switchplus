@@ -1,4 +1,5 @@
 
+#include "callback.h"
 #include "configure.h"
 #include "monkey.h"
 #include "registers.h"
@@ -95,16 +96,12 @@ static void jtag_reset(void)
 {
     // Reset jtag, land in run test/idle.
     jtag_tms(9,0xff);
-    printf ("idcode %08x\n", jtag_dr_short (32, 0xdeadbeef));
-
-    // Reset again.
-    jtag_tms(9,0xff);
 }
 
 
 int program_nibble (int next, int c, int * count, int final)
 {
-    if (next < 0 || *count < 0)
+    if (next < 0)
         return c;
     jtag_clk(0, next & 8);
     jtag_clk(0, next & 4);
@@ -118,7 +115,8 @@ int program_nibble (int next, int c, int * count, int final)
 
 void jtag_program (void)
 {
-    jtag_tms(9,0xff);                   // Reset, Run-test/idle.
+    jtag_reset();                       // Reset, Run-test/idle.
+
     int r = jtag_ir(JPROGRAM);
     verbose ("JPROGRAM IR %02x\n", r);
     jtag_clk(0,0);                      // Run-test idle.
@@ -126,7 +124,7 @@ void jtag_program (void)
         if (jtag_ir(BYPASS) == 0x11)
             break;
 
-    jtag_clk(0,0); // Run-test idle.
+    jtag_clk(0,0);                      // Run-test idle.
     r = jtag_ir(CFG_IN);
     verbose ("CFG_IN IR %02x\n", r);
     //.... DR bitstream...
@@ -138,16 +136,10 @@ void jtag_program (void)
         int c = getchar();
         if (c == '.')
             break;
-        if (c >= '0' && c <= '9')
-            next = program_nibble (next, c, &count, 0);
-        else if ((c&~32) >= 'A' && (c&~32) <= 'F')
-            next = program_nibble (next, c + 9, &count, 0);
-        else if (c > ' ') {
-            printf ("\nUnknown char %02x, abort program\n", c);
-            count = -1;
-        }
+        if (c > ' ')
+            next = program_nibble (next, hex_nibble(c), &count, 0);
     }
-    if (next < 0 || count < 0) {
+    if (next < 0) {
         printf (CLR "No data; aborting\n");
         jtag_reset();
         return;
@@ -166,7 +158,7 @@ void jtag_program (void)
 }
 
 
-void jtag_cmd (void)
+static void _Noreturn jtag_go(void)
 {
     jtag_reset();
 
@@ -198,7 +190,17 @@ void jtag_cmd (void)
 
         default:
             printf (CLR "Jtag exit...\n");
-            return;
+            start_program(initial_program);
         }
     }
+}
+
+
+void jtag_cmd(void)
+{
+    // Reset jtag, land in run test/idle.
+    jtag_reset();
+    printf ("idcode %08x\n", jtag_dr_short (32, 0xdeadbeef));
+
+    start_program(jtag_go);
 }

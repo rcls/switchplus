@@ -7,7 +7,6 @@
 #include <stddef.h>
 
 #define ROM_CS (&GPIO_BYTE[3][8])
-#define CLR "\r\e[K"
 
 #define PAGE_LEN 264
 
@@ -128,27 +127,6 @@ static void spirom_init(void)
     int t = SSP1->dr;
     spi_end();
     printf("Status = %02x %02x\n", s, t);
-}
-
-
-static int hex_nibble (int c)
-{
-    if (c >= '0' && c <= '9') {
-        if (verbose_flag)
-            putchar(c);
-        return c - '0';
-    }
-    c &= ~32;
-    if (c >= 'A' && c <= 'F') {
-        if (verbose_flag)
-            putchar(c);
-        return c - 'A' + 10;
-    }
-    printf(CLR "Illegal hex character; aborting...");
-    if (c != '\n')
-        while (getchar() != '\n');
-    putchar('\n');
-    restart_program(NULL);
 }
 
 

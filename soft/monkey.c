@@ -543,3 +543,24 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
     monkey_recv_pos[index].next = buffer;
     monkey_recv_pos[index].end = buffer + length;
 }
+
+
+int hex_nibble(int c)
+{
+    if (c >= '0' && c <= '9') {
+        if (verbose_flag)
+            putchar(c);
+        return c - '0';
+    }
+    c &= ~32;
+    if (c >= 'A' && c <= 'F') {
+        if (verbose_flag)
+            putchar(c);
+        return c - 'A' + 10;
+    }
+    printf(CLR "Illegal hex character; aborting...");
+    if (c != '\n')
+        while (getchar() != '\n');
+    putchar('\n');
+    restart_program(NULL);
+}
