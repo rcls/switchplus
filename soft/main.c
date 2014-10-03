@@ -864,7 +864,7 @@ const unsigned init_clocks[] __init_script("1") = {
 };
 
 
-void main (void)
+static void _Noreturn main (void)
 {
     NVIC_ICER[0] = 0xffffffff;          // Redundant after warm reset.
     NVIC_ICER[1] = 0xffffffff;
@@ -931,7 +931,7 @@ void main (void)
 
     square_draw9();
 
-    restart_program(NULL);
+    restart_program();
 }
 
 

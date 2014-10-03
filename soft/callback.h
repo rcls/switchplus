@@ -25,7 +25,7 @@ typedef void function_t(void);
 extern function_t * current_program;
 
 // Initialise stack and call current_program.
-void _Noreturn restart_program(const char * p);
+void _Noreturn restart_program(void);
 
 void _Noreturn start_program(function_t * f);
 

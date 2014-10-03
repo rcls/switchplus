@@ -562,5 +562,5 @@ int hex_nibble(int c)
     if (c != '\n')
         while (getchar() != '\n');
     putchar('\n');
-    restart_program(NULL);
+    restart_program();
 }
