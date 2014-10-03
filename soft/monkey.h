@@ -19,7 +19,9 @@ void printf (const char * __restrict__ format, ...)
 int getchar (void);
 void ungetchar (int c);
 int peekchar_nb (void);
+
 int hex_nibble(int c);
+void _Noreturn drop_line_restart(const char * s, int c);
 
 void gpdma_interrupt (void);
 

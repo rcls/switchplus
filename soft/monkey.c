@@ -547,18 +547,22 @@ static void monkey_out_complete (dTD_t * dtd, unsigned status, unsigned remain)
 
 int hex_nibble(int c)
 {
-    if (c >= '0' && c <= '9') {
-        if (verbose_flag)
-            putchar(c);
-        return c - '0';
-    }
-    c &= ~32;
-    if (c >= 'A' && c <= 'F') {
-        if (verbose_flag)
-            putchar(c);
-        return c - 'A' + 10;
-    }
-    printf(CLR "Illegal hex character; aborting...");
+    unsigned v = c - '0';
+    if (c >= 'A')
+        v = (c & ~32) - 'A' + 10;
+    if (v > 15)
+        drop_line_restart(CLR "Illegal hex character; aborting...", c);
+
+    if (verbose_flag)
+        putchar(c);
+
+    return v;
+}
+
+
+void drop_line_restart(const char * s, int c)
+{
+    puts(s);
     if (c != '\n')
         while (getchar() != '\n');
     putchar('\n');
