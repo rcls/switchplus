@@ -1,7 +1,10 @@
+#include "callback.h"
 #include "configure.h"
 #include "monkey.h"
 #include "registers.h"
 #include "spirom.h"
+
+#include <stddef.h>
 
 #define ROM_CS (&GPIO_BYTE[3][8])
 #define CLR "\r\e[K"
@@ -85,7 +88,7 @@ static void write_page(unsigned page, const unsigned char * data)
 }
 
 
-void spirom_init(void)
+static void spirom_init(void)
 {
     // 8 bits.
     // Format = spi.
@@ -145,32 +148,31 @@ static int hex_nibble (int c)
     if (c != '\n')
         while (getchar() != '\n');
     putchar('\n');
-    return -1;
+    restart_program(NULL);
+}
+
+
+static unsigned get_page(const char * tag, unsigned terminator)
+{
+    verbose(CLR "SPIROM %s page: ", tag);
+    unsigned page = 0;
+    while (true) {
+        int c = getchar();
+        if (c == terminator)
+            return page;
+        page = page * 16 + hex_nibble(c);
+    }
 }
 
 
 static void spirom_program(void)
 {
-    verbose(CLR "SPIROM program page: ");
-    unsigned page = 0;
-    while (true) {
-        int c = getchar();
-        if (c == ':')
-            break;
-        int n = hex_nibble(c);
-        if (n < 0)
-            return;
-        page = page * 16 + n;
-    }
+    unsigned page = get_page("program", ':');
     verbose(CLR "SPIROM program page 0x%x: ", page);
     unsigned char data[PAGE_LEN];
     for (int i = 0; i != PAGE_LEN; ++i) {
         int n1 = hex_nibble(getchar());
-        if (n1 < 0)
-            return;
         int n2 = hex_nibble(getchar());
-        if (n2 < 0)
-            return;
         data[i] = n1 * 16 + n2;
     }
     verbose(CLR "SPIROM program page 0x%x press ENTER: ", page);
@@ -183,17 +185,7 @@ static void spirom_program(void)
 
 static void spirom_read(void)
 {
-    verbose(CLR "SPIROM read page: ");
-    unsigned page = 0;
-    while (true) {
-        int c = getchar();
-        if (c == '\n')
-            break;
-        int n = hex_nibble(c);
-        if (n < 0)
-            return;
-        page = page * 16 + n;
-    }
+    unsigned page = get_page("read", '\n');
     printf(CLR "SPIROM read page 0x%x\n", page);
     unsigned char bytes[PAGE_LEN + 5];
     op_address(0xb, page * 512);
@@ -215,10 +207,8 @@ static void spirom_read(void)
 }
 
 
-void spirom_command(void)
+static void _Noreturn spirom_run(void)
 {
-    spirom_init();
-
     while (true) {
         verbose(CLR "SPIROM: <r>ead, <p>rogram, <i>dle, <s>tatus...");
         switch (getchar()) {
@@ -244,7 +234,14 @@ void spirom_command(void)
             break;
         default:
             printf(CLR "SPIROM exit...\n");
-            return;
+            start_program(initial_program);
         }
     }
+}
+
+
+void spirom_command(void)
+{
+    spirom_init();
+    start_program(spirom_run);
 }

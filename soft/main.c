@@ -320,66 +320,66 @@ static void initiate_enter_dfu (dTD_t * dtd, unsigned status, unsigned remain)
 }
 
 
-static void serial_byte (unsigned byte)
+void initial_program(void)
 {
-    switch (byte) {
-    case 'd':
-        debug_flag = !debug_flag;
-        puts (debug_flag ? "Debug on\n" : "Debug off\n");
-        return;
-    case 'e':
-        mdio_report_all();
-        return;
-    case 'f':
-        clock_report();
-        return;
-    case 'h': case '?':
-        puts("<d>ebug, <f>req, <j>tag, <m>emtest, <p>retty, <s>pi\n"
-             "<r>eset, <R>eboot, df<u>, <v>erbose\n");
-        return;
-    case 'j':
-        jtag_cmd();
-        return;
-    case 'm':
-        memtest();
-        return;
-    case 'p':
-        square_interact();
-        return;
-    case 's':
-        spirom_command();
-        return;
-    case 'r':
-        puts ("Reset!\n");
-        *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
-        spin_for(100000);
-        while (1)
-            RESET_CTRL[0] = 1 << 1;
-    case 'R':
-        puts ("Cold Reboot!\n");
-        *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
-        spin_for(100000);
-        __interrupt_disable();
-        while (1)
-            RESET_CTRL[0] = 1;
+    while (true) {
+        int byte = getchar();
+        switch (byte) {
+        case 'd':
+            debug_flag = !debug_flag;
+            puts (debug_flag ? "Debug on\n" : "Debug off\n");
+            break;
+        case 'e':
+            mdio_report_all();
+            break;
+        case 'f':
+            clock_report();
+            break;
+        case 'h': case '?':
+            puts("<d>ebug, <f>req, <j>tag, <m>emtest, <p>retty, <s>pi\n"
+                 "<r>eset, <R>eboot, df<u>, <v>erbose\n");
+            break;
+        case 'j':
+            jtag_cmd();
+            break;
+        case 'm':
+            memtest();
+            break;
+        case 'p':
+            square_interact();
+            break;
+        case 's':
+            spirom_command();
+            break;
+        case 'r':
+            puts ("Reset!\n");
+            *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
+            spin_for(100000);
+            while (1)
+                RESET_CTRL[0] = 1 << 1;
+        case 'R':
+            puts ("Cold Reboot!\n");
+            *BASE_M4_CLK = 0x0e000800;      // Back to IDIVC.
+            spin_for(100000);
+            __interrupt_disable();
+            while (1)
+                RESET_CTRL[0] = 1;
 
-    case 'u':
-        enter_dfu();
-        return;
-    case 'v':
-        verbose_flag = !verbose_flag;
-        puts (verbose_flag ? "Verbose ON\n" : "Verbose OFF\n");
-        return;
+        case 'u':
+            enter_dfu();
+            break;
+        case 'v':
+            verbose_flag = !verbose_flag;
+            puts (verbose_flag ? "Verbose ON\n" : "Verbose OFF\n");
+            break;
+        default:
+            // Don't echo escape, convert CR to LF.
+            if (byte == '\r')
+                byte = '\n';
+            if (byte != 27)
+                putchar(byte);
+        }
     }
-
-    // Don't echo escape...
-    if (byte == 27)
-        return;
-
-    if (byte == '\r')
-        putchar ('\n');
-    else
-        putchar (byte);
 }
 
 
@@ -931,8 +931,7 @@ void main (void)
 
     square_draw9();
 
-    while (true)
-        serial_byte (getchar());
+    restart_program(NULL);
 }
 
 

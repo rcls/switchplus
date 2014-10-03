@@ -21,4 +21,14 @@ void callback_schedule (callback_function_t * function,
 // disabled on entry.
 void callback_wait (void);
 
+typedef void function_t(void);
+extern function_t * current_program;
+
+// Initialise stack and call current_program.
+void _Noreturn restart_program(const char * p);
+
+void _Noreturn start_program(function_t * f);
+
+extern function_t _Noreturn initial_program;
+
 #endif

@@ -1,8 +1,11 @@
 #include "callback.h"
+#include "monkey.h"
 #include "registers.h"
 
 #include <stdbool.h>
 #include <stddef.h>
+
+function_t * current_program = initial_program;
 
 static callback_record_t * next_callback;
 static callback_record_t ** callback_tail;
@@ -43,4 +46,21 @@ void callback_wait (void)
     __interrupt_enable();
     function (callback);
     __interrupt_disable();
+}
+
+
+void restart_program(const char * p)
+{
+    if (p)
+        puts(p);
+
+    asm volatile("mov sp,%0\nbx %1" :: "r"(0x10089fe0), "r"(current_program));
+    __builtin_unreachable();
+}
+
+
+void start_program(function_t * f)
+{
+    current_program = f;
+    restart_program(NULL);
 }
