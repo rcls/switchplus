@@ -19,17 +19,23 @@ UTILS=../utils
 -include .deps/*.d
 
 LIBO=callback configure freq jtag lcd monkey sdram spirom square switch usb
-main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
+BUILDS=sram flashA flashB flashAhi flashBhi
+
+$(BUILDS:%=main.%.elf): $(LIBO:%=%.o)
 
 # Kill this rule.
 %: %.c
-
-^-ld = $(filter-out %.ld,$^)
 
 %.sram.elf: sram.ld %.o
 	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.flashA.elf: flashA.ld %.o
+	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.flashB.elf: flashB.ld %.o
+	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.flashAhi.elf: flashAhi.ld %.o
+	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
+%.flashBhi.elf: flashBhi.ld %.o
 	$(LINK.c) -T $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.bin: %.elf
@@ -56,7 +62,7 @@ main.sram.elf main.flashA.elf: $(LIBO:%=%.o)
 .PHONY: go
 # We don't really depend on the flasher.  But let's make it harder to
 # accidentally program an older version into the flash.
-go:	main.sram.boot main.flashA.flasher
+go:	main.sram.boot main.flashA.flasher $(BUILDS:%=main.%.bin)
 	dfu-util -D main.sram.boot
 
 %.s: %.c
