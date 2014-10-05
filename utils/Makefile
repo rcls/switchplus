@@ -3,7 +3,8 @@ CFLAGS=-O2 -g -Wall -Werror -std=gnu11 -flto -fwhole-program -MMD -MP -MF.deps/$
 
 LINK.o = $(CC) $(CFLAGS) $(LDFLAGS)
 
-PROGS=addheader decode_bitstream flasher runit xbit pbit usbreset square4
+PROGS=addheader decode_bitstream flasher runit xbit pbit usbreset square4 \
+	flashmon
 all: $(PROGS)
 
 clean:
