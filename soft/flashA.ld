@@ -2,8 +2,13 @@ MEMORY {
   sram (WX) : ORIGIN = 0x10000000, LENGTH = 32K
   /* sram2 is actually 40K but leave room for the stack.  */
   sram2 (W) : ORIGIN = 0x10080000, LENGTH = 16K
-  flashA (RX) : ORIGIN = 0x1a000000, LENGTH = 512K
-  flashB (RX) : ORIGIN = 0x1b000000, LENGTH = 512K
+
+  /* We divide each flash segment into two halves so we can write a second
+   * image for testing.  */
+  flashA (RX) : ORIGIN = 0x1a000000, LENGTH = 256K
+  flashB (RX) : ORIGIN = 0x1b000000, LENGTH = 256K
+  flashAhi (RX) : ORIGIN = 0x1a040000, LENGTH = 256K
+  flashBhi (RX) : ORIGIN = 0x1b040000, LENGTH = 256K
   ahb0 (W) : ORIGIN = 0x20000000, LENGTH = 32K
   ahb1 (W) : ORIGIN = 0x20008000, LENGTH = 16K
   ahb2 (W) : ORIGIN = 0x2000c000, LENGTH = 16K
@@ -32,7 +37,7 @@ SECTIONS
      bss_start = .;
      *(SORT_BY_ALIGNMENT(.bss*))
      bss_end = .;
-  } > sram
+  } > sram2
 
   rw_data_load = LOADADDR(.data);
 
