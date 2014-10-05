@@ -22,6 +22,7 @@ int peekchar_nb (void);
 
 int hex_nibble(int c);
 void _Noreturn drop_line_restart(const char * s, int c);
+void get_hex_block(unsigned char * p, int len);
 
 void gpdma_interrupt (void);
 

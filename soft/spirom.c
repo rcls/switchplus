@@ -148,16 +148,8 @@ static void spirom_program(void)
     unsigned page = get_page("program", ':');
     verbose(CLR "SPIROM program page 0x%x: ", page);
     unsigned char data[PAGE_LEN];
-    for (int i = 0; i != PAGE_LEN; ++i) {
-        int n1 = hex_nibble(getchar());
-        int n2 = hex_nibble(getchar());
-        data[i] = n1 * 16 + n2;
-    }
-    verbose(CLR "SPIROM program page 0x%x press ENTER: ", page);
-    if (getchar() == '\n')
-        write_page(page, data);
-    else
-        printf ("Aborted\n");
+    get_hex_block(data, PAGE_LEN);
+    write_page(page, data);
 }
 
 

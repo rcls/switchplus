@@ -563,6 +563,20 @@ int hex_nibble(int c)
 }
 
 
+void get_hex_block(unsigned char * p, int len)
+{
+    for (int i = 0; i != len; ++i) {
+        int n1 = hex_nibble(getchar());
+        int n2 = hex_nibble(getchar());
+        p[i] = n1 * 16 + n2;
+    }
+    if (getchar() != '\n')
+        drop_line_restart("Trailing junk; abort...\n", 0);
+    if (verbose_flag)
+        putchar('\n');
+}
+
+
 void drop_line_restart(const char * s, int c)
 {
     puts(s);
