@@ -75,11 +75,6 @@ static const char * const output_names[] = {
 };
 
 
-static void * __attribute__ ((noinline)) bra (void)
-{
-    return __builtin_return_address (0);
-}
-
 void clock_report (void)
 {
     printf ("Frequencies...\n");
@@ -118,17 +113,20 @@ void clock_report (void)
             printf ("\n");
     }
 
-    unsigned base = (unsigned) bra();
+    unsigned base = (unsigned) &frequency;
     if (base < 0x10000000) {
         printf ("Using shadow area\n");
         base = *M4MEMMAP;
     }
-    if (base >= 0x10000000 && base < 0x10400000)
+    const char * upper = "";
+    if (base & 0x00040000)
+        upper = " (upper)";
+    bool b = (base & 0x01000000) != 0;
+    base &= 0xfe000000;
+    if (base == 0x10000000)
         printf ("Running from RAM\n");
-    else if (base >= 0x1a000000 && base < 0x1b000000)
-        printf ("Running from flashA\n");
-    else if (base >= 0x1b000000 && base < 0x1c000000)
-        printf ("Running from flashB\n");
+    else if (base == 0x1a000000)
+        printf ("Running from flash%c%s\n", 'A' + b, upper);
     else
         printf ("Running from 0x%08x\n", base);
 }
