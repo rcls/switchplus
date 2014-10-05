@@ -2,11 +2,13 @@
 PCB.*.save
 .deps/
 /docs/
+soft/*.ld
 utils/addheader
 utils/decode_bitstream
-utils/runit
 utils/flasher
-utils/xbit
+utils/flashmon
 utils/pbit
+utils/runit
+utils/xbit
 vhdl/ise/
 vhdl/iseconfig/
