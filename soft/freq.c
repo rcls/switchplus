@@ -54,6 +54,7 @@ int frequency (unsigned clock, unsigned multiplier)
 
 int cpu_frequency (unsigned multiplier)
 {
+    calibrate();
     unsigned base_m4 = *((v32 *) 0x4005006c) >> 24;
     return frequency (base_m4, multiplier);
 }
