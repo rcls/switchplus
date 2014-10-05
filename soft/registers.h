@@ -118,6 +118,19 @@ typedef struct ssp_t {
 #define FLASHCFGB ((v32 *) 0x40043124)
 #define CREG6 ((v32 *) 0x4004312c)
 
+typedef struct control_regs1_t {        // 0x400431xx only.
+    void * m4memmap;
+    unsigned dummy[5];
+    unsigned creg5;
+    unsigned dmamux;
+    unsigned flashcfga;
+    unsigned flashcfgb;
+    unsigned etb_cfg;
+    unsigned creg6;
+    unsigned m4txevent;
+} control_regs1_t;
+#define CREG100 ((volatile control_regs1_t *) 0x40043100)
+
 typedef struct mac_t {
     unsigned config;
     unsigned frame_filter;
@@ -224,7 +237,31 @@ _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
 #define NVIC_IPR ((v8*) (NVIC + 256))
 #define NVIC_STIR (NVIC + 960)
 
-#define CORTEX_M_AIRCR ((v32*) 0xe000ed0c)
+typedef struct system_control_block_t {
+    const unsigned cpuid;
+    unsigned icsr;
+    unsigned vtor;
+    unsigned aircr;
+    unsigned scr;
+    unsigned ccr;
+    unsigned shpr1;
+    unsigned shpr2;
+    unsigned shpr3;
+    unsigned shcsr;
+    unsigned cfsr;
+    unsigned hfsr;
+    unsigned dfsr;
+    unsigned mmfar;
+    unsigned bfar;
+    unsigned afsr;
+    const unsigned cpuid_scheme[16];
+    unsigned dummy[2];
+    unsigned cpacr;
+} system_control_block_t;
+
+#define SCB ((volatile system_control_block_t *) 0xe00ed00)
+_Static_assert((unsigned) &SCB->mmfar == 0xe00ed34, "SCB MMFAR");
+_Static_assert((unsigned) &SCB->cpacr == 0xe00ed88, "SCB CPACR");
 
 typedef struct EMC_t {
     unsigned emc_control;

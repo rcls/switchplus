@@ -106,7 +106,7 @@ dTD_t * get_dtd (void)
     spin_for(100000);
 
     while (1)
-        *CORTEX_M_AIRCR = 0x05fa0004;
+        SCB->aircr = 0x05fa0004;
 }
 
 
