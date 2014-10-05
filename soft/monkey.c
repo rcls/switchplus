@@ -565,6 +565,5 @@ void drop_line_restart(const char * s, int c)
     puts(s);
     if (c != '\n')
         while (getchar() != '\n');
-    putchar('\n');
-    restart_program();
+    restart_program("\n");
 }

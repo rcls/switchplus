@@ -931,7 +931,7 @@ static void _Noreturn main (void)
 
     square_draw9();
 
-    restart_program();
+    restart_program("");
 }
 
 

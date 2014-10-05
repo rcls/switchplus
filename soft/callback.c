@@ -49,8 +49,9 @@ void callback_wait (void)
 }
 
 
-void restart_program(void)
+void restart_program(const char * message)
 {
+    puts(message);
     asm volatile("mov sp,%0\nbx %1" :: "r"(0x10089fe0), "r"(current_program));
     __builtin_unreachable();
 }
@@ -59,5 +60,5 @@ void restart_program(void)
 void start_program(function_t * f)
 {
     current_program = f;
-    restart_program();
+    restart_program("");
 }
