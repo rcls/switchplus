@@ -441,7 +441,11 @@ void printf (const char * restrict f, ...)
         for (; *s == 'l'; ++s)
             ++lng;
         unsigned lower = *s & 32;
+        unsigned long value = va_arg(args, unsigned long);
         switch (*s | 32) {
+        case 'c':
+            write_byte(value);
+            continue;
         case 'x':
             lower = 0x20;
             base = 16;
@@ -458,13 +462,12 @@ void printf (const char * restrict f, ...)
             fill = '0';
             break;
         case 's':
-            format_string (va_arg (args, const char *), width, fill);
+            format_string ((const char *) value, width, fill);
             continue;
         default:
             continue;
         }
 
-        unsigned long value = va_arg(args, unsigned long);
         format_number (value, base, lower, sgn, width, fill);
     }
 
