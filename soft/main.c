@@ -5,6 +5,7 @@
 #include "freq.h"
 #include "jtag.h"
 #include "lcd.h"
+#include "monitor.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
@@ -344,6 +345,9 @@ void initial_program(void)
             break;
         case 'm':
             memtest();
+            break;
+        case 'M':
+            run_monitor();
             break;
         case 'p':
             square_interact();

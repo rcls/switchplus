@@ -18,7 +18,8 @@ UTILS=../utils
 
 -include .deps/*.d
 
-LIBO=callback configure freq jtag lcd monkey sdram spirom square switch usb
+LIBO=callback configure freq jtag lcd monitor monkey \
+	sdram spirom square switch usb
 BUILDS=sram flashA flashB flashAhi flashBhi
 
 $(BUILDS:%=main.%.elf): $(LIBO:%=%.o)
