@@ -186,11 +186,21 @@ static void command_go(const unsigned * args, int comps)
 }
 
 
+static void command_call(const unsigned * args, int comps)
+{
+    typedef unsigned func_t(unsigned, unsigned, unsigned, unsigned);
+    func_t * f = (func_t *) args[0];
+    unsigned r = f(args[1], args[2], args[3], args[4]);
+    printf("function returns %08x\n", r);
+}
+
+
 static void command_unlock(const unsigned * restrict args, int comps)
 {
     unsigned arg = '1';
     flash_command(&arg, &arg, false);
     locked = false;
+    puts("unlocked\n");
 }
 
 
@@ -281,6 +291,7 @@ static const command_t commands[] = {
     { "go", command_go, 1, 1 },
     { "word", command_word, 1, 2 },
     { "read", command_read, 2, 2 },
+    { "call", command_call, 1, 5 },
     /* { "write", command_write }, */
     { "checksum", command_checksum, 2, 3 },
     { "erase", command_erase, 2, 2 },
@@ -303,7 +314,7 @@ void run_command(const char * line, int comps)
             return;
         }
 
-        unsigned args[4];
+        unsigned args[5];
         const char * a = line;
         for (int i = 0; i < comps; ++i) {
             a = strnext(a);
