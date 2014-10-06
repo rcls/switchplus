@@ -83,7 +83,7 @@ int main(int argc, char * argv[])
     if (erase_end & (0x00ff0000))
         erase_end = (erase_end + 65535) & ~65535;
 
-    //printf("erase %08x %06x\n", erase_start, erase_end - erase_start);
+    printf("erase %08x %06x\n", erase_start, erase_end - erase_start);
 
     for (size_t i = skip; i < length;) {
         // Do the largest of 512, 1024, 4096 that matches alignment
