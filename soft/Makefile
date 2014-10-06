@@ -1,7 +1,8 @@
+BUILDS=flashA flashB flashAhi flashBhi
+
+all: ${BUILDS:%=main.%.bin} flash.sram.bin dfu.sram.bin
 
 .PHONY: all clean
-all: main.sram.boot main.flashA.flasher dfu.sram.bin
-
 .SECONDARY:
 
 clean:
@@ -20,7 +21,6 @@ UTILS=../utils
 
 LIBO=callback configure freq jtag lcd monitor monkey \
 	sdram spirom square switch usb
-BUILDS=sram flashA flashB flashAhi flashBhi
 
 $(BUILDS:%=main.%.elf): $(LIBO:%=%.o)
 
@@ -56,7 +56,7 @@ $(BUILDS:%=main.%.elf): $(LIBO:%=%.o)
 	rm $@.tmp
 	mv $@.tmp2 $@
 
-%.ld: template.ld.in
+$(BUILDS:%=%.ld): %.ld: template.ld.in
 	sed 's/@TARGET@/$*/g' $< > $@.tmp
 	mv $@.tmp $@
 
