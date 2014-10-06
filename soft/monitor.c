@@ -287,12 +287,20 @@ static void command_flash(const unsigned * restrict args, int comps)
 }
 
 
+static void command_write(const unsigned * restrict args, int comps)
+{
+    puts("write: send data.\n");
+    get_hex_block((unsigned char *) args[0], args[1]);
+    puts("write: ok.\n");
+}
+
+
 static const command_t commands[] = {
     { "go", command_go, 1, 1 },
     { "word", command_word, 1, 2 },
     { "read", command_read, 2, 2 },
     { "call", command_call, 1, 5 },
-    /* { "write", command_write }, */
+    { "write", command_write, 2, 2 },
     { "checksum", command_checksum, 2, 3 },
     { "erase", command_erase, 2, 2 },
     { "flash", command_flash, 3, 3 },
