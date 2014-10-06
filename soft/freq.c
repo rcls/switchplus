@@ -21,7 +21,7 @@ static int freq_mon (unsigned clock, unsigned count)
 }
 
 // Measurement of PLL0USB.  If clocks are perfect it, will be 16000.
-static unsigned calibration;
+static unsigned calibration = 16000;
 
 
 // We assume PLL0USB is running at 480 MHz.  We measure that; the result is used
@@ -47,7 +47,7 @@ int frequency (unsigned clock, unsigned multiplier)
         r = r - 3 - (fm & 511);
     }
     unsigned f = (fm >> 9) & 16383;
-    f = f * 16000 * 12 / (calibration ? calibration : 16000);
+    f = f * 16000 * 12 / calibration;
     return (f * 2 * multiplier + r) / (2 * r);
 }
 
