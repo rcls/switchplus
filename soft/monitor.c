@@ -156,7 +156,7 @@ static void command_checksum(const unsigned * restrict args, int comps)
 
 static void command_word(const unsigned * args, int comps)
 {
-    if (comps == 3)
+    if (comps == 2)
         * (volatile unsigned *) args[0] = args[1];
     else
         printf("%08x: %08x\n", args[0], * (volatile unsigned *) args[0]);
