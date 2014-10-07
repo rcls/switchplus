@@ -19,64 +19,65 @@ union ll_maker {
     long long ll;
 };
 
-static int sq_sum_r(int z_r, int z_i, int c_r)
+static int sq_sum_r(int z_r, int z_i, long long rr)
 {
-    union ll_maker aa = { .lo = c_r << FRAC_BITS, .hi = c_r >> INT_BITS };
-    long long a = aa.ll;
-    a += z_r * (long long) z_r;
-    a += z_i * (long long) -z_i;
-    int r = (int) (a >> FRAC_BITS);
-    r += (a & (1 << (FRAC_BITS - 1))) != 0;
+    rr += z_r * (long long) z_r;
+    rr += z_i * (long long) -z_i;
+    int r = (int) (rr >> FRAC_BITS);
+    r += (rr & (1 << (FRAC_BITS - 1))) != 0;
     return r;
 }
 
-static int sq_sum_i(int z_r, int z_i, int c_i)
+static int sq_sum_i(int z_r, int z_i, long long ii)
 {
-    // Instead of computing 2*x*y we include it in the shifts.
-    union ll_maker aa = { .lo = c_i << (FRAC_BITS - 1),
-                          .hi = (c_i >> (INT_BITS + 1)) };
-    long long a = aa.ll;
-    a += z_r * (long long) z_i;
-    int r = (int) (a >> (FRAC_BITS - 1));
-    r += (a & (1 << (FRAC_BITS - 2))) != 0;
+    // Instead of computing 2*x*y we include the 2* in the shifts.
+    ii += z_r * (long long) z_i;
+    int r = (int) (ii >> (FRAC_BITS - 1));
+    r += (ii & (1 << (FRAC_BITS - 2))) != 0;
     return r;
 }
 
 typedef struct draw_context_t {
-    unsigned scale;                     // Multiply integer to give fixed point.
+    int scale;                          // Multiply integer to give fixed point.
     int left;                           // Fixed-point.
     int top;                            // Fixed-point.
     pixel_t col[MAX_ITER + 1];
 } draw_context_t;
 
 
-static pixel_t evaluate(int c_r, int c_i,
-                               const draw_context_t * restrict ctxt)
+static pixel_t evaluate(int c_r, int c_i, const draw_context_t * ctxt)
 {
+    union ll_maker u_r = { .lo = c_r << FRAC_BITS, .hi = c_r >> INT_BITS };
+    long long cc_r = u_r.ll;
+
+    // Instead of computing 2*x*y we include the 2* in the shifts.
+    union ll_maker u_i = { .lo = c_i << (FRAC_BITS - 1),
+                           .hi = (c_i >> (INT_BITS + 1)) };
+    long long cc_i = u_i.ll;
     int z_i = 0;
     int z_r = 0;
     int i;
-    for (i = 0; i < MAX_ITER; ++i) {
-        int rr = sq_sum_r(z_r, z_i, c_r);
-        int ii = sq_sum_i(z_r, z_i, c_i);
+    for (i = 0; i < 1024; ++i) {
+        int rr = sq_sum_r(z_r, z_i, cc_r);
+        int ii = sq_sum_i(z_r, z_i, cc_i);
         if (rr <= -BOUND || rr >= BOUND || ii <= -BOUND || ii >= BOUND)
-            break;
+            return ctxt->col[i & 63];
         z_r = rr;
         z_i = ii;
     }
-    return ctxt->col[i];
+    return 0;
 }
 
 
-static int x_fixed(pixel_t * restrict origin,
-                   const draw_context_t * restrict ctxt)
+// Return fixed point x co-ordinate of pixel address.
+static int x_fixed(const pixel_t * origin, const draw_context_t * ctxt)
 {
     int x = ((unsigned) origin >> 1) & 1023; // Pixels
     return x * ctxt->scale + ctxt->left;     // Convert to fixed-point.
 }
 
-static int y_fixed(pixel_t * restrict origin,
-                   const draw_context_t * restrict ctxt)
+// Return fixed point y co-ordinate of pixel address.
+static int y_fixed(pixel_t * origin, const draw_context_t * ctxt)
 {
     int y = ((unsigned) origin >> 11) & 1023; // Pixels
     return y * ctxt->scale + ctxt->top;       // Convert to fixed-point.
@@ -85,10 +86,8 @@ static int y_fixed(pixel_t * restrict origin,
 
 // Draw along horizontal line.  The pixels are stored into both the
 // origin buffer and the temp buffer.
-static void draw_hline(pixel_t * restrict origin,
-                       pixel_t * restrict temp,
-                       int length,
-                       const draw_context_t * restrict ctxt)
+static void draw_hline(pixel_t * origin, pixel_t * temp,
+                       int length, const draw_context_t * ctxt)
 {
     int x = x_fixed(origin, ctxt);
     int y = y_fixed(origin, ctxt);
@@ -99,8 +98,7 @@ static void draw_hline(pixel_t * restrict origin,
 
 // Draw along vertical line.  The pixels are stored into the temp buffer
 // and not the origin buffer.
-static void draw_vline(pixel_t * restrict origin,
-                       pixel_t * restrict temp,
+static void draw_vline(pixel_t * origin, pixel_t * temp,
                        int length, const draw_context_t * restrict ctxt)
 {
     int x = x_fixed(origin, ctxt);
@@ -111,10 +109,8 @@ static void draw_vline(pixel_t * restrict origin,
 
 
 static bool is_constant(int width, int height,
-                        const pixel_t * restrict top,
-                        const pixel_t * restrict bot,
-                        const pixel_t * restrict left,
-                        const pixel_t * restrict right)
+                        const pixel_t * top, const pixel_t * bot,
+                        const pixel_t * left, const pixel_t * right)
 {
     pixel_t b = left[0];
     for (int i = 0; i <= width; ++i)
@@ -130,15 +126,13 @@ static bool is_constant(int width, int height,
 
 // The width and height are inclusive.  Top, bottom and right boundaries are
 // drawn by the caller, we draw the left boundary.
-static void draw(pixel_t * restrict origin,
-                 int width, int height,
-                 draw_context_t * restrict ctxt,
-                 const pixel_t * restrict top,
-                 const pixel_t * restrict bot,
-                 const pixel_t * restrict left,
-                 const pixel_t * restrict right)
+static void draw(pixel_t * origin, int width, int height,
+                 draw_context_t * ctxt,
+                 const pixel_t * top, const pixel_t * bot,
+                 const pixel_t * left, const pixel_t * right)
 {
-    if (is_constant(width, height, top, bot, left, right)) {
+    if (is_constant(width, height, top, bot, left, right)
+        && width <= 256 && height <= 256) {
         pixel_t b = left[0];
         for (int y = 1; y < height; ++y)
             for (int x = 0; x < width; ++x)
@@ -191,7 +185,40 @@ static void draw(pixel_t * restrict origin,
 }
 
 
-#if 0
+// Width and height are inclusive.
+static void draw_rect(pixel_t * origin, int width, int height,
+                      draw_context_t * ctxt)
+{
+    for (int y = 0; y <= height; ++y)
+        for (int x = 0; x <= width; ++x)
+            origin[y * 1024 + x] = 0xffff;
+
+    pixel_t edges[width * 2 + height * 2 + 4];
+    pixel_t * top = edges;
+    draw_hline(origin, top, width + 1, ctxt);
+    if (height == 0)
+        return;
+
+    pixel_t * bot = edges + width + 1;
+    draw_hline(origin + 1024 * height, bot, width + 1, ctxt);
+
+    pixel_t * right = bot + width + 1;
+    draw_vline(origin + width, right, height + 1, ctxt);
+    // It's up to us to plot those...
+    for (int i = 1; i < height; ++i)
+        origin[i * 1024 + width] = right[i];
+
+    if (width == 0)
+        return;
+
+    pixel_t * left = right + height + 1;
+    draw_vline(origin, left, height + 1, ctxt);
+
+    if (height > 1)
+        draw(origin, width, height, ctxt, top, bot, left, right);
+}
+
+
 static int getchar(void)
 {
     typedef int getchar_t(void);
@@ -200,6 +227,7 @@ static int getchar(void)
     return f();
 }
 
+
 static int peekchar_nb(void)
 {
     typedef int pc_nb_t(void);
@@ -207,18 +235,74 @@ static int peekchar_nb(void)
     pc_nb_t * f = except[62];
     return f();
 }
-#endif
+
+
+static bool key_stroke(draw_context_t * restrict ctxt, bool * scale_change,
+                       int * deltax, int * deltay)
+{
+    // We keep the center point (pixel 512,512) within -2.0 ... 2.0
+    // and the total width no more than 4.
+    int c = getchar();
+    switch (c) {
+    case 'A':                   // Up.
+        if (ctxt->top + 513 * ctxt->scale >= (2 << FRAC_BITS))
+            break;
+        --*deltay;
+        ctxt->top += ctxt->scale;
+        break;
+    case 'B':                   // Down.
+        if (ctxt->top + 511 * ctxt->scale < (-2 << FRAC_BITS))
+            break;
+        ++*deltay;
+        ctxt->top -= ctxt->scale;
+        break;
+    case 'C':                   // Right.
+        if (ctxt->left + 511 * ctxt->scale < (-2 << FRAC_BITS))
+            break;
+        ++*deltax;
+        ctxt->left -= ctxt->scale;
+        break;
+    case 'D':                   // Left.
+        if (ctxt->left + 513 * ctxt->scale > (2 << FRAC_BITS))
+            break;
+        --*deltax;
+        ctxt->left += ctxt->scale;
+        break;;
+    case '5': { // Page up.
+        // Zoom-in keeping (512,512) in the same place...
+        int scale = ctxt->scale >> 1;
+        if (scale < 1)
+            break;
+        *scale_change = true;
+        ctxt->left += 512 * (ctxt->scale - scale);
+        ctxt->top += 512 * (ctxt->scale - scale);
+        ctxt->scale = scale;
+        break;
+    }
+    case '6': {                 // Page down.
+        int scale = ctxt->scale << 1;
+        if (scale > (4 << (FRAC_BITS - 10)))
+            break;
+        int delta = 512 * (ctxt->scale - scale);
+        *scale_change = true;
+        ctxt->scale = scale;
+        ctxt->left += delta;
+        ctxt->top += delta;
+        break;
+    }
+    case '\n':
+        return true;
+    }
+    return false;
+}
 
 
 unsigned __section(".start") __attribute__((externally_visible)) mandel(void)
 {
     *(volatile unsigned *) 0x40051600 = 1;
 
-    unsigned start_clocks = * (volatile unsigned *) 0x400c000c;
+    //unsigned start_clocks = * (volatile unsigned *) 0x400c000c;
     draw_context_t ctxt;
-    ctxt.left = -2 << FRAC_BITS;
-    ctxt.top = -2 << FRAC_BITS;
-    ctxt.scale = 1 << (FRAC_BITS - 8);
     for (unsigned i = 0; i < MAX_ITER; ++i) {
         // 0 -> reg, 32 -> green, 63 -> blue, 64 -> black.
         if (i < 32)
@@ -227,28 +311,47 @@ unsigned __section(".start") __attribute__((externally_visible)) mandel(void)
             ctxt.col[i] = 16 + (128 - 2 * i) * 32 + (i - 32) * 64 * 32;
     }
     ctxt.col[MAX_ITER] = 0;
+    ctxt.left = -2 << FRAC_BITS;
+    ctxt.top = -2 << FRAC_BITS;
+    ctxt.scale = 1 << (FRAC_BITS - 8);
     pixel_t * origin = (pixel_t *) 0x60000000;
     LCD->upbase = origin;
-    for (int i = 0; i != 1024 * 1024; ++i)
-        origin[i] = 0xffff;
-    // Draw the 4 boundaries...
-    pixel_t top[1024];
-    draw_hline(origin, top, 1024, &ctxt);
+    bool scale_change = true;           // Force it first time round.
+    while (true) {
+        int deltax = 0;
+        int deltay = 0;
+        while (peekchar_nb() >= 0 || (!scale_change && !deltax && !deltay))
+            if (key_stroke(&ctxt, &scale_change, &deltax, &deltay))
+                return 0;
 
-    pixel_t bottom[1024];
-    draw_hline(origin + 1023 * 1024, bottom, 1024, &ctxt);
+        if (scale_change
+            || deltax > 512 || deltax < -512 || deltay > 512 || deltay < -512) {
+            // Just redraw....
+            draw_rect(origin, 1023, 1023, &ctxt);
+            scale_change = false;
+            continue;
+        }
 
-    pixel_t left[1024];
-    draw_vline(origin, left, 1024, &ctxt);
+        // Shuffle data and repaint the damage areas.
+        int delta = deltax + 1024 * deltay;
+        if (delta > 0)
+            for (int i = 1024 * 1024; i >= delta; --i)
+                origin[i] = origin[i - delta];
+        else
+            for (int i = -delta; i < 1024 * 1024; ++i)
+                origin[i + delta] = origin[i];
 
-    pixel_t right[1024];
-    draw_vline(origin + 1023, right, 1024, &ctxt);
+        if (deltay > 0)                 // Do any top damage area.
+            draw_rect(origin, 1023, deltay - 1, &ctxt);
+        if (deltay < 0)                 // Bottom.
+            draw_rect(origin + 1024 * (1024 + deltay),
+                      1023, -deltay - 1, &ctxt);
+        if (deltax > 0)                 // Left.
+            draw_rect(origin, deltax - 1, 1023, &ctxt);
+        if (deltax < 0)                 // Right.
+            draw_rect(origin + 1024 + deltax, -deltax - 1, 1023, &ctxt);
 
-    for (int i = 0; i < 1024; ++i)
-        origin[i * 1024 + 1023] = right[i];
-
-    draw(origin, 1023, 1023, &ctxt, top, bottom, left, right);
-
-    unsigned end_clocks = * (volatile unsigned *) 0x400c000c;
-    return end_clocks - start_clocks;
+        //unsigned end_clocks = * (volatile unsigned *) 0x400c000c;
+        //return end_clocks - start_clocks;
+    }
 }
