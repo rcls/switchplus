@@ -949,4 +949,7 @@ void * start[64] = {
     [16 + m4_lcd]      = lcd_interrupt,
     [16 + m4_usb0]     = usb_interrupt,
     [16 + m4_switch]   = switch_interrupt,
+
+    [62] = peekchar_nb,
+    [63] = getchar,
 };

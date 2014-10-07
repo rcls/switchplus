@@ -240,7 +240,7 @@ _Static_assert(sizeof(usb_endpoints_t) == 0x38, "Usb endpoint size");
 typedef struct system_control_block_t {
     const unsigned cpuid;
     unsigned icsr;
-    unsigned vtor;
+    void *   vtor;
     unsigned aircr;
     unsigned scr;
     unsigned ccr;
