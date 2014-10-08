@@ -182,6 +182,7 @@ static void command_go(const unsigned * args, int comps)
     unsigned * vector = (unsigned *) *args;
     __interrupt_disable();
     CREG100->m4memmap = vector;
+    SCB->vtor = vector;
     asm volatile("mov sp,%0\n" "bx %1" :: "r"(vector[0]), "r"(vector[1]));
 }
 
