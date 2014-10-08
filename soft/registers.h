@@ -317,7 +317,7 @@ typedef struct lcd_t {
 } lcd_t;
 #define LCD ((volatile lcd_t *) 0x40008000)
 
-#define LCD_PAL ((v32*) 0x400008200)
+#define LCD_PAL ((v32*) 0x40008200)
 
 #define CRSR_IMG ((v32*) 0x40008800)
 

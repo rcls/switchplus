@@ -10,6 +10,10 @@ pixel_t FRAME_BUFFER[2097152] __aligned(8) __section("dram");
 
 static volatile bool frame_flag;
 
+// 0x0001082c for TFT, watermark=8, 16bpp
+// 0x00010826 for TFT, watermark=8, 8bpp.
+#define LCD_CONTROL 0x10826
+
 void lcd_init (void)
 {
     // Reset the SDRAM.
@@ -54,7 +58,7 @@ void lcd_init (void)
                       0,                                          // LE
                       (unsigned) FRAME_BUFFER,                    // UPBASE
                       (unsigned) FRAME_BUFFER,                    // LPBASE
-                      0x1082c),      // CTRL: TFT, 16bpp, disabled, watermark=8.
+                      LCD_CONTROL),
 
         // PIN_OUT_FAST(4,1,2),            // A1  LCD_VD0
         // PIN_OUT_FAST(4,3,2),            // C2  LCD_VD2

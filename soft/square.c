@@ -6,6 +6,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// 40404040 for 8bpp, 42084208 for 16bpp 565.
+#define FILL 0x40404040
+
 typedef struct sq_context_t {
     int x, y;
     unsigned colour, Lcolour;
@@ -13,7 +16,7 @@ typedef struct sq_context_t {
     pixel_t * frame_buffer;
 } sq_context_t;
 
-static pixel_t colour(unsigned i)
+static unsigned colour(unsigned i)
 {
     // Pixel layout msb to lsb is BBBB BGGG GGGR RRRR.
     // We do the colours in 64 steps, running through 3 segments.
@@ -41,7 +44,8 @@ static pixel_t colour(unsigned i)
     default:
         __builtin_unreachable();
     }
-    return (r >> 3) | (g >> 2) * 32 | (b >> 3) * 2048;
+    return (r >> 3) | (g >> 3) * 32 | (b >> 3) * 1024
+        | ((g & 4) ? 32768 : 0);
 }
 
 
@@ -145,7 +149,7 @@ static sq_context_t * square_clip(sq_context_t * restrict c, unsigned dir,
         goto move;
     }
     if (L == c->Lcolour)
-        c->colour = colour(c->next_colour++);
+        c->colour = c->next_colour++;
 
     // Work out bounding box.
     int right, up, left, down;
@@ -245,10 +249,20 @@ static void dma_fill (void * p, unsigned pattern, unsigned n)
 }
 
 
+static void setup_palette(void)
+{
+    // Set-up the palette.
+    for (int i = 0; i < 32; ++i)
+        LCD_PAL[i] = (colour(2*i + 1) << 16) + colour(2*i);
+    LCD_PAL[32] = 0x2108;
+}
+
+
 void square_draw9 (void)
 {
     verbose("Drawing squaral...");
-    dma_fill (FRAME_BUFFER, 0x42084208, 524288);
+    dma_fill(FRAME_BUFFER, FILL, 1048576 * sizeof(pixel_t) / 4);
+    setup_palette();
     sq_context_t c;
     c.x = 256;
     c.y = 768;
@@ -265,7 +279,9 @@ void square_interact (void)
     // Clear out two frames.
     pixel_t * current_frame = FRAME_BUFFER;
     pixel_t * new_frame = FRAME_BUFFER + 1048576;
-    dma_fill (FRAME_BUFFER, 0x42084208, 1048576);
+    dma_fill (FRAME_BUFFER, FILL, sizeof FRAME_BUFFER / 4);
+    setup_palette();
+
     lcd_setframe_wait (current_frame);
 
     int lastX = -8;
@@ -291,7 +307,8 @@ void square_interact (void)
             lcd_setframe_wait (new_frame);
             // Clear out the old one.  FIXME - record number of pixels so we can
             // make a smart decision?
-            dma_fill(current_frame, 0x42084208, 524288);
+            dma_fill(current_frame, 0x40404040,
+                     1024 * 1024 * sizeof(pixel_t) / 4);
             pixel_t * temp = current_frame;
             current_frame = new_frame;
             new_frame = temp;
