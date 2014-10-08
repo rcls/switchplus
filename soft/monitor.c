@@ -14,7 +14,7 @@ typedef struct command_t {
     unsigned short max;
 } command_t;
 
-bool locked;
+bool unlocked;
 
 
 // Return number of components (not including terminator) or -1 on error.
@@ -96,9 +96,17 @@ static unsigned checksum(const volatile unsigned char * p, unsigned count)
 }
 
 
+static void lock_check(void)
+{
+    if (!unlocked)
+        restart_program("locked\n");
+}
+
 static void flash_command(const unsigned * in, unsigned * out,
                           bool check)
 {
+    lock_check();
+
     unsigned command = in[0];
 
     typedef void IAP_t(const unsigned *, unsigned *);
@@ -199,8 +207,8 @@ static void command_call(const unsigned * args, int comps)
 static void command_unlock(const unsigned * restrict args, int comps)
 {
     unsigned arg = '1';
+    unlocked = true;
     flash_command(&arg, &arg, false);
-    locked = false;
     puts("unlocked\n");
 }
 
@@ -261,9 +269,6 @@ static void command_flash(const unsigned * restrict args, int comps)
     unsigned char data[length];
     get_hex_block(data, length);
 
-    if (locked)
-        restart_program("flash: locked.\n");
-
     // Blank check.
     for (unsigned i = 0; i < length; ++i)
         if (* (signed char *) (base + i) != -1)
@@ -319,7 +324,7 @@ void run_command(const char * line, int comps)
         if (comps < p->min || comps > p->max) {
             printf("%s: takes between %u and %u parameters\n",
                    line, p->min, p->max);
-            locked = true;
+            unlocked = false;
             return;
         }
 
@@ -339,7 +344,7 @@ void run_command(const char * line, int comps)
 
 static void _Noreturn monitor(void)
 {
-    locked = true;
+    unlocked = false;
     char line[82];
     while (1) {
         verbose("MON> ");
@@ -347,6 +352,13 @@ static void _Noreturn monitor(void)
         if (comps <= 0) {
             verbose("Exit monitor\n");
             start_program(initial_program);
+        }
+        // Special case - if the command starts with '+', apply the locking
+        // logic here.
+        const char * l = line;
+        if (*l == '+') {
+            lock_check();
+            ++l;
         }
         run_command(line, comps);
     }
