@@ -158,7 +158,7 @@ _Static_assert(sizeof(mac_t) == 0x48, "mac size");
 
 #define MAC_TIMESTP_CTRL ((v32 *) (0x40010700))
 
-typedef struct edma_t {
+typedef struct edma_t {                 // Ethernet DMA.
     unsigned bus_mode;
     unsigned trans_poll_demand;
     unsigned rec_poll_demand;

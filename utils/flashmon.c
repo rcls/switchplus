@@ -105,5 +105,7 @@ int main(int argc, char * argv[])
     if (skip)
         write_block(buffer, base, skip);
 
+    printf("+go %08x\n", base);
+
     return 0;
 }
