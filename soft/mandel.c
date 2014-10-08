@@ -8,7 +8,7 @@
 #define FRAC_BITS (32 - 4)
 #define BOUND (2 << FRAC_BITS)
 
-typedef unsigned short pixel_t;
+typedef unsigned char pixel_t;
 
 // Ugh.  gcc sucks.
 union ll_maker {
@@ -41,7 +41,6 @@ typedef struct draw_context_t {
     int scale;                          // Multiply integer to give fixed point.
     int left;                           // Fixed-point.
     int top;                            // Fixed-point.
-    pixel_t col[MAX_ITER + 1];
 } draw_context_t;
 
 
@@ -61,25 +60,25 @@ static pixel_t evaluate(int c_r, int c_i, const draw_context_t * ctxt)
         int rr = sq_sum_r(z_r, z_i, cc_r);
         int ii = sq_sum_i(z_r, z_i, cc_i);
         if (rr <= -BOUND || rr >= BOUND || ii <= -BOUND || ii >= BOUND)
-            return ctxt->col[i & 63];
+            return i & 63;
         z_r = rr;
         z_i = ii;
     }
-    return 0;
+    return 64;
 }
 
 
 // Return fixed point x co-ordinate of pixel address.
 static int x_fixed(const pixel_t * origin, const draw_context_t * ctxt)
 {
-    int x = ((unsigned) origin >> 1) & 1023; // Pixels
+    int x = ((unsigned) origin) & 1023;  // Pixels
     return x * ctxt->scale + ctxt->left;     // Convert to fixed-point.
 }
 
 // Return fixed point y co-ordinate of pixel address.
 static int y_fixed(pixel_t * origin, const draw_context_t * ctxt)
 {
-    int y = ((unsigned) origin >> 11) & 1023; // Pixels
+    int y = ((unsigned) origin >> 10) & 1023; // Pixels
     return y * ctxt->scale + ctxt->top;       // Convert to fixed-point.
 }
 
@@ -191,7 +190,7 @@ static void draw_rect(pixel_t * origin, int width, int height,
 {
     for (int y = 0; y <= height; ++y)
         for (int x = 0; x <= width; ++x)
-            origin[y * 1024 + x] = 0xffff;
+            origin[y * 1024 + x] = 65;
 
     pixel_t edges[width * 2 + height * 2 + 4];
     pixel_t * top = edges;
@@ -297,20 +296,38 @@ static bool key_stroke(draw_context_t * restrict ctxt, bool * scale_change,
 }
 
 
+// Combine 3 bytes...
+static unsigned rgb(unsigned r, unsigned g, unsigned b)
+{
+    return (r >> 3) | (g >> 3) * 32 | (b >> 3) * 1024
+        | ((g & 4) ? 32768 : 0);
+}
+
+
+static unsigned colour(unsigned i)
+{
+    if (i < 32)                         // red ... green.
+        return rgb(255 - i * 4, 128 + i * 4, 128);
+    else                                // green ... blue.
+        return rgb(128, 255 - (i - 32) * 4, 128 + (i - 32) * 4);
+}
+
+
 unsigned __section(".start") __attribute__((externally_visible)) mandel(void)
 {
-    *(volatile unsigned *) 0x40051600 = 1;
+    *(volatile unsigned *) 0x40051600 = 1; // RIT clock enable.
 
     //unsigned start_clocks = * (volatile unsigned *) 0x400c000c;
     draw_context_t ctxt;
-    for (unsigned i = 0; i < MAX_ITER; ++i) {
+
+    for (unsigned i = 0; i < MAX_ITER/2; ++i)
         // 0 -> reg, 32 -> green, 63 -> blue, 64 -> black.
-        if (i < 32)
-            ctxt.col[i] = (32 - i) + 2 * i * 32 + 16 * 64 * 32;
-        else
-            ctxt.col[i] = 16 + (128 - 2 * i) * 32 + (i - 32) * 64 * 32;
-    }
-    ctxt.col[MAX_ITER] = 0;
+        LCD_PAL[i] = colour(2*i) + colour(2*i+1) * 65536;
+
+    LCD_PAL[MAX_ITER/2] = 0xffff0000;
+
+    LCD->ctrl = 0x00010827;             // 8bpp.
+
     ctxt.left = -2 << FRAC_BITS;
     ctxt.top = -2 << FRAC_BITS;
     ctxt.scale = 1 << (FRAC_BITS - 8);
