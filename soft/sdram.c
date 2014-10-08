@@ -107,11 +107,11 @@ void meminit (unsigned mhz)
 
     EMC->dynamic_control = 0x0083;           // Mode command.
 
-    // Burst mode set-up value: 0x023
-    // Column length = 9
-    // Width = 1
-    // Bank bits = 2
-    // Sequential v interleaved probably doesn't matter: 0=sequential.
+    // Burst mode set-up value: 0x023 or 0x033
+    // Burst length, raw value 3 gives 8 transfers.
+    // Burst type 0 = sequential.
+    // Cas latency = 2 or 3 clocks depending on speed.
+    // The shift calculation: Column length = 9, Width = 1, Bank bits = 2.
     if (mhz >= 143)
         * (volatile unsigned char *) (0x60000000 + (0x033 << 12));
     else
