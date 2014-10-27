@@ -349,10 +349,7 @@ typedef struct i2c_t {
     unsigned adr2;
     unsigned adr3;
     unsigned data_buffer;
-    unsigned mask0;
-    unsigned mask1;
-    unsigned mask2;
-    unsigned mask3;
+    unsigned mask[4];
 } i2c_t;
 
 #define I2C0 ((volatile i2c_t *) 0x400a1000)

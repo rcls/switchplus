@@ -18,7 +18,7 @@ MEMORY {
 SECTIONS
 {
   .text : {
-     KEEP(*(.start))
+     KEEP(*(SORT_BY_NAME(.start*)))
      *(.text*)
      *(SORT_BY_ALIGNMENT(.rodata*))
      . = NEXT(4);

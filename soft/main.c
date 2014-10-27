@@ -950,6 +950,8 @@ void * start[64] = {
     [16 + m4_usb0]     = usb_interrupt,
     [16 + m4_switch]   = switch_interrupt,
 
+    [60] = putchar,
+    [61] = printf,
     [62] = peekchar_nb,
     [63] = getchar,
 };

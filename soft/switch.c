@@ -177,6 +177,8 @@ const unsigned switch_pins[] __init_script("0") = {
     PIN_OUT(12,1,3),                // MDC (E4, PC_1, func 3).
 
     PIN_IN_FAST(1,19,0),            // TX_CLK (M11, P1_19, func 0)
+    // In addition to these, LED5_1, PMRXER have pull-down.  PS1, SCONF1 have
+    // pull-up.
     PIN_IN_FAST(1,15,PULL_DOWN | 3), // RXD0 (T12, P1_15, func 3)
     PIN_IN_FAST(0,0,PULL_DOWN | 2), // RXD1 (L3, P0_0, func 2)
     PIN_IN_FAST(12,8,3),            // RX_DV (N4, PC_8, func 3)
