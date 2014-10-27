@@ -66,10 +66,13 @@ begin
   begin
     wait until rising_edge(clk);
 
-    R <= lcd_R(7 downto 3) & "000";
+    -- B1 replaces R5.
+    R <= lcd_R(7 downto 6) & lcd_B(1) & lcd_R(4 downto 3) & "000";
     G <= lcd_G(7 downto 2) & "00";
     B <= lcd_B(7 downto 3) & "000";
-    hsync <= lcd_hsync;
+    -- R5 replaces hsync.
+    --hsync <= lcd_hsync;
+    hsync <= lcd_R(5);
     vsync <= lcd_vsync;
     de <= lcd_de;
   end process;
