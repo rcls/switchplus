@@ -28,13 +28,12 @@ NET "lcd_R<1>" LOC = "P8"  | IOSTANDARD = "LVCMOS33";
 NET "lcd_R<2>" LOC = "P7"  | IOSTANDARD = "LVCMOS33";
 NET "lcd_R<3>" LOC = "P11" | IOSTANDARD = "LVCMOS33";
 NET "lcd_R<4>" LOC = "P140" | IOSTANDARD = "LVCMOS33";
-# We're actually using P34 for R<5> and P141 becomes hsync.
 NET "lcd_R<5>" LOC = "P141" | IOSTANDARD = "LVCMOS33";
-NET "lcd_R<6>" LOC = "P1"  | IOSTANDARD = "LVCMOS33";
+NET "lcd_R<6>" LOC = "P1" | IOSTANDARD = "LVCMOS33";
 NET "lcd_R<7>" LOC = "P44" | IOSTANDARD = "LVCMOS33";
 
 NET "lcd_G<0>" LOC = "P22" | IOSTANDARD = "LVCMOS33";
-NET "lcd_G<1>" LOC = "P2"  | IOSTANDARD = "LVCMOS33";
+NET "lcd_G<1>" LOC = "P2" | IOSTANDARD = "LVCMOS33";
 NET "lcd_G<2>" LOC = "P143" | IOSTANDARD = "LVCMOS33";
 NET "lcd_G<3>" LOC = "P142" | IOSTANDARD = "LVCMOS33";
 NET "lcd_G<4>" LOC = "P29" | IOSTANDARD = "LVCMOS33";
@@ -43,7 +42,6 @@ NET "lcd_G<6>" LOC = "P30" | IOSTANDARD = "LVCMOS33";
 NET "lcd_G<7>" LOC = "P27" | IOSTANDARD = "LVCMOS33";
 
 NET "lcd_B<0>" LOC = "P23" | IOSTANDARD = "LVCMOS33";
-# We actually put R<5> on this pin.
 NET "lcd_B<1>" LOC = "P34" | IOSTANDARD = "LVCMOS33";
 NET "lcd_B<2>" LOC = "P43" | IOSTANDARD = "LVCMOS33";
 NET "lcd_B<3>" LOC = "P17" | IOSTANDARD = "LVCMOS33";
@@ -54,7 +52,6 @@ NET "lcd_B<7>" LOC = "P41" | IOSTANDARD = "LVCMOS33";
 
 NET "lcd_CLK" LOC = "P14" | IOSTANDARD = "LVCMOS33";
 NET "lcd_VSYNC" LOC = "P5" | IOSTANDARD = "LVCMOS33";
-# We actually put hsync on P141 (displacing R<5>).
 NET "lcd_HSYNC" LOC = "P16" | IOSTANDARD = "LVCMOS33";
 NET "lcd_LE" LOC = "P40" | IOSTANDARD = "LVCMOS33";
 NET "lcd_DE" LOC = "P6" | IOSTANDARD = "LVCMOS33";

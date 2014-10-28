@@ -60,13 +60,12 @@ void lcd_init (void)
                       (unsigned) FRAME_BUFFER,                    // LPBASE
                       LCD_CONTROL),
 
-        // K3 is LCD_VD5 on schematic, but has gone to C13.
         // PIN_OUT_FAST(4,1,2),            // A1  LCD_VD0
         // PIN_OUT_FAST(4,3,2),            // C2  LCD_VD2
         // PIN_OUT_FAST(4,4,2),            // B1  LCD_VD1
         // PIN_OUT_FAST(4,8,2),            // E2  LCD_VD9
         // PIN_OUT_FAST(7,2,3),            // A16 LCD_VD18
-        PIN_OUT_FAST(7,3,4),            // C13 LCD_VD5 (schematic LCD_VD17).
+        // PIN_OUT_FAST(7,3,3),            // C13 LCD_VD17
         // PIN_OUT_FAST(7,4,3),            // C8  LCD_VD16
         // PIN_OUT_FAST(7,5,3),            // A7  LCD_VD8
         //PIN_OUT_FAST(,,), // B16 LCD_LE
@@ -79,9 +78,9 @@ void lcd_init (void)
         PIN_OUT_FAST(4,9,2)             // L2  LCD_VD11
         + PIN_EXTRA(1),                 // M3  LCD_VD10
         PIN_OUT_FAST(7,1,4),            // C14 LCD_VD7
-        PIN_OUT_FAST(8,6,4),            // K3  LCD_LP (C7 on schematic).
-        PIN_OUT_FAST(8,5,3),            // J1  LCD_VD6
-        PIN_OUT_FAST(8,7,3),            // K1  LCD_VD4
+        PIN_OUT_FAST(7,6,3),            // C7  LCD_LP
+        PIN_OUT_FAST(8,5,3)             // J1  LCD_VD6
+        + PIN_EXTRA(2),                 // K3  LCD_VD5, K1  LCD_VD4
         PIN_OUT_FAST(11,0,2)            // B15 LCD_VD23
         + PIN_EXTRA(6),         // ... A13 VD20, B11 VD15, A12 VD14, A6 VD19
         PIN_OUT_FAST(12,0,4),           // D4  LCD_DCLK
