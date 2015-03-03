@@ -360,7 +360,7 @@ static void _Noreturn monitor(void)
             lock_check();
             ++l;
         }
-        run_command(line, comps);
+        run_command(l, comps);
     }
 }
 
