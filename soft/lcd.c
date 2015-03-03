@@ -54,6 +54,15 @@ void lcd_init (void)
         WORD_WRITE32n(LCD->timh, 7,
                       (79 << 24) + (47 << 8) + (31 << 16) + 0xfc, // TIMH
                       (16 << 24) + (2 << 16) + (9 << 10) + 1023,  // TIMV
+                      // PCD_LO = 0, Clock divisor = 0.
+                      // CLK_SEL = 1, LCDCLKIN.
+                      // ACB = 0, N/A.
+                      // IVS=0, IHS=1, positive vsync, negative hsync (!?)
+                      // IPC=1, falling clock edge.
+                      // IOE=0, out enable positive.
+                      // CPL=1023.
+                      // BCD=1, no clock divider.
+                      // PCD_HI=0.
                       0x07ff3020,                                 // POL
                       0,                                          // LE
                       (unsigned) FRAME_BUFFER,                    // UPBASE
