@@ -100,7 +100,11 @@ void mdio_report_port(int port)
         "0AutoNeg", "Force-100", "Loopback", "Reset" };
 
     printf("Port %i", port);
-    mdio_report_word("Control    ", desc0, miim_get(port, 0));
+    unsigned miim0 = miim_get(port, 0);
+    // If bit 12 (AN enable) is set, then reset bit 13 (Force-100).
+    if (miim0 & 0x1000)
+        miim0 &= ~0x2000;
+    mdio_report_word("Control    ", desc0, miim0);
 
     static const char * const desc1[16] = {
         "+Ext.-Capable", "+Jabber-Test", "Link-Up", "0Auto-Neg",
