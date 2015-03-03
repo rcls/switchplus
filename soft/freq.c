@@ -113,6 +113,10 @@ void clock_report (void)
             printf ("\n");
     }
 
+    unsigned portsc = USB->portsc1;
+    printf("USB %sattached with %s speed\n",
+           (portsc & 1) ? "" : "not ", (portsc & 512) ? "high" : "full");
+
     unsigned base = (unsigned) &frequency;
     if (base < 0x10000000) {
         printf ("Using shadow area\n");
