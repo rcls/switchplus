@@ -8,11 +8,11 @@ all: ${BUILDS:%=main.%.bin} flash.sram.bin dfu.sram.bin
 clean:
 	-rm -f *.elf *.bin *.flasher *.boot *.o *.a *.s .deps/*.d
 
-CC=arm-linux-gnu-gcc
+CC=arm-none-eabi-gcc
 LD=$(CC)
 LDFLAGS=-nostdlib -Wl,--build-id=none -fwhole-program
-OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -flto -std=gnu11 -ffreestanding \
+OBJCOPY=arm-none-eabi-objcopy
+CFLAGS=-Os -flto -ffreestanding \
 	-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -MMD -MP -MF.deps/$@.d \
 	-fno-common -Wall -Werror
 UTILS=../utils
@@ -47,7 +47,7 @@ $(BUILDS:%=main.%.elf): $(LIBO:%=%.o)
 
 %.dfu: %
 	cp $< $@.tmp
-	/home/ralph/dfu-util/src/dfu-suffix -v 0xf055 -p 0x4c52 -a $@.tmp
+	dfu-suffix -v 0xf055 -p 0x524c -a $@.tmp
 	mv $@.tmp $@
 
 %.flasher: %.bin flash.sram.bin

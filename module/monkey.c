@@ -13,12 +13,12 @@
 static struct usb_device_id monkey_ids[] = {
     {
         .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-        | USB_DEVICE_ID_MATCH_PRODUCT
+        // | USB_DEVICE_ID_MATCH_PRODUCT
         | USB_DEVICE_ID_MATCH_INT_CLASS
         | USB_DEVICE_ID_MATCH_INT_SUBCLASS
         | USB_DEVICE_ID_MATCH_INT_PROTOCOL,
         .idVendor = 0xf055,
-        .idProduct = 0x524c,
+        // .idProduct = 0x524c,
         .bInterfaceClass = 0xff,
         .bInterfaceSubClass = 'S',
         .bInterfaceProtocol = 'S'

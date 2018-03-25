@@ -1,5 +1,5 @@
 
-CFLAGS=-O2 -g -Wall -Werror -std=gnu11 -flto -fwhole-program -MMD -MP -MF.deps/$@.d
+CFLAGS=-O2 -g -Wall -Werror -flto -MMD -MP -MF.deps/$@.d
 
 LINK.o = $(CC) $(CFLAGS) $(LDFLAGS)
 

@@ -75,8 +75,8 @@ static bool col_inhabited(const bool * s, int col)
 
 static void squaral(int dir, int L, int digits)
 {
-    //bool buffer[SPAN * SPAN];
-    bool * buffer = malloc(SPAN * SPAN);
+    bool buffer[SPAN * SPAN];
+    // bool * buffer = malloc(SPAN * SPAN);
     memset(buffer, 0, SPAN * SPAN);
     bool * start = buffer + (SPAN + 1) * SPAN / 2;
     bool * finish = draw (buffer + (SPAN + 1) * SPAN / 2, dir, L);
