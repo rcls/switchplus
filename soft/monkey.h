@@ -1,4 +1,4 @@
-// The monkey logger.  Sends stuff to serial and/or a USB serial.
+// The monkey logger.  Sends stuff to USB serial.
 #ifndef MONKEY_H_
 #define MONKEY_H_
 
@@ -23,11 +23,6 @@ int peekchar_nb (void);
 int hex_nibble(int c);
 void _Noreturn drop_line_restart(const char * s, int c);
 void get_hex_block(unsigned char * p, int len);
-
-void gpdma_interrupt (void);
-
-void monkey_ssp_on(void);
-void monkey_ssp_off(void);
 
 #define CLR "\r\e[K"
 

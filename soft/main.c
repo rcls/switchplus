@@ -4,13 +4,11 @@
 #include "configure.h"
 #include "freq.h"
 #include "jtag.h"
-#include "lcd.h"
 #include "monitor.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
 #include "spirom.h"
-#include "square.h"
 #include "switch.h"
 #include "usb.h"
 
@@ -337,20 +335,14 @@ void initial_program(void)
             clock_report();
             break;
         case 'h': case '?':
-            puts("<d>ebug, <f>req, <j>tag, <m>emtest, <p>retty, <s>pi\n"
+            puts("<d>ebug, <f>req, <j>tag, <p>retty, <s>pi\n"
                  "<r>eset, <R>eboot, df<u>, <v>erbose\n");
             break;
         case 'j':
             jtag_cmd();
             break;
-        case 'm':
-            memtest();
-            break;
         case 'M':
             run_monitor();
-            break;
-        case 'p':
-            square_interact();
             break;
         case 's':
             spirom_command();
@@ -920,7 +912,7 @@ static void _Noreturn main (void)
 
     init_switch();
 
-    monkey_ssp_on();                    // Enables interrupts.
+    __interrupt_enable();
 
     disable_clocks();
 
@@ -931,10 +923,6 @@ static void _Noreturn main (void)
     NVIC_ISER[0] = 0x00000124;
     NVIC_ISER[1] = 1 << 10;             // Enable event router interrupt.
 
-    lcd_init();
-
-    square_draw9();
-
     restart_program("");
 }
 
@@ -944,9 +932,7 @@ void * start[64] = {
     [0] = (void*) 0x10089fe0,
     [1] = main,
 
-    [16 + m4_dma]      = gpdma_interrupt,
     [16 + m4_ethernet] = eth_interrupt,
-    [16 + m4_lcd]      = lcd_interrupt,
     [16 + m4_usb0]     = usb_interrupt,
     [16 + m4_switch]   = switch_interrupt,
 

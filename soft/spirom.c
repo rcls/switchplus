@@ -14,8 +14,6 @@ static bool buffer_select;
 
 static void spi_start(unsigned op)
 {
-    monkey_ssp_off();
-
     SSP1->cr0 = 0x4f07;                  // divide-by-80 (1MHz), 8 bits.
 
     *ROM_CS = 0;
@@ -29,8 +27,6 @@ static void spi_end(void)
     *ROM_CS = 1;
 
     SSP1->cr0 = 0x0007;                  // divide-by-1.
-
-    monkey_ssp_on();
 }
 
 
