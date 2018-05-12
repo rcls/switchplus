@@ -19,7 +19,7 @@ UTILS=../utils
 
 -include .deps/*.d
 
-LIBO=callback configure freq jtag monitor monkey sdram spirom switch usb
+LIBO=callback configure discus freq jtag monitor monkey sdram spirom switch usb
 
 $(BUILDS:%=main.%.elf) main.sram.elf: $(LIBO:%=%.o)
 

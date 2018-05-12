@@ -2,13 +2,13 @@
 
 #include "callback.h"
 #include "configure.h"
+#include "discus.h"
 #include "freq.h"
 #include "jtag.h"
 #include "monitor.h"
 #include "monkey.h"
 #include "registers.h"
 #include "sdram.h"
-#include "spirom.h"
 #include "switch.h"
 #include "usb.h"
 
@@ -328,6 +328,9 @@ void initial_program(void)
             debug_flag = !debug_flag;
             puts (debug_flag ? "Debug on\n" : "Debug off\n");
             break;
+        case 'D':
+            discus_go();
+            break;
         case 'e':
             mdio_report_all();
             break;
@@ -343,9 +346,6 @@ void initial_program(void)
             break;
         case 'M':
             run_monitor();
-            break;
-        case 's':
-            spirom_command();
             break;
         case 'r':
             puts ("Reset!\n");
